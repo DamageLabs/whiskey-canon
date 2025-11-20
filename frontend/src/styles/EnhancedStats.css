@@ -1,0 +1,241 @@
+.enhanced-stats {
+  margin-bottom: 2rem;
+}
+
+.enhanced-stats .nav-tabs {
+  border-bottom: 2px solid #5B9BD5;
+}
+
+.enhanced-stats .nav-link {
+  color: #6c757d;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.enhanced-stats .nav-link:hover {
+  color: #5B9BD5;
+  border: none;
+}
+
+.enhanced-stats .nav-link.active {
+  color: #5B9BD5;
+  background: transparent;
+  border: none;
+  border-bottom: 3px solid #5B9BD5;
+}
+
+.stats-content {
+  animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Stat Cards */
+.stat-card {
+  background: white;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 1.5rem;
+  text-align: center;
+  transition: all 0.3s ease;
+  height: 100%;
+}
+
+.stat-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.stat-card-success {
+  border-color: #70AD47;
+  background: linear-gradient(135deg, #ffffff 0%, #f0f8f0 100%);
+}
+
+.stat-card-danger {
+  border-color: #C5504B;
+  background: linear-gradient(135deg, #ffffff 0%, #fff0f0 100%);
+}
+
+.stat-card-warning {
+  border-color: #FFC000;
+  background: linear-gradient(135deg, #ffffff 0%, #fffbf0 100%);
+}
+
+.stat-card-info {
+  border-color: #5B9BD5;
+  background: linear-gradient(135deg, #ffffff 0%, #f0f6fc 100%);
+}
+
+.stat-label {
+  font-size: 0.875rem;
+  color: #6c757d;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+}
+
+.stat-value {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #333;
+  line-height: 1.2;
+  margin-bottom: 0.25rem;
+}
+
+.stat-card-success .stat-value {
+  color: #70AD47;
+}
+
+.stat-card-danger .stat-value {
+  color: #C5504B;
+}
+
+.stat-card-warning .stat-value {
+  color: #FFC000;
+}
+
+.stat-card-info .stat-value {
+  color: #5B9BD5;
+}
+
+.stat-sublabel {
+  font-size: 0.875rem;
+  color: #6c757d;
+}
+
+/* Mini Stats */
+.stat-mini {
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 1rem;
+  transition: all 0.3s ease;
+}
+
+.stat-mini:hover {
+  background: #e9ecef;
+  transform: scale(1.05);
+}
+
+.stat-mini-warning {
+  background: #fff8e1;
+  border: 1px solid #FFC000;
+}
+
+.stat-mini-value {
+  font-size: 1.75rem;
+  font-weight: bold;
+  color: #333;
+  line-height: 1;
+  margin-bottom: 0.5rem;
+}
+
+.stat-mini-label {
+  font-size: 0.875rem;
+  color: #6c757d;
+  font-weight: 500;
+}
+
+/* Cards */
+.enhanced-stats .card {
+  border: none;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.enhanced-stats .card-header {
+  background: linear-gradient(135deg, #5B9BD5 0%, #83B4E0 100%);
+  color: white;
+  border: none;
+  padding: 1rem 1.5rem;
+  font-weight: 600;
+}
+
+.enhanced-stats .card-body {
+  padding: 1.5rem;
+}
+
+/* Tables */
+.enhanced-stats .table {
+  margin-bottom: 0;
+}
+
+.enhanced-stats .table thead th {
+  background: #f8f9fa;
+  color: #495057;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.875rem;
+  letter-spacing: 0.5px;
+  border-bottom: 2px solid #5B9BD5;
+  padding: 0.75rem;
+}
+
+.enhanced-stats .table tbody tr {
+  transition: all 0.2s ease;
+}
+
+.enhanced-stats .table tbody tr:hover {
+  background: #f8f9fa;
+  transform: scale(1.01);
+}
+
+.enhanced-stats .table tbody td {
+  padding: 0.75rem;
+  vertical-align: middle;
+}
+
+/* Recharts overrides */
+.enhanced-stats .recharts-wrapper {
+  margin: 0 auto;
+}
+
+.enhanced-stats .recharts-legend-wrapper {
+  padding-top: 1rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .enhanced-stats .nav-link {
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+  }
+
+  .stat-value {
+    font-size: 1.5rem;
+  }
+
+  .stat-label {
+    font-size: 0.75rem;
+  }
+
+  .stat-mini-value {
+    font-size: 1.25rem;
+  }
+
+  .enhanced-stats .table {
+    font-size: 0.875rem;
+  }
+
+  .enhanced-stats .card-body {
+    padding: 1rem;
+  }
+}
+
+/* Loading spinner */
+.spinner-border {
+  width: 3rem;
+  height: 3rem;
+}

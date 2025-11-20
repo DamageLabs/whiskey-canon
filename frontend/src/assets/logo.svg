@@ -1,0 +1,77 @@
+<svg width="200" height="60" viewBox="0 0 200 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Glencairn Glass -->
+  <g transform="translate(6, 3)">
+    <!-- Heavy base - wide and substantial -->
+    <ellipse cx="13" cy="48" rx="8" ry="2.5"
+             fill="#8B6F47"
+             stroke="#6B5435"
+             stroke-width="1"/>
+    <path d="M 5 48 L 5 46 Q 5 45 13 45 Q 21 45 21 46 L 21 48"
+          fill="#A0826D"
+          stroke="#6B5435"
+          stroke-width="1"/>
+
+    <!-- Short taper from base to bowl -->
+    <path d="M 8 45 L 9.5 38 L 16.5 38 L 18 45"
+          fill="#D4C5B0"
+          stroke="#8B6F47"
+          stroke-width="1.2"/>
+
+    <!-- Bowl - narrow at bottom, wide in middle, narrow at top -->
+    <!-- Bottom third - starts narrow -->
+    <path d="M 9.5 38 Q 8 35 7.5 30 Q 7.5 25 8 20 Q 9 15 10 12 Q 10.5 10 11.5 8
+             L 14.5 8 Q 15.5 10 16 12 Q 17 15 18 20 Q 18.5 25 18.5 30 Q 18 35 16.5 38 Z"
+          fill="rgba(232, 220, 200, 0.85)"
+          stroke="#8B6F47"
+          stroke-width="1.2"/>
+
+    <!-- Top rim - slightly flared -->
+    <ellipse cx="13" cy="8" rx="3.5" ry="1"
+             fill="#E8DCC8"
+             stroke="#8B6F47"
+             stroke-width="1.2"/>
+
+    <!-- Whiskey liquid - fills lower portion of bowl -->
+    <path d="M 10 32 Q 9 30 8.5 26 Q 8.5 24 9 22
+             L 17 22 Q 17.5 24 17.5 26 Q 17 30 16 32 Z"
+          fill="#B8860B"
+          opacity="0.8"/>
+    <ellipse cx="13" cy="32" rx="3" ry="1"
+             fill="#C9941E"
+             opacity="0.9"/>
+
+    <!-- Glass highlight on left side -->
+    <path d="M 10 10 Q 9 15 8.5 22"
+          stroke="#FFFFFF"
+          stroke-width="1.3"
+          opacity="0.5"
+          stroke-linecap="round"
+          fill="none"/>
+
+    <!-- Secondary highlight -->
+    <ellipse cx="10.5" cy="14" rx="0.8" ry="2"
+             fill="#FFFFFF"
+             opacity="0.3"/>
+  </g>
+
+  <!-- Text: WHISKEY -->
+  <text x="50" y="28"
+        font-family="Arial, sans-serif"
+        font-size="18"
+        font-weight="bold"
+        fill="#2C3E50"
+        letter-spacing="1">WHISKEY</text>
+
+  <!-- Text: CANON -->
+  <text x="50" y="48"
+        font-family="Georgia, serif"
+        font-size="16"
+        font-weight="normal"
+        fill="#8B6F47"
+        letter-spacing="2">CANON</text>
+
+  <!-- Decorative line -->
+  <line x1="50" y1="32" x2="145" y2="32"
+        stroke="#D4A574"
+        stroke-width="1"/>
+</svg>

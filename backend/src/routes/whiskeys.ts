@@ -272,6 +272,19 @@ router.post(
         return result;
       };
 
+      // Helper function to map OnlyDrams subcategory to whiskey type
+      const mapSubcategoryToType = (subcategory: string): string => {
+        const sub = subcategory.toLowerCase();
+        if (sub === 'bourbon') return 'bourbon';
+        if (sub === 'rye') return 'rye';
+        if (sub.includes('single malt') || sub.includes('blended') || sub.includes('single grain')) return 'scotch';
+        if (sub.includes('tennessee')) return 'tennessee';
+        if (sub.includes('canadian')) return 'canadian';
+        if (sub.includes('irish')) return 'irish';
+        if (sub.includes('japanese')) return 'japanese';
+        return 'other';
+      };
+
       // Parse data rows and create whiskeys
       const imported: any[] = [];
       const errors: string[] = [];
@@ -297,6 +310,13 @@ router.post(
                 break;
               case 'Type':
                 whiskeyData.type = value.toLowerCase();
+                break;
+              case 'Subcategory':
+                // OnlyDrams field - map subcategory to type
+                whiskeyData.type = mapSubcategoryToType(value);
+                break;
+              case 'Category':
+                // OnlyDrams field - skip category, we use subcategory
                 break;
               case 'Distillery':
                 whiskeyData.distillery = value;
@@ -326,12 +346,18 @@ router.post(
                 whiskeyData.msrp = parseFloat(value);
                 break;
               case 'Secondary Price':
+              case 'Secondary':
+                // OnlyDrams uses "Secondary" field name
                 whiskeyData.secondary_price = parseFloat(value);
                 break;
               case 'Purchase Date':
                 whiskeyData.purchase_date = value;
                 break;
               case 'Purchase Price':
+                whiskeyData.purchase_price = parseFloat(value);
+                break;
+              case 'Paid':
+                // OnlyDrams field for purchase price
                 whiskeyData.purchase_price = parseFloat(value);
                 break;
               case 'Purchase Location':
@@ -442,8 +468,41 @@ router.post(
               case 'Private Notes':
                 whiskeyData.private_notes = value;
                 break;
+              case 'Rarity':
+                // OnlyDrams field - append rarity to private notes
+                whiskeyData.private_notes = (whiskeyData.private_notes || '') +
+                  (whiskeyData.private_notes ? '\n' : '') + `Rarity: ${value}`;
+                break;
+              case 'Notes':
+                // OnlyDrams field - append to private notes
+                if (value) {
+                  whiskeyData.private_notes = (whiskeyData.private_notes || '') +
+                    (whiskeyData.private_notes ? '\n' : '') + value;
+                }
+                break;
             }
           });
+
+          // OnlyDrams conversions
+          // Calculate ABV from Proof if ABV not provided
+          if (whiskeyData.proof && !whiskeyData.abv) {
+            whiskeyData.abv = whiskeyData.proof / 2;
+          }
+
+          // Convert OnlyDrams Status to is_opened
+          if (whiskeyData.status && whiskeyData.is_opened === undefined) {
+            const status = whiskeyData.status.toLowerCase();
+            if (status === 'unopened') {
+              whiskeyData.is_opened = false;
+            } else if (status === 'opened') {
+              whiskeyData.is_opened = true;
+            }
+          }
+
+          // For guntharp user, set quantity to 1 if it's 0
+          if (req.user!.username === 'guntharp' && whiskeyData.quantity === 0) {
+            whiskeyData.quantity = 1;
+          }
 
           // Validate required fields
           if (!whiskeyData.name || !whiskeyData.type || !whiskeyData.distillery) {
@@ -538,8 +597,14 @@ router.post(
     }
 
     try {
+      // For guntharp user, set quantity to 1 if it's 0
+      const whiskeyData = { ...req.body };
+      if (req.user!.username === 'guntharp' && whiskeyData.quantity === 0) {
+        whiskeyData.quantity = 1;
+      }
+
       const whiskey = WhiskeyModel.create({
-        ...req.body,
+        ...whiskeyData,
         created_by: req.user!.id
       });
 
@@ -581,8 +646,14 @@ router.put(
     }
 
     try {
-      console.log('Updating whiskey with data:', req.body);
-      const whiskey = WhiskeyModel.update(parseInt(req.params.id), req.body, req.user!.id);
+      // For guntharp user, set quantity to 1 if it's 0
+      const whiskeyData = { ...req.body };
+      if (req.user!.username === 'guntharp' && whiskeyData.quantity === 0) {
+        whiskeyData.quantity = 1;
+      }
+
+      console.log('Updating whiskey with data:', whiskeyData);
+      const whiskey = WhiskeyModel.update(parseInt(req.params.id), whiskeyData, req.user!.id);
 
       if (!whiskey) {
         return res.status(404).json({ error: 'Whiskey not found or you do not have permission to update it' });

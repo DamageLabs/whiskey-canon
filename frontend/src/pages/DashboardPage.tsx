@@ -130,7 +130,7 @@ export function DashboardPage() {
       {/* Header */}
       <nav className="navbar shadow-sm" style={{ backgroundColor: '#5B9BD5' }}>
         <div className="container-fluid px-4">
-          <div className="navbar-brand mb-0 d-flex align-items-center gap-3">
+          <div className="navbar-brand mb-0 d-flex align-items-center gap-3" onClick={() => navigate('/dashboard')} style={{ cursor: 'pointer' }}>
             <img src={logoSvg} alt="Whiskey Canon" height="50" />
             <div className="d-flex flex-column">
               <span className="h4 mb-0 text-white">WHISKEY</span>

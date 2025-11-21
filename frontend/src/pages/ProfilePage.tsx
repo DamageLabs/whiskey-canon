@@ -262,7 +262,7 @@ export default function ProfilePage() {
       {/* Navigation Bar */}
       <nav className="navbar shadow-sm mb-4" style={{ backgroundColor: '#5B9BD5' }}>
         <div className="container-fluid px-4">
-          <div className="navbar-brand mb-0 d-flex align-items-center gap-3">
+          <div className="navbar-brand mb-0 d-flex align-items-center gap-3" onClick={() => navigate('/dashboard')} style={{ cursor: 'pointer' }}>
             <span className="h4 mb-0 text-white">My Profile</span>
           </div>
           <div className="d-flex align-items-center gap-3">

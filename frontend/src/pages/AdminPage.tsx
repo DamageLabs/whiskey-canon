@@ -236,7 +236,7 @@ export function AdminPage() {
       {/* Header */}
       <nav className="navbar shadow-sm" style={{ backgroundColor: '#5B9BD5' }}>
         <div className="container-fluid px-4">
-          <div className="navbar-brand mb-0 d-flex align-items-center gap-3">
+          <div className="navbar-brand mb-0 d-flex align-items-center gap-3" onClick={() => navigate('/dashboard')} style={{ cursor: 'pointer' }}>
             <span className="h4 mb-0 text-white">Admin Panel</span>
           </div>
           <div className="d-flex align-items-center gap-3">

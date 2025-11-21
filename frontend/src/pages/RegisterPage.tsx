@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Footer } from '../components/Footer';
 import logoSvg from '../assets/glencairn.webp';
 
 export function RegisterPage() {
@@ -156,8 +155,6 @@ export function RegisterPage() {
           </p>
         </div>
       </div>
-
-      <Footer />
     </div>
   );
 }

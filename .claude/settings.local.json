@@ -21,7 +21,10 @@
       "Bash(node -e:*)",
       "Bash(lsof:*)",
       "Bash(nginx -t:*)",
-      "Bash(systemctl reload:*)"
+      "Bash(systemctl reload:*)",
+      "Bash(npm run dev:*)",
+      "Bash(/tmp/login.json)",
+      "Bash(xargs kill:*)"
     ],
     "deny": [],
     "ask": []

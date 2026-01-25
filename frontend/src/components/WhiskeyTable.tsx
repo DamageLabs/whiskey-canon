@@ -64,7 +64,7 @@ export function WhiskeyTable({ whiskeys, onRowClick, onEdit, onDelete }: Whiskey
   return (
     <div className="table-responsive">
       <table className="table table-hover table-striped align-middle">
-        <thead style={{ backgroundColor: '#5B9BD5', color: 'white' }}>
+        <thead style={{ backgroundColor: 'var(--amber-500)', color: 'white' }}>
           <tr>
             <th onClick={() => handleSort('name')} style={{ cursor: 'pointer', userSelect: 'none' }}>
               Name {renderSortIcon('name')}
@@ -109,9 +109,9 @@ export function WhiskeyTable({ whiskeys, onRowClick, onEdit, onDelete }: Whiskey
               onClick={() => onRowClick(whiskey)}
               style={{ cursor: 'pointer' }}
             >
-              <td className="fw-bold" style={{ color: '#5B9BD5' }}>{whiskey.name}</td>
+              <td className="fw-bold" style={{ color: 'var(--amber-500)' }}>{whiskey.name}</td>
               <td>
-                <span className="badge text-capitalize text-white" style={{ backgroundColor: '#5B9BD5' }}>{whiskey.type}</span>
+                <span className="badge text-capitalize text-white" style={{ backgroundColor: 'var(--amber-500)' }}>{whiskey.type}</span>
               </td>
               <td>{whiskey.distillery}</td>
               <td>{whiskey.region || '-'}</td>
@@ -129,7 +129,7 @@ export function WhiskeyTable({ whiskeys, onRowClick, onEdit, onDelete }: Whiskey
                       <button
                         onClick={() => onEdit(whiskey)}
                         className="btn"
-                        style={{ borderColor: '#5B9BD5', color: '#5B9BD5' }}
+                        style={{ borderColor: 'var(--amber-500)', color: 'var(--amber-500)' }}
                         title="Edit"
                       >
                         Edit

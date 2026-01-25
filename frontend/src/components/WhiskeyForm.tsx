@@ -1038,7 +1038,7 @@ export function WhiskeyForm({ whiskey, onClose, onSuccess }: WhiskeyFormProps) {
               type="submit"
               form="whiskeyForm"
               className="btn text-white"
-              style={{ backgroundColor: '#5B9BD5' }}
+              style={{ backgroundColor: 'var(--amber-500)' }}
               disabled={loading}
             >
               {loading ? (

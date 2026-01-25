@@ -1,11 +1,12 @@
 .detail-modal-content {
-  background: white;
+  background: var(--zinc-800);
   border-radius: 12px;
   max-width: 800px;
   width: 100%;
   max-height: 90vh;
   overflow-y: auto;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  border: 1px solid var(--zinc-700);
 }
 
 .detail-modal-header {
@@ -13,19 +14,24 @@
   justify-content: space-between;
   align-items: center;
   padding: 24px;
-  border-bottom: 2px solid #f0f0f0;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
+  border-bottom: 1px solid var(--zinc-700);
+  background: var(--zinc-900);
+  color: var(--zinc-100);
   border-radius: 12px 12px 0 0;
 }
 
 .detail-modal-header h2 {
   margin: 0;
   font-size: 28px;
+  color: var(--amber-500);
 }
 
 .detail-modal-header .close-btn {
-  color: white;
+  color: var(--zinc-400);
+}
+
+.detail-modal-header .close-btn:hover {
+  color: var(--zinc-100);
 }
 
 .detail-modal-body {
@@ -37,14 +43,14 @@
 }
 
 .detail-section h3 {
-  color: #667eea;
+  color: var(--amber-500);
   font-size: 18px;
   margin-bottom: 12px;
   font-weight: 600;
 }
 
 .detail-section p {
-  color: #555;
+  color: var(--zinc-300);
   line-height: 1.7;
   margin: 0;
 }
@@ -55,7 +61,7 @@
 
 .detail-badge .whiskey-type {
   display: inline-block;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--amber-600);
   color: white;
   padding: 8px 16px;
   border-radius: 20px;
@@ -78,7 +84,7 @@
 }
 
 .detail-label {
-  color: #666;
+  color: var(--zinc-500);
   font-size: 13px;
   font-weight: 500;
   text-transform: uppercase;
@@ -86,16 +92,16 @@
 }
 
 .detail-value {
-  color: #333;
+  color: var(--zinc-100);
   font-size: 16px;
   font-weight: 600;
 }
 
 .tasting-section {
-  background: #f0f4ff;
+  background: rgba(245, 158, 11, 0.1);
   padding: 16px;
   border-radius: 8px;
-  border-left: 4px solid #667eea;
+  border-left: 4px solid var(--amber-500);
 }
 
 .tasting-section h3 {
@@ -106,42 +112,43 @@
   display: flex;
   gap: 12px;
   padding-top: 24px;
-  border-top: 2px solid #f0f0f0;
+  border-top: 1px solid var(--zinc-700);
 }
 
 .detail-actions .btn-primary {
   flex: 1;
   padding: 12px 24px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--amber-600);
   color: white;
   border: none;
   border-radius: 8px;
   font-size: 16px;
   font-weight: 600;
   cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition: all 0.2s;
 }
 
 .detail-actions .btn-primary:hover {
+  background: var(--amber-700);
   transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+  box-shadow: 0 5px 15px rgba(217, 119, 6, 0.4);
 }
 
 .detail-actions .btn-delete {
   flex: 1;
   padding: 12px 24px;
-  background: #ef4444;
+  background: var(--red-600);
   color: white;
   border: none;
   border-radius: 8px;
   font-size: 16px;
   font-weight: 600;
   cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition: all 0.2s;
 }
 
 .detail-actions .btn-delete:hover {
-  background: #dc2626;
+  background: #b91c1c;
   transform: translateY(-2px);
   box-shadow: 0 5px 15px rgba(239, 68, 68, 0.4);
 }

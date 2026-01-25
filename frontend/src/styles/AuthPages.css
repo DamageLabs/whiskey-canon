@@ -3,29 +3,30 @@
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--zinc-950);
   padding: 20px;
 }
 
 .auth-card {
-  background: white;
+  background: var(--zinc-800);
   border-radius: 12px;
   padding: 40px;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
   width: 100%;
   max-width: 450px;
+  border: 1px solid var(--zinc-700);
 }
 
 .auth-card h1 {
   text-align: center;
-  color: #667eea;
+  color: var(--amber-500);
   margin-bottom: 10px;
   font-size: 32px;
 }
 
 .auth-card h2 {
   text-align: center;
-  color: #333;
+  color: var(--zinc-100);
   margin-bottom: 30px;
   font-size: 24px;
   font-weight: 500;
@@ -38,68 +39,77 @@
 .form-group label {
   display: block;
   margin-bottom: 8px;
-  color: #555;
+  color: var(--zinc-300);
   font-weight: 500;
 }
 
 .form-group input {
   width: 100%;
   padding: 12px;
-  border: 2px solid #e0e0e0;
+  border: 1px solid var(--zinc-700);
   border-radius: 8px;
   font-size: 16px;
-  transition: border-color 0.3s;
+  background: var(--zinc-800);
+  color: var(--zinc-100);
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.form-group input::placeholder {
+  color: var(--zinc-500);
 }
 
 .form-group input:focus {
   outline: none;
-  border-color: #667eea;
+  border-color: var(--amber-500);
+  box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.2);
 }
 
 .btn-primary {
   width: 100%;
   padding: 14px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--amber-600);
   color: white;
   border: none;
   border-radius: 8px;
   font-size: 16px;
   font-weight: 600;
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition: all 0.2s;
   margin-top: 10px;
 }
 
 .btn-primary:hover:not(:disabled) {
+  background: var(--amber-700);
   transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+  box-shadow: 0 5px 15px rgba(217, 119, 6, 0.4);
 }
 
 .btn-primary:disabled {
-  opacity: 0.6;
+  opacity: 0.5;
   cursor: not-allowed;
 }
 
 .error {
-  background: #fee;
-  color: #c33;
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--red-400);
   padding: 12px;
   border-radius: 8px;
   margin-bottom: 20px;
-  border-left: 4px solid #c33;
+  border: 1px solid rgba(239, 68, 68, 0.3);
 }
 
 .auth-link {
   text-align: center;
   margin-top: 20px;
-  color: #666;
+  color: var(--zinc-400);
 }
 
 .auth-link a {
-  color: #667eea;
+  color: var(--amber-500);
   text-decoration: none;
   font-weight: 600;
 }
 
 .auth-link a:hover {
+  color: var(--amber-400);
   text-decoration: underline;
 }

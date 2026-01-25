@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 
 export function Footer() {
   return (
-    <footer className="mt-auto py-4" style={{ backgroundColor: '#5B9BD5', color: 'white' }}>
+    <footer className="mt-auto py-4" style={{ backgroundColor: 'var(--zinc-900)', color: 'var(--zinc-300)', borderTop: '1px solid var(--zinc-800)' }}>
       <div className="container-fluid px-4">
         <div className="row">
           <div className="col-12 text-center">
@@ -13,11 +13,11 @@ export function Footer() {
               © 2025 Whiskey Canon. All rights reserved.
             </p>
             <p className="mb-0 small">
-              <Link to="/privacy" className="text-white text-decoration-none me-3" style={{ opacity: 0.8 }}>
+              <Link to="/privacy" className="text-decoration-none me-3" style={{ color: 'var(--amber-500)' }}>
                 Privacy Policy
               </Link>
-              <span style={{ opacity: 0.5 }}>|</span>
-              <Link to="/terms" className="text-white text-decoration-none ms-3" style={{ opacity: 0.8 }}>
+              <span style={{ color: 'var(--zinc-600)' }}>|</span>
+              <Link to="/terms" className="text-decoration-none ms-3" style={{ color: 'var(--amber-500)' }}>
                 Terms of Service
               </Link>
             </p>

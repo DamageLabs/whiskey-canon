@@ -1,21 +1,17 @@
 import { useNavigate } from 'react-router-dom';
 import { Footer } from '../components/Footer';
-import logoSvg from '../assets/glencairn.webp';
 
 export function TermsOfServicePage() {
   const navigate = useNavigate();
 
   return (
-    <div className="min-vh-100" style={{ backgroundColor: '#f8f9fa' }}>
+    <div className="min-vh-100" style={{ backgroundColor: 'var(--zinc-950)' }}>
       {/* Header */}
-      <nav className="navbar shadow-sm" style={{ backgroundColor: '#5B9BD5' }}>
+      <nav className="navbar shadow-sm" style={{ backgroundColor: 'var(--zinc-900)', borderBottom: '1px solid var(--zinc-800)' }}>
         <div className="container-fluid px-4">
-          <div className="navbar-brand mb-0 d-flex align-items-center gap-3" onClick={() => navigate('/dashboard')} style={{ cursor: 'pointer' }}>
-            <img src={logoSvg} alt="Whiskey Canon" height="50" />
-            <div className="d-flex flex-column">
-              <span className="h4 mb-0 text-white">WHISKEY</span>
-              <span className="text-white-50" style={{ fontSize: '0.9rem', letterSpacing: '0.1em' }}>CANON</span>
-            </div>
+          <div className="navbar-brand mb-0 d-flex align-items-center gap-2" onClick={() => navigate('/dashboard')} style={{ cursor: 'pointer' }}>
+            <span style={{ fontSize: '2rem' }}>🥃</span>
+            <span className="fw-bold" style={{ color: 'var(--zinc-100)' }}>Whiskey Canon</span>
           </div>
           <div className="d-flex align-items-center gap-3">
             <button onClick={() => navigate(-1)} className="btn btn-outline-light btn-sm">
@@ -31,13 +27,13 @@ export function TermsOfServicePage() {
           <div className="col-lg-10">
             <div className="card shadow-sm">
               <div className="card-body p-5">
-                <h1 className="mb-4" style={{ color: '#5B9BD5' }}>Terms of Service</h1>
+                <h1 className="mb-4" style={{ color: 'var(--amber-500)' }}>Terms of Service</h1>
                 <p className="text-muted">Last updated: November 17, 2025</p>
 
                 <hr className="my-4" />
 
                 <section className="mb-4">
-                  <h2 className="h4 mb-3" style={{ color: '#5B9BD5' }}>1. Acceptance of Terms</h2>
+                  <h2 className="h4 mb-3" style={{ color: 'var(--amber-500)' }}>1. Acceptance of Terms</h2>
                   <p>
                     Welcome to Whiskey Canon. By accessing or using our whiskey collection management application
                     ("Service"), you agree to be bound by these Terms of Service ("Terms"). If you do not agree to
@@ -51,7 +47,7 @@ export function TermsOfServicePage() {
                 </section>
 
                 <section className="mb-4">
-                  <h2 className="h4 mb-3" style={{ color: '#5B9BD5' }}>2. Age Requirement</h2>
+                  <h2 className="h4 mb-3" style={{ color: 'var(--amber-500)' }}>2. Age Requirement</h2>
                   <p>
                     You must be at least 21 years of age (the legal drinking age in the United States) to use this
                     Service. By using the Service, you represent and warrant that you meet this age requirement.
@@ -64,7 +60,7 @@ export function TermsOfServicePage() {
                 </section>
 
                 <section className="mb-4">
-                  <h2 className="h4 mb-3" style={{ color: '#5B9BD5' }}>3. Account Registration</h2>
+                  <h2 className="h4 mb-3" style={{ color: 'var(--amber-500)' }}>3. Account Registration</h2>
                   <p>To use the Service, you must create an account. You agree to:</p>
                   <ul>
                     <li>Provide accurate, current, and complete information during registration</li>
@@ -80,7 +76,7 @@ export function TermsOfServicePage() {
                 </section>
 
                 <section className="mb-4">
-                  <h2 className="h4 mb-3" style={{ color: '#5B9BD5' }}>4. User Roles and Permissions</h2>
+                  <h2 className="h4 mb-3" style={{ color: 'var(--amber-500)' }}>4. User Roles and Permissions</h2>
                   <p>Our Service includes different user roles with varying levels of access:</p>
                   <ul>
                     <li><strong>Viewer:</strong> Can view their own whiskey collection</li>
@@ -94,7 +90,7 @@ export function TermsOfServicePage() {
                 </section>
 
                 <section className="mb-4">
-                  <h2 className="h4 mb-3" style={{ color: '#5B9BD5' }}>5. Acceptable Use</h2>
+                  <h2 className="h4 mb-3" style={{ color: 'var(--amber-500)' }}>5. Acceptable Use</h2>
                   <p>You agree to use the Service only for lawful purposes. You must not:</p>
                   <ul>
                     <li>Violate any local, state, national, or international law</li>
@@ -111,7 +107,7 @@ export function TermsOfServicePage() {
                 </section>
 
                 <section className="mb-4">
-                  <h2 className="h4 mb-3" style={{ color: '#5B9BD5' }}>6. User Content</h2>
+                  <h2 className="h4 mb-3" style={{ color: 'var(--amber-500)' }}>6. User Content</h2>
                   <p>
                     You retain ownership of the content you submit to the Service, including whiskey information,
                     ratings, tasting notes, and photos ("User Content"). By submitting User Content, you grant us
@@ -131,7 +127,7 @@ export function TermsOfServicePage() {
                 </section>
 
                 <section className="mb-4">
-                  <h2 className="h4 mb-3" style={{ color: '#5B9BD5' }}>7. Intellectual Property</h2>
+                  <h2 className="h4 mb-3" style={{ color: 'var(--amber-500)' }}>7. Intellectual Property</h2>
                   <p>
                     The Service, including its design, functionality, text, graphics, logos, and software, is owned
                     by Whiskey Canon and protected by copyright, trademark, and other intellectual property laws.
@@ -144,7 +140,7 @@ export function TermsOfServicePage() {
                 </section>
 
                 <section className="mb-4">
-                  <h2 className="h4 mb-3" style={{ color: '#5B9BD5' }}>8. Data Export and Portability</h2>
+                  <h2 className="h4 mb-3" style={{ color: 'var(--amber-500)' }}>8. Data Export and Portability</h2>
                   <p>
                     We provide tools to export your whiskey collection data in CSV format. You may export your
                     data at any time through your account settings. This ensures you maintain access to your
@@ -153,7 +149,7 @@ export function TermsOfServicePage() {
                 </section>
 
                 <section className="mb-4">
-                  <h2 className="h4 mb-3" style={{ color: '#5B9BD5' }}>9. Third-Party Links and Services</h2>
+                  <h2 className="h4 mb-3" style={{ color: 'var(--amber-500)' }}>9. Third-Party Links and Services</h2>
                   <p>
                     The Service may contain links to third-party websites or services. We are not responsible
                     for the content, privacy practices, or terms of service of any third-party sites. We do not
@@ -165,7 +161,7 @@ export function TermsOfServicePage() {
                 </section>
 
                 <section className="mb-4">
-                  <h2 className="h4 mb-3" style={{ color: '#5B9BD5' }}>10. Service Availability</h2>
+                  <h2 className="h4 mb-3" style={{ color: 'var(--amber-500)' }}>10. Service Availability</h2>
                   <p>
                     We strive to provide reliable, uninterrupted service, but we cannot guarantee that the Service
                     will always be available or error-free. The Service may be unavailable due to:
@@ -183,7 +179,7 @@ export function TermsOfServicePage() {
                 </section>
 
                 <section className="mb-4">
-                  <h2 className="h4 mb-3" style={{ color: '#5B9BD5' }}>11. Pricing and Payment</h2>
+                  <h2 className="h4 mb-3" style={{ color: 'var(--amber-500)' }}>11. Pricing and Payment</h2>
                   <p>
                     Currently, Whiskey Canon is provided free of charge. We reserve the right to introduce paid
                     features, subscriptions, or premium services in the future. If we do, we will provide advance
@@ -196,7 +192,7 @@ export function TermsOfServicePage() {
                 </section>
 
                 <section className="mb-4">
-                  <h2 className="h4 mb-3" style={{ color: '#5B9BD5' }}>12. Termination</h2>
+                  <h2 className="h4 mb-3" style={{ color: 'var(--amber-500)' }}>12. Termination</h2>
                   <p>
                     You may terminate your account at any time by contacting us or using the account deletion
                     feature in your settings. Upon termination, your right to use the Service immediately ceases.
@@ -218,7 +214,7 @@ export function TermsOfServicePage() {
                 </section>
 
                 <section className="mb-4">
-                  <h2 className="h4 mb-3" style={{ color: '#5B9BD5' }}>13. Disclaimers</h2>
+                  <h2 className="h4 mb-3" style={{ color: 'var(--amber-500)' }}>13. Disclaimers</h2>
                   <p>
                     THE SERVICE IS PROVIDED "AS IS" AND "AS AVAILABLE" WITHOUT WARRANTIES OF ANY KIND, EITHER
                     EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO WARRANTIES OF MERCHANTABILITY, FITNESS FOR
@@ -241,7 +237,7 @@ export function TermsOfServicePage() {
                 </section>
 
                 <section className="mb-4">
-                  <h2 className="h4 mb-3" style={{ color: '#5B9BD5' }}>14. Limitation of Liability</h2>
+                  <h2 className="h4 mb-3" style={{ color: 'var(--amber-500)' }}>14. Limitation of Liability</h2>
                   <p>
                     TO THE MAXIMUM EXTENT PERMITTED BY LAW, WHISKEY CANON SHALL NOT BE LIABLE FOR ANY INDIRECT,
                     INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES, OR ANY LOSS OF PROFITS OR REVENUES,
@@ -262,7 +258,7 @@ export function TermsOfServicePage() {
                 </section>
 
                 <section className="mb-4">
-                  <h2 className="h4 mb-3" style={{ color: '#5B9BD5' }}>15. Indemnification</h2>
+                  <h2 className="h4 mb-3" style={{ color: 'var(--amber-500)' }}>15. Indemnification</h2>
                   <p>
                     You agree to indemnify, defend, and hold harmless Whiskey Canon, its officers, directors,
                     employees, and agents from and against any claims, liabilities, damages, losses, and expenses,
@@ -277,7 +273,7 @@ export function TermsOfServicePage() {
                 </section>
 
                 <section className="mb-4">
-                  <h2 className="h4 mb-3" style={{ color: '#5B9BD5' }}>16. Dispute Resolution</h2>
+                  <h2 className="h4 mb-3" style={{ color: 'var(--amber-500)' }}>16. Dispute Resolution</h2>
                   <p>
                     Any disputes arising out of or relating to these Terms or the Service shall be resolved through
                     binding arbitration in accordance with the rules of the American Arbitration Association, rather
@@ -290,7 +286,7 @@ export function TermsOfServicePage() {
                 </section>
 
                 <section className="mb-4">
-                  <h2 className="h4 mb-3" style={{ color: '#5B9BD5' }}>17. Governing Law</h2>
+                  <h2 className="h4 mb-3" style={{ color: 'var(--amber-500)' }}>17. Governing Law</h2>
                   <p>
                     These Terms shall be governed by and construed in accordance with the laws of the United States
                     and the State of [Your State], without regard to its conflict of law provisions.
@@ -298,7 +294,7 @@ export function TermsOfServicePage() {
                 </section>
 
                 <section className="mb-4">
-                  <h2 className="h4 mb-3" style={{ color: '#5B9BD5' }}>18. Severability</h2>
+                  <h2 className="h4 mb-3" style={{ color: 'var(--amber-500)' }}>18. Severability</h2>
                   <p>
                     If any provision of these Terms is found to be invalid or unenforceable by a court of competent
                     jurisdiction, the remaining provisions shall remain in full force and effect.
@@ -306,7 +302,7 @@ export function TermsOfServicePage() {
                 </section>
 
                 <section className="mb-4">
-                  <h2 className="h4 mb-3" style={{ color: '#5B9BD5' }}>19. Changes to Terms</h2>
+                  <h2 className="h4 mb-3" style={{ color: 'var(--amber-500)' }}>19. Changes to Terms</h2>
                   <p>
                     We reserve the right to modify these Terms at any time. We will notify you of any material
                     changes by posting the new Terms on this page and updating the "Last updated" date.
@@ -318,7 +314,7 @@ export function TermsOfServicePage() {
                 </section>
 
                 <section className="mb-4">
-                  <h2 className="h4 mb-3" style={{ color: '#5B9BD5' }}>20. Contact Information</h2>
+                  <h2 className="h4 mb-3" style={{ color: 'var(--amber-500)' }}>20. Contact Information</h2>
                   <p>
                     If you have any questions about these Terms of Service, please contact us at:
                   </p>
@@ -329,7 +325,7 @@ export function TermsOfServicePage() {
                 </section>
 
                 <section className="mb-4">
-                  <h2 className="h4 mb-3" style={{ color: '#5B9BD5' }}>21. Entire Agreement</h2>
+                  <h2 className="h4 mb-3" style={{ color: 'var(--amber-500)' }}>21. Entire Agreement</h2>
                   <p>
                     These Terms, together with our Privacy Policy, constitute the entire agreement between you
                     and Whiskey Canon regarding the Service and supersede all prior agreements and understandings.

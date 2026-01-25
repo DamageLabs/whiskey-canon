@@ -24,7 +24,8 @@
       "Bash(systemctl reload:*)",
       "Bash(npm run dev:*)",
       "Bash(/tmp/login.json)",
-      "Bash(xargs kill:*)"
+      "Bash(xargs kill:*)",
+      "Bash(find:*)"
     ],
     "deny": [],
     "ask": []

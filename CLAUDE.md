@@ -61,15 +61,19 @@ npm run db:add-indexes       # Add performance indexes
 ## Test Users
 
 After running `npm run seed:demo`:
-- `bourbon_lover`, `scotch_fan`, `curator`, `beginner`, `investor`, `admin` (password: `demo123`)
+- `bourbon_lover`, `scotch_fan`, `curator`, `beginner`, `investor` (password: `demo123`)
+- `admin` (password: `admin123`)
 
 After running `npm run db:seed:users`:
-- `alice_admin`, `bob_editor`, `charlie_viewer`, `diana_editor` (password: `password123`)
+- `alice_admin` (password: `Admin123!`)
+- `bob_editor` (password: `Editor123!`)
+- `charlie_viewer` (password: `Viewer123!`)
+- `diana_editor` (password: `Editor456!`)
 
 ## API Endpoints
 
 - Auth: `POST /api/auth/login`, `POST /api/auth/logout`, `GET /api/auth/me`
 - Whiskeys: `GET/POST /api/whiskeys`, `GET/PUT/DELETE /api/whiskeys/:id`
-- Statistics: `GET /api/whiskeys/statistics/collection`, `GET /api/whiskeys/statistics/overview`
+- Statistics: `GET /api/statistics`
 - Admin: `GET /api/admin/users`, `PUT /api/admin/users/:id/role`
 - Health: `GET /api/health`

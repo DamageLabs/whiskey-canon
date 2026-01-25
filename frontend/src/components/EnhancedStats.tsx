@@ -57,7 +57,7 @@ export function EnhancedStats({ onLoad }: EnhancedStatsProps) {
 
   if (!statistics) return null;
 
-  const COLORS = ['#5B9BD5', '#83B4E0', '#70AD47', '#FFC000', '#C5504B', '#9E7B9B', '#4BACC6', '#F79646'];
+  const COLORS = ['#f59e0b', '#d97706', '#b45309', '#92400e', '#78350f', '#fbbf24', '#fcd34d', '#fde68a'];
 
   const formatCurrency = (value: number) => {
     return value ? `$${value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : 'N/A';
@@ -220,7 +220,7 @@ export function EnhancedStats({ onLoad }: EnhancedStatsProps) {
                   <YAxis />
                   <Tooltip />
                   <Legend />
-                  <Bar dataKey="count" fill="#5B9BD5" name="Bottles" />
+                  <Bar dataKey="count" fill="var(--amber-500)" name="Bottles" />
                 </BarChart>
               </ResponsiveContainer>
             </div>
@@ -337,7 +337,7 @@ export function EnhancedStats({ onLoad }: EnhancedStatsProps) {
                   <YAxis dataKey="distillery" type="category" width={150} />
                   <Tooltip />
                   <Legend />
-                  <Bar dataKey="count" fill="#5B9BD5" name="Bottles" />
+                  <Bar dataKey="count" fill="var(--amber-500)" name="Bottles" />
                 </BarChart>
               </ResponsiveContainer>
             </div>

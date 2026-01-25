@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import logoSvg from '../assets/glencairn.webp';
 
 export function RegisterPage() {
   const [firstName, setFirstName] = useState('');
@@ -37,15 +36,12 @@ export function RegisterPage() {
   }
 
   return (
-    <div className="min-vh-100 d-flex align-items-center justify-content-center" style={{ background: 'linear-gradient(135deg, #5B9BD5 0%, #83B4E0 100%)' }}>
+    <div className="min-vh-100 d-flex align-items-center justify-content-center" style={{ background: 'var(--zinc-950)' }}>
       <div className="card shadow-lg" style={{ maxWidth: '450px', width: '100%' }}>
         <div className="card-body p-5">
-          <div className="d-flex align-items-center justify-content-center gap-3 mb-3">
-            <img src={logoSvg} alt="Whiskey Canon" height="60" />
-            <div className="d-flex flex-column">
-              <span className="h3 mb-0" style={{ color: '#5B9BD5' }}>WHISKEY</span>
-              <span className="text-muted" style={{ fontSize: '1rem', letterSpacing: '0.15em' }}>CANON</span>
-            </div>
+          <div className="d-flex align-items-center justify-content-center gap-2 mb-3">
+            <span style={{ fontSize: '2.5rem' }}>🥃</span>
+            <span className="h3 mb-0 fw-bold" style={{ color: 'var(--zinc-100)' }}>Whiskey Canon</span>
           </div>
           <h2 className="text-center mb-4 fs-4">Register</h2>
 
@@ -139,7 +135,7 @@ export function RegisterPage() {
               type="submit"
               disabled={loading}
               className="btn w-100 mb-3 text-white"
-              style={{ backgroundColor: '#5B9BD5' }}
+              style={{ backgroundColor: 'var(--amber-500)' }}
             >
               {loading ? (
                 <>
@@ -151,7 +147,7 @@ export function RegisterPage() {
           </form>
 
           <p className="text-center text-muted">
-            Already have an account? <Link to="/login" className="text-decoration-none fw-bold" style={{ color: '#5B9BD5' }}>Login</Link>
+            Already have an account? <Link to="/login" className="text-decoration-none fw-bold" style={{ color: 'var(--amber-500)' }}>Login</Link>
           </p>
         </div>
       </div>

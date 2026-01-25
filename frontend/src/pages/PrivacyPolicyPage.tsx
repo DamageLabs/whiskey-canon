@@ -1,21 +1,17 @@
 import { useNavigate } from 'react-router-dom';
 import { Footer } from '../components/Footer';
-import logoSvg from '../assets/glencairn.webp';
 
 export function PrivacyPolicyPage() {
   const navigate = useNavigate();
 
   return (
-    <div className="min-vh-100" style={{ backgroundColor: '#f8f9fa' }}>
+    <div className="min-vh-100" style={{ backgroundColor: 'var(--zinc-950)' }}>
       {/* Header */}
-      <nav className="navbar shadow-sm" style={{ backgroundColor: '#5B9BD5' }}>
+      <nav className="navbar shadow-sm" style={{ backgroundColor: 'var(--zinc-900)', borderBottom: '1px solid var(--zinc-800)' }}>
         <div className="container-fluid px-4">
-          <div className="navbar-brand mb-0 d-flex align-items-center gap-3" onClick={() => navigate('/dashboard')} style={{ cursor: 'pointer' }}>
-            <img src={logoSvg} alt="Whiskey Canon" height="50" />
-            <div className="d-flex flex-column">
-              <span className="h4 mb-0 text-white">WHISKEY</span>
-              <span className="text-white-50" style={{ fontSize: '0.9rem', letterSpacing: '0.1em' }}>CANON</span>
-            </div>
+          <div className="navbar-brand mb-0 d-flex align-items-center gap-2" onClick={() => navigate('/dashboard')} style={{ cursor: 'pointer' }}>
+            <span style={{ fontSize: '2rem' }}>🥃</span>
+            <span className="fw-bold" style={{ color: 'var(--zinc-100)' }}>Whiskey Canon</span>
           </div>
           <div className="d-flex align-items-center gap-3">
             <button onClick={() => navigate(-1)} className="btn btn-outline-light btn-sm">
@@ -31,13 +27,13 @@ export function PrivacyPolicyPage() {
           <div className="col-lg-10">
             <div className="card shadow-sm">
               <div className="card-body p-5">
-                <h1 className="mb-4" style={{ color: '#5B9BD5' }}>Privacy Policy</h1>
+                <h1 className="mb-4" style={{ color: 'var(--amber-500)' }}>Privacy Policy</h1>
                 <p className="text-muted">Last updated: November 17, 2025</p>
 
                 <hr className="my-4" />
 
                 <section className="mb-4">
-                  <h2 className="h4 mb-3" style={{ color: '#5B9BD5' }}>1. Introduction</h2>
+                  <h2 className="h4 mb-3" style={{ color: 'var(--amber-500)' }}>1. Introduction</h2>
                   <p>
                     Welcome to Whiskey Canon ("we," "our," or "us"). We are committed to protecting your personal
                     information and your right to privacy. This Privacy Policy explains how we collect, use, disclose,
@@ -46,7 +42,7 @@ export function PrivacyPolicyPage() {
                 </section>
 
                 <section className="mb-4">
-                  <h2 className="h4 mb-3" style={{ color: '#5B9BD5' }}>2. Information We Collect</h2>
+                  <h2 className="h4 mb-3" style={{ color: 'var(--amber-500)' }}>2. Information We Collect</h2>
                   <h3 className="h5 mb-2">Personal Information</h3>
                   <p>We collect the following personal information when you register and use our service:</p>
                   <ul>
@@ -64,7 +60,7 @@ export function PrivacyPolicyPage() {
                 </section>
 
                 <section className="mb-4">
-                  <h2 className="h4 mb-3" style={{ color: '#5B9BD5' }}>3. How We Use Your Information</h2>
+                  <h2 className="h4 mb-3" style={{ color: 'var(--amber-500)' }}>3. How We Use Your Information</h2>
                   <p>We use your information for the following purposes:</p>
                   <ul>
                     <li>To provide and maintain our service</li>
@@ -78,7 +74,7 @@ export function PrivacyPolicyPage() {
                 </section>
 
                 <section className="mb-4">
-                  <h2 className="h4 mb-3" style={{ color: '#5B9BD5' }}>4. Data Storage and Security</h2>
+                  <h2 className="h4 mb-3" style={{ color: 'var(--amber-500)' }}>4. Data Storage and Security</h2>
                   <p>
                     We implement appropriate technical and organizational measures to protect your personal information:
                   </p>
@@ -95,7 +91,7 @@ export function PrivacyPolicyPage() {
                 </section>
 
                 <section className="mb-4">
-                  <h2 className="h4 mb-3" style={{ color: '#5B9BD5' }}>5. Data Sharing and Disclosure</h2>
+                  <h2 className="h4 mb-3" style={{ color: 'var(--amber-500)' }}>5. Data Sharing and Disclosure</h2>
                   <p>
                     We do not sell, trade, or rent your personal information to third parties. We may share your
                     information only in the following circumstances:
@@ -109,7 +105,7 @@ export function PrivacyPolicyPage() {
                 </section>
 
                 <section className="mb-4">
-                  <h2 className="h4 mb-3" style={{ color: '#5B9BD5' }}>6. Your Privacy Rights</h2>
+                  <h2 className="h4 mb-3" style={{ color: 'var(--amber-500)' }}>6. Your Privacy Rights</h2>
                   <p>You have the following rights regarding your personal information:</p>
                   <ul>
                     <li><strong>Access:</strong> Request a copy of the personal information we hold about you</li>
@@ -124,7 +120,7 @@ export function PrivacyPolicyPage() {
                 </section>
 
                 <section className="mb-4">
-                  <h2 className="h4 mb-3" style={{ color: '#5B9BD5' }}>7. Cookies and Tracking</h2>
+                  <h2 className="h4 mb-3" style={{ color: 'var(--amber-500)' }}>7. Cookies and Tracking</h2>
                   <p>
                     We use cookies and similar tracking technologies to maintain your session and improve your experience:
                   </p>
@@ -138,7 +134,7 @@ export function PrivacyPolicyPage() {
                 </section>
 
                 <section className="mb-4">
-                  <h2 className="h4 mb-3" style={{ color: '#5B9BD5' }}>8. Data Retention</h2>
+                  <h2 className="h4 mb-3" style={{ color: 'var(--amber-500)' }}>8. Data Retention</h2>
                   <p>
                     We retain your personal information for as long as your account is active or as needed to provide
                     our services. If you request account deletion, we will remove your data within 30 days, except
@@ -147,7 +143,7 @@ export function PrivacyPolicyPage() {
                 </section>
 
                 <section className="mb-4">
-                  <h2 className="h4 mb-3" style={{ color: '#5B9BD5' }}>9. Children's Privacy</h2>
+                  <h2 className="h4 mb-3" style={{ color: 'var(--amber-500)' }}>9. Children's Privacy</h2>
                   <p>
                     Our service is not intended for individuals under the age of 21 (the legal drinking age in the
                     United States). We do not knowingly collect personal information from individuals under 21.
@@ -156,7 +152,7 @@ export function PrivacyPolicyPage() {
                 </section>
 
                 <section className="mb-4">
-                  <h2 className="h4 mb-3" style={{ color: '#5B9BD5' }}>10. International Users</h2>
+                  <h2 className="h4 mb-3" style={{ color: 'var(--amber-500)' }}>10. International Users</h2>
                   <p>
                     If you are accessing our service from outside the United States, please be aware that your
                     information may be transferred to, stored, and processed in the United States where our servers
@@ -165,7 +161,7 @@ export function PrivacyPolicyPage() {
                 </section>
 
                 <section className="mb-4">
-                  <h2 className="h4 mb-3" style={{ color: '#5B9BD5' }}>11. Changes to This Privacy Policy</h2>
+                  <h2 className="h4 mb-3" style={{ color: 'var(--amber-500)' }}>11. Changes to This Privacy Policy</h2>
                   <p>
                     We may update this Privacy Policy from time to time. We will notify you of any changes by posting
                     the new Privacy Policy on this page and updating the "Last updated" date. You are advised to review
@@ -174,7 +170,7 @@ export function PrivacyPolicyPage() {
                 </section>
 
                 <section className="mb-4">
-                  <h2 className="h4 mb-3" style={{ color: '#5B9BD5' }}>12. Contact Us</h2>
+                  <h2 className="h4 mb-3" style={{ color: 'var(--amber-500)' }}>12. Contact Us</h2>
                   <p>
                     If you have any questions about this Privacy Policy or our privacy practices, please contact us at:
                   </p>

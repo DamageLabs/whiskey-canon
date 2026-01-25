@@ -1,9 +1,10 @@
 .table-container {
   width: 100%;
   overflow-x: auto;
-  background: white;
+  background: var(--zinc-800);
   border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--zinc-700);
 }
 
 .whiskey-table {
@@ -13,8 +14,8 @@
 }
 
 .whiskey-table thead {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
+  background: var(--zinc-900);
+  color: var(--zinc-100);
 }
 
 .whiskey-table th {
@@ -22,10 +23,12 @@
   text-align: left;
   font-weight: 600;
   white-space: nowrap;
+  color: var(--amber-500);
+  border-bottom: 1px solid var(--zinc-700);
 }
 
 .whiskey-table tbody tr {
-  border-bottom: 1px solid #f0f0f0;
+  border-bottom: 1px solid var(--zinc-700);
   transition: background-color 0.2s;
 }
 
@@ -38,22 +41,22 @@
 }
 
 .clickable-row:hover {
-  background-color: #f9f9f9;
+  background-color: var(--zinc-700);
 }
 
 .whiskey-table td {
   padding: 14px 16px;
-  color: #333;
+  color: var(--zinc-300);
 }
 
 .name-cell {
   font-weight: 600;
-  color: #667eea;
+  color: var(--zinc-100);
 }
 
 .type-badge {
   display: inline-block;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--amber-600);
   color: white;
   padding: 4px 10px;
   border-radius: 12px;
@@ -79,27 +82,27 @@
   font-size: 12px;
   font-weight: 600;
   cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition: all 0.2s;
 }
 
 .btn-table-edit {
-  background: #667eea;
+  background: var(--amber-600);
   color: white;
 }
 
 .btn-table-edit:hover {
-  background: #5568d3;
+  background: var(--amber-700);
   transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+  box-shadow: 0 2px 8px rgba(217, 119, 6, 0.3);
 }
 
 .btn-table-delete {
-  background: #ef4444;
+  background: var(--red-600);
   color: white;
 }
 
 .btn-table-delete:hover {
-  background: #dc2626;
+  background: #b91c1c;
   transform: translateY(-1px);
   box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
 }

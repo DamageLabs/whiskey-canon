@@ -10,7 +10,6 @@ import { WhiskeyDetailModal } from '../components/WhiskeyDetailModal';
 import { WhiskeyStats } from '../components/WhiskeyStats';
 import { EnhancedStats } from '../components/EnhancedStats';
 import { Footer } from '../components/Footer';
-import logoSvg from '../assets/glencairn.webp';
 
 export function DashboardPage() {
   const { user, logout, hasPermission } = useAuth();
@@ -126,16 +125,13 @@ export function DashboardPage() {
   }
 
   return (
-    <div className="min-vh-100" style={{ backgroundColor: '#f8f9fa' }}>
+    <div className="min-vh-100" style={{ backgroundColor: 'var(--zinc-950)' }}>
       {/* Header */}
-      <nav className="navbar shadow-sm" style={{ backgroundColor: '#5B9BD5' }}>
+      <nav className="navbar shadow-sm" style={{ backgroundColor: 'var(--zinc-900)', borderBottom: '1px solid var(--zinc-800)' }}>
         <div className="container-fluid px-4">
-          <div className="navbar-brand mb-0 d-flex align-items-center gap-3" onClick={() => navigate('/dashboard')} style={{ cursor: 'pointer' }}>
-            <img src={logoSvg} alt="Whiskey Canon" height="50" />
-            <div className="d-flex flex-column">
-              <span className="h4 mb-0 text-white">WHISKEY</span>
-              <span className="text-white-50" style={{ fontSize: '0.9rem', letterSpacing: '0.1em' }}>CANON</span>
-            </div>
+          <div className="navbar-brand mb-0 d-flex align-items-center gap-2" onClick={() => navigate('/dashboard')} style={{ cursor: 'pointer' }}>
+            <span style={{ fontSize: '2rem' }}>🥃</span>
+            <span className="fw-bold" style={{ color: 'var(--zinc-100)' }}>Whiskey Canon</span>
           </div>
           <div className="d-flex align-items-center gap-3">
             <button onClick={() => navigate('/analytics')} className="btn btn-outline-light btn-sm">
@@ -146,8 +142,8 @@ export function DashboardPage() {
                 Admin Panel
               </button>
             )}
-            <span className="text-white">
-              {user?.username} <span className="badge bg-light" style={{ color: '#5B9BD5' }}>{user?.role}</span>
+            <span style={{ color: 'var(--zinc-300)' }}>
+              {user?.username} <span className="badge" style={{ backgroundColor: 'var(--amber-600)', color: 'white' }}>{user?.role}</span>
             </span>
             <button onClick={() => navigate('/profile')} className="btn btn-outline-light btn-sm">
               Profile
@@ -174,7 +170,7 @@ export function DashboardPage() {
                 onChange={(e) => setSearchTerm(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
               />
-              <button onClick={handleSearch} className="btn text-white" style={{ backgroundColor: '#5B9BD5' }}>
+              <button onClick={handleSearch} className="btn text-white" style={{ backgroundColor: 'var(--amber-600)' }}>
                 Search
               </button>
             </div>
@@ -201,7 +197,7 @@ export function DashboardPage() {
                 <button
                   type="button"
                   className={`btn ${viewMode === 'cards' ? 'text-white' : ''}`}
-                  style={viewMode === 'cards' ? { backgroundColor: '#5B9BD5' } : { borderColor: '#5B9BD5', color: '#5B9BD5' }}
+                  style={viewMode === 'cards' ? { backgroundColor: 'var(--amber-600)' } : { borderColor: 'var(--amber-500)', color: 'var(--amber-500)' }}
                   onClick={() => setViewMode('cards')}
                 >
                   Cards
@@ -209,7 +205,7 @@ export function DashboardPage() {
                 <button
                   type="button"
                   className={`btn ${viewMode === 'table' ? 'text-white' : ''}`}
-                  style={viewMode === 'table' ? { backgroundColor: '#5B9BD5' } : { borderColor: '#5B9BD5', color: '#5B9BD5' }}
+                  style={viewMode === 'table' ? { backgroundColor: 'var(--amber-600)' } : { borderColor: 'var(--amber-500)', color: 'var(--amber-500)' }}
                   onClick={() => setViewMode('table')}
                 >
                   Table
@@ -317,9 +313,9 @@ export function DashboardPage() {
             <button
               className="btn btn-sm"
               style={{
-                backgroundColor: showEnhancedStats ? '#5B9BD5' : 'white',
-                color: showEnhancedStats ? 'white' : '#5B9BD5',
-                border: '2px solid #5B9BD5'
+                backgroundColor: showEnhancedStats ? 'var(--amber-600)' : 'var(--zinc-800)',
+                color: showEnhancedStats ? 'white' : 'var(--amber-500)',
+                border: '2px solid var(--amber-500)'
               }}
               onClick={() => setShowEnhancedStats(!showEnhancedStats)}
             >
@@ -336,7 +332,7 @@ export function DashboardPage() {
         {/* Content */}
         {loading ? (
           <div className="text-center py-5">
-            <div className="spinner-border" style={{ color: '#5B9BD5' }} role="status">
+            <div className="spinner-border" style={{ color: 'var(--amber-500)' }} role="status">
               <span className="visually-hidden">Loading...</span>
             </div>
           </div>
@@ -344,7 +340,7 @@ export function DashboardPage() {
           <div className="text-center py-5">
             <h3 className="text-muted">No whiskeys found</h3>
             {canCreate && (
-              <button onClick={() => setShowForm(true)} className="btn text-white mt-3" style={{ backgroundColor: '#5B9BD5' }}>
+              <button onClick={() => setShowForm(true)} className="btn text-white mt-3" style={{ backgroundColor: 'var(--amber-600)' }}>
                 Add your first whiskey
               </button>
             )}

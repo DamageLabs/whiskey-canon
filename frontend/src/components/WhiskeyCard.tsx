@@ -9,9 +9,9 @@ interface WhiskeyCardProps {
 export function WhiskeyCard({ whiskey, onEdit, onDelete }: WhiskeyCardProps) {
   return (
     <div className="card h-100 shadow-sm">
-      <div className="card-header text-white d-flex justify-content-between align-items-start" style={{ backgroundColor: '#5B9BD5' }}>
+      <div className="card-header text-white d-flex justify-content-between align-items-start" style={{ backgroundColor: 'var(--amber-500)' }}>
         <h5 className="card-title mb-0">{whiskey.name}</h5>
-        <span className="badge bg-light text-capitalize" style={{ color: '#5B9BD5' }}>{whiskey.type}</span>
+        <span className="badge bg-light text-capitalize" style={{ color: 'var(--amber-500)' }}>{whiskey.type}</span>
       </div>
 
       <div className="card-body">
@@ -73,7 +73,7 @@ export function WhiskeyCard({ whiskey, onEdit, onDelete }: WhiskeyCardProps) {
           {whiskey.rating !== null && whiskey.rating !== undefined && (
             <div className="d-flex justify-content-between pb-2">
               <span className="text-muted">Rating:</span>
-              <strong style={{ color: '#5B9BD5' }}>{whiskey.rating.toFixed(2)}/10</strong>
+              <strong style={{ color: 'var(--amber-500)' }}>{whiskey.rating.toFixed(2)}/10</strong>
             </div>
           )}
         </div>
@@ -85,7 +85,7 @@ export function WhiskeyCard({ whiskey, onEdit, onDelete }: WhiskeyCardProps) {
         )}
 
         {whiskey.tasting_notes && (
-          <div className="alert py-2 px-3 mb-0 small" style={{ backgroundColor: '#E8F4FB', borderColor: '#5B9BD5', color: '#3A7BA8' }}>
+          <div className="alert py-2 px-3 mb-0 small" style={{ backgroundColor: '#E8F4FB', borderColor: 'var(--amber-500)', color: '#3A7BA8' }}>
             <strong>Tasting Notes:</strong> {whiskey.tasting_notes}
           </div>
         )}
@@ -95,7 +95,7 @@ export function WhiskeyCard({ whiskey, onEdit, onDelete }: WhiskeyCardProps) {
         <div className="card-footer bg-white border-top">
           <div className="d-grid gap-2 d-md-flex">
             {onEdit && (
-              <button onClick={() => onEdit(whiskey)} className="btn btn-sm flex-fill" style={{ borderColor: '#5B9BD5', color: '#5B9BD5' }}>
+              <button onClick={() => onEdit(whiskey)} className="btn btn-sm flex-fill" style={{ borderColor: 'var(--amber-500)', color: 'var(--amber-500)' }}>
                 Edit
               </button>
             )}

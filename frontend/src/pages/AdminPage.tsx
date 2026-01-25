@@ -232,19 +232,19 @@ export function AdminPage() {
   }
 
   return (
-    <div className="min-vh-100" style={{ backgroundColor: '#f8f9fa' }}>
+    <div className="min-vh-100" style={{ backgroundColor: 'var(--zinc-950)' }}>
       {/* Header */}
-      <nav className="navbar shadow-sm" style={{ backgroundColor: '#5B9BD5' }}>
+      <nav className="navbar shadow-sm" style={{ backgroundColor: 'var(--zinc-900)', borderBottom: '1px solid var(--zinc-800)' }}>
         <div className="container-fluid px-4">
           <div className="navbar-brand mb-0 d-flex align-items-center gap-3" onClick={() => navigate('/dashboard')} style={{ cursor: 'pointer' }}>
-            <span className="h4 mb-0 text-white">Admin Panel</span>
+            <span className="h4 mb-0" style={{ color: 'var(--amber-500)' }}>Admin Panel</span>
           </div>
           <div className="d-flex align-items-center gap-3">
             <button onClick={() => navigate('/dashboard')} className="btn btn-outline-light btn-sm">
               Back to Dashboard
             </button>
-            <span className="text-white">
-              {user?.username} <span className="badge bg-light" style={{ color: '#5B9BD5' }}>{user?.role}</span>
+            <span style={{ color: 'var(--zinc-300)' }}>
+              {user?.username} <span className="badge" style={{ backgroundColor: 'var(--amber-600)', color: 'white' }}>{user?.role}</span>
             </span>
             <button onClick={() => navigate('/profile')} className="btn btn-outline-light btn-sm">
               Profile
@@ -269,7 +269,7 @@ export function AdminPage() {
         {!loading && (
           <div className="row g-3 mb-4">
             <div className="col-md-3">
-              <div className="card shadow-sm border-0" style={{ borderLeft: '4px solid #5B9BD5' }}>
+              <div className="card shadow-sm border-0" style={{ borderLeft: '4px solid var(--amber-500)' }}>
                 <div className="card-body">
                   <div className="d-flex justify-content-between align-items-center">
                     <div>
@@ -336,7 +336,7 @@ export function AdminPage() {
           <li className="nav-item">
             <button
               className={`nav-link ${activeTab === 'users' ? 'active' : ''}`}
-              style={activeTab === 'users' ? { backgroundColor: '#5B9BD5', color: 'white', borderColor: '#5B9BD5' } : {}}
+              style={activeTab === 'users' ? { backgroundColor: 'var(--amber-500)', color: 'white', borderColor: 'var(--amber-500)' } : {}}
               onClick={() => setActiveTab('users')}
             >
               User Management
@@ -345,7 +345,7 @@ export function AdminPage() {
           <li className="nav-item">
             <button
               className={`nav-link ${activeTab === 'whiskeys' ? 'active' : ''}`}
-              style={activeTab === 'whiskeys' ? { backgroundColor: '#5B9BD5', color: 'white', borderColor: '#5B9BD5' } : {}}
+              style={activeTab === 'whiskeys' ? { backgroundColor: 'var(--amber-500)', color: 'white', borderColor: 'var(--amber-500)' } : {}}
               onClick={() => setActiveTab('whiskeys')}
             >
               All Collections ({getSortedAndFilteredWhiskeys().length} whiskeys)
@@ -369,7 +369,7 @@ export function AdminPage() {
         {/* Content */}
         {loading ? (
           <div className="text-center py-5">
-            <div className="spinner-border" style={{ color: '#5B9BD5' }} role="status">
+            <div className="spinner-border" style={{ color: 'var(--amber-500)' }} role="status">
               <span className="visually-hidden">Loading...</span>
             </div>
           </div>
@@ -381,7 +381,7 @@ export function AdminPage() {
                 <div className="card-body p-0">
                   <div className="table-responsive">
                     <table className="table table-hover align-middle mb-0">
-                      <thead style={{ backgroundColor: '#5B9BD5', color: 'white' }}>
+                      <thead style={{ backgroundColor: 'var(--amber-500)', color: 'white' }}>
                         <tr>
                           <th>ID</th>
                           <th>Username</th>
@@ -436,7 +436,7 @@ export function AdminPage() {
                               </td>
                               <td>
                                 {u.id === user?.id ? (
-                                  <span className="badge text-white text-capitalize" style={{ backgroundColor: '#5B9BD5' }}>
+                                  <span className="badge text-white text-capitalize" style={{ backgroundColor: 'var(--amber-500)' }}>
                                     {u.role}
                                   </span>
                                 ) : (
@@ -547,7 +547,7 @@ export function AdminPage() {
                   <div className="card-body p-0">
                     <div className="table-responsive">
                       <table className="table table-hover align-middle mb-0">
-                        <thead style={{ backgroundColor: '#5B9BD5', color: 'white' }}>
+                        <thead style={{ backgroundColor: 'var(--amber-500)', color: 'white' }}>
                           <tr>
                             <th
                               style={{ cursor: 'pointer', userSelect: 'none' }}
@@ -625,7 +625,7 @@ export function AdminPage() {
                                 <div>
                                   <span className="fw-bold">{w.owner_username}</span>
                                   <br />
-                                  <span className="badge text-white text-capitalize" style={{ backgroundColor: '#5B9BD5', fontSize: '0.7rem' }}>
+                                  <span className="badge text-white text-capitalize" style={{ backgroundColor: 'var(--amber-500)', fontSize: '0.7rem' }}>
                                     {w.owner_role}
                                   </span>
                                 </div>

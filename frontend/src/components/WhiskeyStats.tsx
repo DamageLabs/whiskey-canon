@@ -54,10 +54,10 @@ export function WhiskeyStats({ whiskeys }: WhiskeyStatsProps) {
     <div className="row g-3 mb-4">
       {/* Total Count Card */}
       <div className="col-12 col-md-6 col-lg-4 col-xl-2">
-        <div className="card h-100" style={{ borderColor: '#5B9BD5' }}>
+        <div className="card h-100" style={{ borderColor: 'var(--amber-500)' }}>
           <div className="card-body text-center">
             <h6 className="card-subtitle mb-2 text-muted">Total Whiskeys</h6>
-            <h2 className="card-title display-4 mb-0" style={{ color: '#5B9BD5' }}>{totalCount}</h2>
+            <h2 className="card-title display-4 mb-0" style={{ color: 'var(--amber-500)' }}>{totalCount}</h2>
           </div>
         </div>
       </div>
@@ -128,7 +128,7 @@ export function WhiskeyStats({ whiskeys }: WhiskeyStatsProps) {
       {/* Type Breakdown Card */}
       <div className="col-12">
         <div className="card">
-          <div className="card-header text-white" style={{ backgroundColor: '#5B9BD5' }}>
+          <div className="card-header text-white" style={{ backgroundColor: 'var(--amber-500)' }}>
             <h6 className="mb-0">Whiskey Types Breakdown</h6>
           </div>
           <div className="card-body">
@@ -141,14 +141,14 @@ export function WhiskeyStats({ whiskeys }: WhiskeyStatsProps) {
                   <div key={type} className="col-6 col-md-4 col-lg-3 col-xl-2">
                     <div className="text-center">
                       <div className="mb-2">
-                        <span className="badge text-capitalize fs-6 text-white" style={{ backgroundColor: '#5B9BD5' }}>{type}</span>
+                        <span className="badge text-capitalize fs-6 text-white" style={{ backgroundColor: 'var(--amber-500)' }}>{type}</span>
                       </div>
                       <div className="d-flex flex-column align-items-center">
                         <h4 className="mb-1">{count}</h4>
                         <div className="progress w-100" style={{ height: '8px' }}>
                           <div
                             className="progress-bar"
-                            style={{ backgroundColor: '#5B9BD5', width: `${percentage}%` }}
+                            style={{ backgroundColor: 'var(--amber-500)', width: `${percentage}%` }}
                             role="progressbar"
                             aria-valuenow={percentage}
                             aria-valuemin={0}

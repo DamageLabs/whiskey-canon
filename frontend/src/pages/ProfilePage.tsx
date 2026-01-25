@@ -260,10 +260,10 @@ export default function ProfilePage() {
   return (
     <div className="profile-page">
       {/* Navigation Bar */}
-      <nav className="navbar shadow-sm mb-4" style={{ backgroundColor: '#5B9BD5' }}>
+      <nav className="navbar shadow-sm mb-4" style={{ backgroundColor: 'var(--zinc-900)', borderBottom: '1px solid var(--zinc-800)' }}>
         <div className="container-fluid px-4">
           <div className="navbar-brand mb-0 d-flex align-items-center gap-3" onClick={() => navigate('/dashboard')} style={{ cursor: 'pointer' }}>
-            <span className="h4 mb-0 text-white">My Profile</span>
+            <span className="h4 mb-0" style={{ color: 'var(--amber-500)' }}>My Profile</span>
           </div>
           <div className="d-flex align-items-center gap-3">
             <button onClick={() => navigate('/dashboard')} className="btn btn-outline-light btn-sm">

@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Background circle -->
+  <circle cx="32" cy="32" r="30" fill="#18181b"/>
+
+  <!-- Glencairn glass shape -->
+  <path d="M22 18 L42 18 L40 28 Q39 38 36 44 L36 52 L28 52 L28 44 Q25 38 24 28 Z"
+        fill="none"
+        stroke="#f59e0b"
+        stroke-width="2.5"
+        stroke-linecap="round"
+        stroke-linejoin="round"/>
+
+  <!-- Whiskey liquid -->
+  <path d="M24.5 28 Q25.5 36 28 42 L36 42 Q38.5 36 39.5 28 Z"
+        fill="#d97706"
+        opacity="0.8"/>
+
+  <!-- Glass base -->
+  <ellipse cx="32" cy="52" rx="6" ry="2"
+           fill="none"
+           stroke="#f59e0b"
+           stroke-width="2"/>
+
+  <!-- Highlight on glass -->
+  <path d="M25 22 L26 26"
+        stroke="#fbbf24"
+        stroke-width="1.5"
+        stroke-linecap="round"
+        opacity="0.6"/>
+</svg>

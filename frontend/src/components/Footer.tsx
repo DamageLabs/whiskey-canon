@@ -10,7 +10,7 @@ export function Footer() {
               <strong>Whiskey Canon</strong> - Track, taste, and treasure your whiskey collection
             </p>
             <p className="mb-1 small">
-              © 2025 Whiskey Canon. All rights reserved.
+              © 2025-2026 Whiskey Canon. All rights reserved.
             </p>
             <p className="mb-0 small">
               <Link to="/privacy" className="text-decoration-none me-3" style={{ color: 'var(--amber-500)' }}>

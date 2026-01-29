@@ -25,7 +25,8 @@
       "Bash(npm run dev:*)",
       "Bash(/tmp/login.json)",
       "Bash(xargs kill:*)",
-      "Bash(find:*)"
+      "Bash(find:*)",
+      "WebFetch(domain:whiskey-canon.com)"
     ],
     "deny": [],
     "ask": []

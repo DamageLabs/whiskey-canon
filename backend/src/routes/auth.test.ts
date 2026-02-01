@@ -204,7 +204,10 @@ describe('Auth Routes', () => {
 
   describe('POST /api/auth/logout', () => {
     it('clears session and returns success message', async () => {
-      const { agent } = await createAuthenticatedAgent(app);
+      // Create user and login manually to avoid agent timing issues
+      await createTestUser('logoutuser', 'logout@test.com', 'password123');
+      const agent = request.agent(app);
+      await agent.post('/api/auth/login').send({ username: 'logoutuser', password: 'password123' });
 
       const response = await agent.post('/api/auth/logout');
 

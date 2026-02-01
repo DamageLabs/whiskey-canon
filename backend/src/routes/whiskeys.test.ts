@@ -1,0 +1,587 @@
+import { describe, it, expect, beforeEach } from 'vitest';
+import request from 'supertest';
+import { createTestApp, createTestUser, createAuthenticatedAgent, createTestWhiskey } from '../test/helpers';
+import { Role, WhiskeyType } from '../types';
+import type { Application } from 'express';
+
+describe('Whiskey Routes', () => {
+  let app: Application;
+
+  beforeEach(() => {
+    app = createTestApp();
+  });
+
+  describe('Authentication', () => {
+    it('returns 401 for unauthenticated requests to GET /api/whiskeys', async () => {
+      const response = await request(app).get('/api/whiskeys');
+      expect(response.status).toBe(401);
+    });
+
+    it('returns 401 for unauthenticated requests to POST /api/whiskeys', async () => {
+      const response = await request(app)
+        .post('/api/whiskeys')
+        .send({ name: 'Test', type: 'bourbon', distillery: 'Test' });
+      expect(response.status).toBe(401);
+    });
+
+    it('returns 401 for unauthenticated requests to GET /api/whiskeys/:id', async () => {
+      const response = await request(app).get('/api/whiskeys/1');
+      expect(response.status).toBe(401);
+    });
+
+    it('returns 401 for unauthenticated requests to PUT /api/whiskeys/:id', async () => {
+      const response = await request(app)
+        .put('/api/whiskeys/1')
+        .send({ name: 'Updated' });
+      expect(response.status).toBe(401);
+    });
+
+    it('returns 401 for unauthenticated requests to DELETE /api/whiskeys/:id', async () => {
+      const response = await request(app).delete('/api/whiskeys/1');
+      expect(response.status).toBe(401);
+    });
+
+    it('returns 401 for unauthenticated requests to GET /api/whiskeys/search', async () => {
+      const response = await request(app).get('/api/whiskeys/search?q=test');
+      expect(response.status).toBe(401);
+    });
+  });
+
+  describe('GET /api/whiskeys', () => {
+    it('returns empty array when user has no whiskeys', async () => {
+      const { agent } = await createAuthenticatedAgent(app);
+
+      const response = await agent.get('/api/whiskeys');
+
+      expect(response.status).toBe(200);
+      expect(response.body.whiskeys).toEqual([]);
+    });
+
+    it('returns only user\'s own whiskeys', async () => {
+      const { agent, user } = await createAuthenticatedAgent(app, 'user1', 'user1@test.com');
+      const user2 = await createTestUser('user2', 'user2@test.com', 'password123');
+
+      // Create whiskeys for both users
+      createTestWhiskey(user.id, { name: 'User1 Whiskey' });
+      createTestWhiskey(user2.id, { name: 'User2 Whiskey' });
+
+      const response = await agent.get('/api/whiskeys');
+
+      expect(response.status).toBe(200);
+      expect(response.body.whiskeys).toHaveLength(1);
+      expect(response.body.whiskeys[0].name).toBe('User1 Whiskey');
+    });
+
+    it('filters by type', async () => {
+      const { agent, user } = await createAuthenticatedAgent(app);
+
+      createTestWhiskey(user.id, { name: 'Bourbon 1', type: WhiskeyType.BOURBON });
+      createTestWhiskey(user.id, { name: 'Scotch 1', type: WhiskeyType.SCOTCH });
+
+      const response = await agent.get('/api/whiskeys?type=bourbon');
+
+      expect(response.status).toBe(200);
+      expect(response.body.whiskeys).toHaveLength(1);
+      expect(response.body.whiskeys[0].name).toBe('Bourbon 1');
+    });
+
+    it('filters by distillery', async () => {
+      const { agent, user } = await createAuthenticatedAgent(app);
+
+      createTestWhiskey(user.id, { name: 'BT 1', distillery: 'Buffalo Trace' });
+      createTestWhiskey(user.id, { name: 'MM 1', distillery: 'Makers Mark' });
+
+      const response = await agent.get('/api/whiskeys?distillery=Buffalo');
+
+      expect(response.status).toBe(200);
+      expect(response.body.whiskeys).toHaveLength(1);
+      expect(response.body.whiskeys[0].name).toBe('BT 1');
+    });
+
+    it('validates type filter', async () => {
+      const { agent } = await createAuthenticatedAgent(app);
+
+      const response = await agent.get('/api/whiskeys?type=invalid');
+
+      expect(response.status).toBe(400);
+      expect(response.body.errors).toBeDefined();
+    });
+  });
+
+  describe('GET /api/whiskeys/:id', () => {
+    it('returns whiskey by id', async () => {
+      const { agent, user } = await createAuthenticatedAgent(app);
+      const whiskey = createTestWhiskey(user.id, { name: 'My Bourbon' });
+
+      const response = await agent.get(`/api/whiskeys/${whiskey.id}`);
+
+      expect(response.status).toBe(200);
+      expect(response.body.whiskey.name).toBe('My Bourbon');
+    });
+
+    it('returns 404 for non-existent whiskey', async () => {
+      const { agent } = await createAuthenticatedAgent(app);
+
+      const response = await agent.get('/api/whiskeys/99999');
+
+      expect(response.status).toBe(404);
+      expect(response.body.error).toBe('Whiskey not found');
+    });
+
+    it('returns 404 when accessing another user\'s whiskey', async () => {
+      const { agent } = await createAuthenticatedAgent(app, 'user1', 'user1@test.com');
+      const user2 = await createTestUser('user2', 'user2@test.com', 'password123');
+      const whiskey = createTestWhiskey(user2.id, { name: 'User2 Whiskey' });
+
+      const response = await agent.get(`/api/whiskeys/${whiskey.id}`);
+
+      expect(response.status).toBe(404);
+      expect(response.body.error).toBe('Whiskey not found');
+    });
+  });
+
+  describe('POST /api/whiskeys', () => {
+    it('creates a whiskey with required fields', async () => {
+      const { agent } = await createAuthenticatedAgent(app);
+
+      const response = await agent
+        .post('/api/whiskeys')
+        .send({
+          name: 'New Bourbon',
+          type: 'bourbon',
+          distillery: 'Test Distillery'
+        });
+
+      expect(response.status).toBe(201);
+      expect(response.body.message).toBe('Whiskey created successfully');
+      expect(response.body.whiskey.name).toBe('New Bourbon');
+      expect(response.body.whiskey.type).toBe('bourbon');
+      expect(response.body.whiskey.distillery).toBe('Test Distillery');
+    });
+
+    it('creates a whiskey with optional fields', async () => {
+      const { agent } = await createAuthenticatedAgent(app);
+
+      const response = await agent
+        .post('/api/whiskeys')
+        .send({
+          name: 'Premium Bourbon',
+          type: 'bourbon',
+          distillery: 'Buffalo Trace',
+          region: 'Kentucky',
+          age: 12,
+          abv: 45.0,
+          rating: 8.5,
+          description: 'A fine bourbon'
+        });
+
+      expect(response.status).toBe(201);
+      expect(response.body.whiskey.region).toBe('Kentucky');
+      expect(response.body.whiskey.age).toBe(12);
+      expect(response.body.whiskey.abv).toBe(45.0);
+      expect(response.body.whiskey.rating).toBe(8.5);
+    });
+
+    it('assigns whiskey to the authenticated user', async () => {
+      const { agent, user } = await createAuthenticatedAgent(app);
+
+      const response = await agent
+        .post('/api/whiskeys')
+        .send({
+          name: 'My Bourbon',
+          type: 'bourbon',
+          distillery: 'Test'
+        });
+
+      expect(response.status).toBe(201);
+      expect(response.body.whiskey.created_by).toBe(user.id);
+    });
+
+    it('validates required fields - missing name', async () => {
+      const { agent } = await createAuthenticatedAgent(app);
+
+      const response = await agent
+        .post('/api/whiskeys')
+        .send({
+          type: 'bourbon',
+          distillery: 'Test'
+        });
+
+      expect(response.status).toBe(400);
+      expect(response.body.errors).toBeDefined();
+      expect(response.body.errors[0].msg).toBe('Name is required');
+    });
+
+    it('validates required fields - missing type', async () => {
+      const { agent } = await createAuthenticatedAgent(app);
+
+      const response = await agent
+        .post('/api/whiskeys')
+        .send({
+          name: 'Test',
+          distillery: 'Test'
+        });
+
+      expect(response.status).toBe(400);
+      expect(response.body.errors).toBeDefined();
+    });
+
+    it('validates required fields - missing distillery', async () => {
+      const { agent } = await createAuthenticatedAgent(app);
+
+      const response = await agent
+        .post('/api/whiskeys')
+        .send({
+          name: 'Test',
+          type: 'bourbon'
+        });
+
+      expect(response.status).toBe(400);
+      expect(response.body.errors).toBeDefined();
+      expect(response.body.errors[0].msg).toBe('Distillery is required');
+    });
+
+    it('validates type is valid whiskey type', async () => {
+      const { agent } = await createAuthenticatedAgent(app);
+
+      const response = await agent
+        .post('/api/whiskeys')
+        .send({
+          name: 'Test',
+          type: 'invalid',
+          distillery: 'Test'
+        });
+
+      expect(response.status).toBe(400);
+      expect(response.body.errors).toBeDefined();
+      expect(response.body.errors[0].msg).toBe('Invalid whiskey type');
+    });
+
+    it('validates ABV is between 0 and 100', async () => {
+      const { agent } = await createAuthenticatedAgent(app);
+
+      const response = await agent
+        .post('/api/whiskeys')
+        .send({
+          name: 'Test',
+          type: 'bourbon',
+          distillery: 'Test',
+          abv: 150
+        });
+
+      expect(response.status).toBe(400);
+      expect(response.body.errors).toBeDefined();
+    });
+
+    it('validates rating is between 0 and 10', async () => {
+      const { agent } = await createAuthenticatedAgent(app);
+
+      const response = await agent
+        .post('/api/whiskeys')
+        .send({
+          name: 'Test',
+          type: 'bourbon',
+          distillery: 'Test',
+          rating: 15
+        });
+
+      expect(response.status).toBe(400);
+      expect(response.body.errors).toBeDefined();
+    });
+
+    it('validates age is positive', async () => {
+      const { agent } = await createAuthenticatedAgent(app);
+
+      const response = await agent
+        .post('/api/whiskeys')
+        .send({
+          name: 'Test',
+          type: 'bourbon',
+          distillery: 'Test',
+          age: -5
+        });
+
+      expect(response.status).toBe(400);
+      expect(response.body.errors).toBeDefined();
+    });
+  });
+
+  describe('PUT /api/whiskeys/:id', () => {
+    it('updates a whiskey', async () => {
+      const { agent, user } = await createAuthenticatedAgent(app);
+      const whiskey = createTestWhiskey(user.id, { name: 'Original Name' });
+
+      const response = await agent
+        .put(`/api/whiskeys/${whiskey.id}`)
+        .send({ name: 'Updated Name' });
+
+      expect(response.status).toBe(200);
+      expect(response.body.message).toBe('Whiskey updated successfully');
+      expect(response.body.whiskey.name).toBe('Updated Name');
+    });
+
+    it('updates multiple fields', async () => {
+      const { agent, user } = await createAuthenticatedAgent(app);
+      const whiskey = createTestWhiskey(user.id);
+
+      const response = await agent
+        .put(`/api/whiskeys/${whiskey.id}`)
+        .send({
+          name: 'Updated Bourbon',
+          rating: 9.0,
+          region: 'Kentucky'
+        });
+
+      expect(response.status).toBe(200);
+      expect(response.body.whiskey.name).toBe('Updated Bourbon');
+      expect(response.body.whiskey.rating).toBe(9.0);
+      expect(response.body.whiskey.region).toBe('Kentucky');
+    });
+
+    it('returns 404 for non-existent whiskey', async () => {
+      const { agent } = await createAuthenticatedAgent(app);
+
+      const response = await agent
+        .put('/api/whiskeys/99999')
+        .send({ name: 'Updated' });
+
+      expect(response.status).toBe(404);
+    });
+
+    it('returns 404 when updating another user\'s whiskey', async () => {
+      const { agent } = await createAuthenticatedAgent(app, 'user1', 'user1@test.com');
+      const user2 = await createTestUser('user2', 'user2@test.com', 'password123');
+      const whiskey = createTestWhiskey(user2.id, { name: 'User2 Whiskey' });
+
+      const response = await agent
+        .put(`/api/whiskeys/${whiskey.id}`)
+        .send({ name: 'Hacked!' });
+
+      expect(response.status).toBe(404);
+      expect(response.body.error).toContain('not found');
+    });
+
+    it('validates updated fields', async () => {
+      const { agent, user } = await createAuthenticatedAgent(app);
+      const whiskey = createTestWhiskey(user.id);
+
+      const response = await agent
+        .put(`/api/whiskeys/${whiskey.id}`)
+        .send({ rating: 15 });
+
+      expect(response.status).toBe(400);
+      expect(response.body.errors).toBeDefined();
+    });
+  });
+
+  describe('DELETE /api/whiskeys/:id', () => {
+    it('deletes a whiskey (admin role required)', async () => {
+      // Note: DELETE requires ADMIN role per RolePermissions
+      const { agent, user } = await createAuthenticatedAgent(app, 'admin', 'admin@test.com', 'password123', Role.ADMIN);
+      const whiskey = createTestWhiskey(user.id);
+
+      const response = await agent.delete(`/api/whiskeys/${whiskey.id}`);
+
+      expect(response.status).toBe(200);
+      expect(response.body.message).toBe('Whiskey deleted successfully');
+
+      // Verify it's actually deleted
+      const getResponse = await agent.get(`/api/whiskeys/${whiskey.id}`);
+      expect(getResponse.status).toBe(404);
+    });
+
+    it('returns 403 for editor role (no delete permission)', async () => {
+      const { agent, user } = await createAuthenticatedAgent(app, 'editor', 'editor@test.com', 'password123', Role.EDITOR);
+      const whiskey = createTestWhiskey(user.id);
+
+      const response = await agent.delete(`/api/whiskeys/${whiskey.id}`);
+
+      expect(response.status).toBe(403);
+      expect(response.body.error).toBe('Insufficient permissions');
+    });
+
+    it('returns 404 for non-existent whiskey', async () => {
+      const { agent } = await createAuthenticatedAgent(app, 'admin', 'admin@test.com', 'password123', Role.ADMIN);
+
+      const response = await agent.delete('/api/whiskeys/99999');
+
+      expect(response.status).toBe(404);
+    });
+
+    it('returns 404 when deleting another user\'s whiskey', async () => {
+      const { agent } = await createAuthenticatedAgent(app, 'admin1', 'admin1@test.com', 'password123', Role.ADMIN);
+      const user2 = await createTestUser('admin2', 'admin2@test.com', 'password123', Role.ADMIN);
+      const whiskey = createTestWhiskey(user2.id);
+
+      const response = await agent.delete(`/api/whiskeys/${whiskey.id}`);
+
+      expect(response.status).toBe(404);
+    });
+
+    it('does not delete another user\'s whiskey', async () => {
+      // Create two admin users
+      const { agent: agent1 } = await createAuthenticatedAgent(app, 'admin1', 'admin1@test.com', 'password123', Role.ADMIN);
+      const user2 = await createTestUser('admin2', 'admin2@test.com', 'password123', Role.ADMIN);
+      const whiskey = createTestWhiskey(user2.id, { name: 'User2 Whiskey' });
+
+      // Admin1 tries to delete Admin2's whiskey
+      await agent1.delete(`/api/whiskeys/${whiskey.id}`);
+
+      // Login as admin2 and verify whiskey still exists
+      const agent2 = request.agent(app);
+      await agent2.post('/api/auth/login').send({ username: 'admin2', password: 'password123' });
+
+      const response = await agent2.get(`/api/whiskeys/${whiskey.id}`);
+      expect(response.status).toBe(200);
+      expect(response.body.whiskey.name).toBe('User2 Whiskey');
+    });
+  });
+
+  describe('GET /api/whiskeys/search', () => {
+    it('searches whiskeys by name', async () => {
+      const { agent, user } = await createAuthenticatedAgent(app);
+
+      createTestWhiskey(user.id, { name: 'Buffalo Trace', distillery: 'Buffalo Trace Distillery' });
+      createTestWhiskey(user.id, { name: 'Makers Mark', distillery: 'Makers Mark Distillery' });
+
+      const response = await agent.get('/api/whiskeys/search?q=Buffalo');
+
+      expect(response.status).toBe(200);
+      expect(response.body.whiskeys).toHaveLength(1);
+      expect(response.body.whiskeys[0].name).toBe('Buffalo Trace');
+    });
+
+    it('searches whiskeys by distillery', async () => {
+      const { agent, user } = await createAuthenticatedAgent(app);
+
+      createTestWhiskey(user.id, { name: 'Eagle Rare', distillery: 'Buffalo Trace' });
+      createTestWhiskey(user.id, { name: 'Makers Mark', distillery: 'Makers Mark' });
+
+      const response = await agent.get('/api/whiskeys/search?q=Buffalo Trace');
+
+      expect(response.status).toBe(200);
+      expect(response.body.whiskeys).toHaveLength(1);
+    });
+
+    it('only searches user\'s own whiskeys', async () => {
+      const { agent, user } = await createAuthenticatedAgent(app, 'user1', 'user1@test.com');
+      const user2 = await createTestUser('user2', 'user2@test.com', 'password123');
+
+      createTestWhiskey(user.id, { name: 'User1 Buffalo', distillery: 'Test' });
+      createTestWhiskey(user2.id, { name: 'User2 Buffalo', distillery: 'Test' });
+
+      const response = await agent.get('/api/whiskeys/search?q=Buffalo');
+
+      expect(response.status).toBe(200);
+      expect(response.body.whiskeys).toHaveLength(1);
+      expect(response.body.whiskeys[0].name).toBe('User1 Buffalo');
+    });
+
+    it('requires search query', async () => {
+      const { agent } = await createAuthenticatedAgent(app);
+
+      const response = await agent.get('/api/whiskeys/search');
+
+      expect(response.status).toBe(400);
+      expect(response.body.errors).toBeDefined();
+    });
+
+    it('returns empty array for no matches', async () => {
+      const { agent, user } = await createAuthenticatedAgent(app);
+      createTestWhiskey(user.id, { name: 'Bourbon' });
+
+      const response = await agent.get('/api/whiskeys/search?q=Scotch');
+
+      expect(response.status).toBe(200);
+      expect(response.body.whiskeys).toHaveLength(0);
+    });
+  });
+
+  describe('GET /api/whiskeys/export/csv', () => {
+    it('exports whiskeys as CSV', async () => {
+      const { agent, user } = await createAuthenticatedAgent(app);
+
+      createTestWhiskey(user.id, { name: 'Test Bourbon', type: WhiskeyType.BOURBON, distillery: 'Test Distillery' });
+
+      const response = await agent.get('/api/whiskeys/export/csv');
+
+      expect(response.status).toBe(200);
+      expect(response.headers['content-type']).toContain('text/csv');
+      expect(response.headers['content-disposition']).toContain('attachment');
+      expect(response.headers['content-disposition']).toContain('.csv');
+      expect(response.text).toContain('Name,Type,Distillery');
+      expect(response.text).toContain('Test Bourbon');
+    });
+
+    it('only exports user\'s own whiskeys', async () => {
+      const { agent, user } = await createAuthenticatedAgent(app, 'user1', 'user1@test.com');
+      const user2 = await createTestUser('user2', 'user2@test.com', 'password123');
+
+      createTestWhiskey(user.id, { name: 'User1 Bourbon' });
+      createTestWhiskey(user2.id, { name: 'User2 Bourbon' });
+
+      const response = await agent.get('/api/whiskeys/export/csv');
+
+      expect(response.status).toBe(200);
+      expect(response.text).toContain('User1 Bourbon');
+      expect(response.text).not.toContain('User2 Bourbon');
+    });
+
+    it('handles empty collection', async () => {
+      const { agent } = await createAuthenticatedAgent(app);
+
+      const response = await agent.get('/api/whiskeys/export/csv');
+
+      expect(response.status).toBe(200);
+      expect(response.text).toContain('Name,Type,Distillery');
+      // Should only have headers, no data rows
+      const lines = response.text.trim().split('\n');
+      expect(lines).toHaveLength(1);
+    });
+  });
+
+  describe('User Isolation (Integration)', () => {
+    it('complete isolation: user cannot see, update, or delete other users whiskeys', async () => {
+      // Setup: Admin1 creates a whiskey (use admin to test delete permission)
+      const { agent: agent1, user: user1 } = await createAuthenticatedAgent(app, 'admin1', 'admin1@test.com', 'password123', Role.ADMIN);
+
+      const createResponse = await agent1
+        .post('/api/whiskeys')
+        .send({ name: 'Admin1 Private Bourbon', type: 'bourbon', distillery: 'Secret Distillery' });
+
+      const whiskeyId = createResponse.body.whiskey.id;
+
+      // Setup: Admin2 logs in
+      await createTestUser('admin2', 'admin2@test.com', 'password123', Role.ADMIN);
+      const agent2 = request.agent(app);
+      await agent2.post('/api/auth/login').send({ username: 'admin2', password: 'password123' });
+
+      // Admin2 cannot see Admin1's whiskey in list
+      const listResponse = await agent2.get('/api/whiskeys');
+      expect(listResponse.body.whiskeys).toHaveLength(0);
+
+      // Admin2 cannot get Admin1's whiskey by ID
+      const getResponse = await agent2.get(`/api/whiskeys/${whiskeyId}`);
+      expect(getResponse.status).toBe(404);
+
+      // Admin2 cannot update Admin1's whiskey
+      const updateResponse = await agent2
+        .put(`/api/whiskeys/${whiskeyId}`)
+        .send({ name: 'Hacked!' });
+      expect(updateResponse.status).toBe(404);
+
+      // Admin2 cannot delete Admin1's whiskey
+      const deleteResponse = await agent2.delete(`/api/whiskeys/${whiskeyId}`);
+      expect(deleteResponse.status).toBe(404);
+
+      // Admin2 cannot find Admin1's whiskey via search
+      const searchResponse = await agent2.get('/api/whiskeys/search?q=Private');
+      expect(searchResponse.body.whiskeys).toHaveLength(0);
+
+      // Verify Admin1's whiskey is still intact
+      const verifyResponse = await agent1.get(`/api/whiskeys/${whiskeyId}`);
+      expect(verifyResponse.status).toBe(200);
+      expect(verifyResponse.body.whiskey.name).toBe('Admin1 Private Bourbon');
+    });
+  });
+});

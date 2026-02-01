@@ -5,7 +5,8 @@ import bcrypt from 'bcryptjs';
 import { testDb } from './setup';
 import { attachUser } from '../middleware/auth';
 import authRoutes from '../routes/auth';
-import { Role } from '../types';
+import whiskeyRoutes from '../routes/whiskeys';
+import { Role, WhiskeyType } from '../types';
 
 /**
  * Creates a test Express app with session and auth routes configured
@@ -30,6 +31,7 @@ export function createTestApp(): express.Application {
 
   app.use(attachUser);
   app.use('/api/auth', authRoutes);
+  app.use('/api/whiskeys', whiskeyRoutes);
 
   // Error handler for debugging test failures
   app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
@@ -102,4 +104,57 @@ export async function createAuthenticatedAgent(
     .send({ username, password });
 
   return { agent, user };
+}
+
+/**
+ * Creates a test whiskey directly in the database
+ */
+export function createTestWhiskey(
+  userId: number,
+  overrides: {
+    name?: string;
+    type?: WhiskeyType;
+    distillery?: string;
+    region?: string;
+    age?: number;
+    abv?: number;
+    rating?: number;
+    description?: string;
+  } = {}
+): { id: number; name: string; type: WhiskeyType; distillery: string; created_by: number } {
+  const data = {
+    name: overrides.name || 'Test Whiskey',
+    type: overrides.type || WhiskeyType.BOURBON,
+    distillery: overrides.distillery || 'Test Distillery',
+    region: overrides.region || null,
+    age: overrides.age || null,
+    abv: overrides.abv || null,
+    rating: overrides.rating || null,
+    description: overrides.description || null
+  };
+
+  const stmt = testDb.prepare(`
+    INSERT INTO whiskeys (name, type, distillery, region, age, abv, rating, description, created_by)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `);
+
+  const result = stmt.run(
+    data.name,
+    data.type,
+    data.distillery,
+    data.region,
+    data.age,
+    data.abv,
+    data.rating,
+    data.description,
+    userId
+  );
+
+  return {
+    id: result.lastInsertRowid as number,
+    name: data.name,
+    type: data.type as WhiskeyType,
+    distillery: data.distillery,
+    created_by: userId
+  };
 }

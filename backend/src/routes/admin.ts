@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { Response } from 'express';
 import { body, validationResult } from 'express-validator';
 import { UserModel } from '../models/User';
 import { WhiskeyModel } from '../models/Whiskey';
@@ -16,7 +16,7 @@ router.use(requireAuth);
 router.get(
   '/users',
   requirePermission(Permission.MANAGE_USERS),
-  (req: AuthRequest, res) => {
+  (req: AuthRequest, res: Response) => {
     try {
       const users = UserModel.findAll();
       // Remove password hashes from response
@@ -39,7 +39,7 @@ router.put(
   [
     body('role').isIn(Object.values(Role)).withMessage('Invalid role')
   ],
-  (req: AuthRequest, res) => {
+  (req: AuthRequest, res: Response) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
@@ -81,10 +81,11 @@ router.put(
     body('firstName').optional().trim(),
     body('lastName').optional().trim()
   ],
-  async (req: AuthRequest, res) => {
+  async (req: AuthRequest, res: Response): Promise<void> => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
+      res.status(400).json({ errors: errors.array() });
+      return;
     }
 
     try {
@@ -95,7 +96,8 @@ router.put(
       if (email) {
         const existingUser = UserModel.findByEmail(email);
         if (existingUser && existingUser.id !== userId) {
-          return res.status(400).json({ error: 'Email already in use' });
+          res.status(400).json({ error: 'Email already in use' });
+          return;
         }
       }
 
@@ -103,7 +105,8 @@ router.put(
       if (username) {
         const existingUser = UserModel.findByUsername(username);
         if (existingUser && existingUser.id !== userId) {
-          return res.status(400).json({ error: 'Username already in use' });
+          res.status(400).json({ error: 'Username already in use' });
+          return;
         }
       }
 
@@ -115,7 +118,8 @@ router.put(
       const user = UserModel.updateProfile(userId, updates);
 
       if (!user) {
-        return res.status(404).json({ error: 'User not found' });
+        res.status(404).json({ error: 'User not found' });
+        return;
       }
 
       const { password, ...userWithoutPassword } = user;
@@ -134,7 +138,7 @@ router.put(
 router.delete(
   '/users/:id',
   requirePermission(Permission.MANAGE_USERS),
-  (req: AuthRequest, res) => {
+  (req: AuthRequest, res: Response) => {
     try {
       const userId = parseInt(req.params.id);
 
@@ -161,7 +165,7 @@ router.delete(
 router.get(
   '/whiskeys',
   requirePermission(Permission.MANAGE_USERS),
-  (req: AuthRequest, res) => {
+  (req: AuthRequest, res: Response) => {
     try {
       const whiskeys = WhiskeyModel.findAllWithOwners();
       res.json({ whiskeys });

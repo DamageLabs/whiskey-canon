@@ -37,7 +37,9 @@ describe('Auth Middleware', () => {
       // Set up a route that manually sets session userId
       app.post('/set-session', (req, res) => {
         req.session.userId = 1;
-        res.json({ message: 'session set' });
+        req.session.save(() => {
+          res.json({ message: 'session set' });
+        });
       });
 
       app.get('/protected', requireAuth, (req, res) => {
@@ -64,7 +66,9 @@ describe('Auth Middleware', () => {
       // Set up route that manually sets session and uses attachUser
       app.post('/set-session', (req, res) => {
         req.session.userId = user.id;
-        res.json({ message: 'session set' });
+        req.session.save(() => {
+          res.json({ message: 'session set' });
+        });
       });
 
       app.get('/check-user', attachUser, (req: any, res) => {
@@ -97,7 +101,9 @@ describe('Auth Middleware', () => {
       // Set up route that sets an invalid userId
       app.post('/set-session', (req, res) => {
         req.session.userId = 99999; // Non-existent user
-        res.json({ message: 'session set' });
+        req.session.save(() => {
+          res.json({ message: 'session set' });
+        });
       });
 
       app.get('/check-user', attachUser, (req: any, res) => {

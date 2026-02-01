@@ -70,9 +70,11 @@ jobs:
 
     steps:
       - name: Check test results
+        if: needs.test.result == 'failure' || needs.lint.result == 'failure'
         run: |
-          if [ "${{ needs.test.result }}" == "failure" ] || [ "${{ needs.lint.result }}" == "failure" ]; then
-            echo "Tests or lint failed"
-            exit 1
-          fi
-          echo "All checks passed!"
+          echo "Tests or lint failed"
+          exit 1
+
+      - name: All checks passed
+        if: needs.test.result == 'success' && needs.lint.result == 'success'
+        run: echo "All checks passed!"

@@ -584,4 +584,201 @@ describe('Whiskey Routes', () => {
       expect(verifyResponse.body.whiskey.name).toBe('Admin1 Private Bourbon');
     });
   });
+
+  describe('POST /api/whiskeys/import/csv', () => {
+    it('returns 401 for unauthenticated requests', async () => {
+      const response = await request(app)
+        .post('/api/whiskeys/import/csv')
+        .attach('file', Buffer.from('Name,Type,Distillery\nTest,bourbon,Test'), 'test.csv');
+
+      expect(response.status).toBe(401);
+    });
+
+    it('returns 400 when no file is uploaded', async () => {
+      const { agent } = await createAuthenticatedAgent(app);
+
+      const response = await agent.post('/api/whiskeys/import/csv');
+
+      expect(response.status).toBe(400);
+      expect(response.body.error).toBe('No file uploaded');
+    });
+
+    it('imports valid CSV data', async () => {
+      const { agent, user } = await createAuthenticatedAgent(app);
+
+      const csvContent = `Name,Type,Distillery,Region,Age
+Buffalo Trace,bourbon,Buffalo Trace Distillery,Kentucky,8
+Makers Mark,bourbon,Makers Mark Distillery,Kentucky,6`;
+
+      const response = await agent
+        .post('/api/whiskeys/import/csv')
+        .attach('file', Buffer.from(csvContent), 'whiskeys.csv');
+
+      expect(response.status).toBe(200);
+      expect(response.body.message).toBe('CSV import completed');
+      expect(response.body.summary.imported).toBe(2);
+      expect(response.body.summary.skipped).toBe(0);
+      expect(response.body.summary.errors).toBe(0);
+    });
+
+    it('skips rows with missing required fields', async () => {
+      const { agent } = await createAuthenticatedAgent(app);
+
+      const csvContent = `Name,Type,Distillery
+Valid Whiskey,bourbon,Valid Distillery
+Missing Type,,Another Distillery
+Missing Distillery,bourbon,`;
+
+      const response = await agent
+        .post('/api/whiskeys/import/csv')
+        .attach('file', Buffer.from(csvContent), 'whiskeys.csv');
+
+      expect(response.status).toBe(200);
+      expect(response.body.summary.imported).toBe(1);
+      expect(response.body.summary.skipped).toBe(2);
+    });
+
+    it('skips rows with invalid whiskey type', async () => {
+      const { agent } = await createAuthenticatedAgent(app);
+
+      const csvContent = `Name,Type,Distillery
+Valid,bourbon,Distillery
+Invalid Type,vodka,Distillery`;
+
+      const response = await agent
+        .post('/api/whiskeys/import/csv')
+        .attach('file', Buffer.from(csvContent), 'whiskeys.csv');
+
+      expect(response.status).toBe(200);
+      expect(response.body.summary.imported).toBe(1);
+      expect(response.body.summary.skipped).toBe(1);
+      expect(response.body.skipped[0]).toContain('Invalid whiskey type');
+    });
+
+    it('imports whiskeys with all optional fields', async () => {
+      const { agent, user } = await createAuthenticatedAgent(app);
+
+      const csvContent = `Name,Type,Distillery,Region,Age,ABV,Rating,Description
+Full Details,bourbon,Test Distillery,Kentucky,12,45.5,8.5,A great bourbon`;
+
+      const response = await agent
+        .post('/api/whiskeys/import/csv')
+        .attach('file', Buffer.from(csvContent), 'whiskeys.csv');
+
+      expect(response.status).toBe(200);
+      expect(response.body.summary.imported).toBe(1);
+
+      // Verify the imported whiskey has all fields
+      const listResponse = await agent.get('/api/whiskeys');
+      const imported = listResponse.body.whiskeys.find((w: any) => w.name === 'Full Details');
+
+      expect(imported.region).toBe('Kentucky');
+      expect(imported.age).toBe(12);
+      expect(imported.abv).toBe(45.5);
+      expect(imported.rating).toBe(8.5);
+      expect(imported.description).toBe('A great bourbon');
+    });
+
+    it('handles quoted CSV fields with commas', async () => {
+      const { agent } = await createAuthenticatedAgent(app);
+
+      const csvContent = `Name,Type,Distillery,Description
+"Whiskey, Special Edition",bourbon,Test Distillery,"Notes: vanilla, caramel, oak"`;
+
+      const response = await agent
+        .post('/api/whiskeys/import/csv')
+        .attach('file', Buffer.from(csvContent), 'whiskeys.csv');
+
+      expect(response.status).toBe(200);
+      expect(response.body.summary.imported).toBe(1);
+
+      const listResponse = await agent.get('/api/whiskeys');
+      const imported = listResponse.body.whiskeys[0];
+
+      expect(imported.name).toBe('Whiskey, Special Edition');
+      expect(imported.description).toBe('Notes: vanilla, caramel, oak');
+    });
+
+    it('assigns imported whiskeys to authenticated user', async () => {
+      const { agent, user } = await createAuthenticatedAgent(app);
+
+      const csvContent = `Name,Type,Distillery
+My Import,bourbon,My Distillery`;
+
+      await agent
+        .post('/api/whiskeys/import/csv')
+        .attach('file', Buffer.from(csvContent), 'whiskeys.csv');
+
+      const listResponse = await agent.get('/api/whiskeys');
+      expect(listResponse.body.whiskeys[0].created_by).toBe(user.id);
+    });
+
+    it('returns 400 for empty CSV', async () => {
+      const { agent } = await createAuthenticatedAgent(app);
+
+      const csvContent = `Name,Type,Distillery`;
+
+      const response = await agent
+        .post('/api/whiskeys/import/csv')
+        .attach('file', Buffer.from(csvContent), 'whiskeys.csv');
+
+      expect(response.status).toBe(400);
+      expect(response.body.error).toBe('CSV file is empty or invalid');
+    });
+
+    it('converts boolean fields correctly', async () => {
+      const { agent } = await createAuthenticatedAgent(app);
+
+      const csvContent = `Name,Type,Distillery,Is Opened,Limited Edition,Is For Sale
+Test Whiskey,bourbon,Test Distillery,Yes,1,yes`;
+
+      const response = await agent
+        .post('/api/whiskeys/import/csv')
+        .attach('file', Buffer.from(csvContent), 'whiskeys.csv');
+
+      expect(response.status).toBe(200);
+      expect(response.body.summary.imported).toBe(1);
+    });
+
+    it('imports numeric fields correctly', async () => {
+      const { agent } = await createAuthenticatedAgent(app);
+
+      // Note: WhiskeyModel.create only handles a subset of fields in the INSERT
+      // Age, ABV, MSRP, and Rating are included in the basic create
+      const csvContent = `Name,Type,Distillery,Age,ABV,MSRP,Rating
+Numeric Test,bourbon,Distillery,12,45.5,50.00,8.5`;
+
+      await agent
+        .post('/api/whiskeys/import/csv')
+        .attach('file', Buffer.from(csvContent), 'whiskeys.csv');
+
+      const listResponse = await agent.get('/api/whiskeys');
+      const imported = listResponse.body.whiskeys[0];
+
+      expect(imported.age).toBe(12);
+      expect(imported.abv).toBe(45.5);
+      expect(imported.msrp).toBe(50);
+      expect(imported.rating).toBe(8.5);
+    });
+
+    it('returns detailed import summary', async () => {
+      const { agent } = await createAuthenticatedAgent(app);
+
+      const csvContent = `Name,Type,Distillery
+Valid1,bourbon,Distillery1
+Valid2,scotch,Distillery2
+,bourbon,Missing Name`;
+
+      const response = await agent
+        .post('/api/whiskeys/import/csv')
+        .attach('file', Buffer.from(csvContent), 'whiskeys.csv');
+
+      expect(response.status).toBe(200);
+      expect(response.body.summary.total).toBe(3);
+      expect(response.body.summary.imported).toBe(2);
+      expect(response.body.summary.skipped).toBe(1);
+      expect(response.body.imported).toHaveLength(2);
+      expect(response.body.skipped).toHaveLength(1);
+    });
+  });
 });

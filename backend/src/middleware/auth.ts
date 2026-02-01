@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { User } from '../types';
+import { UserModel } from '../models/User';
 
 declare module 'express-session' {
   interface SessionData {
@@ -20,7 +21,6 @@ export function requireAuth(req: AuthRequest, res: Response, next: NextFunction)
 
 export function attachUser(req: AuthRequest, res: Response, next: NextFunction) {
   if (req.session.userId) {
-    const { UserModel } = require('../models/User');
     req.user = UserModel.findById(req.session.userId);
   }
   next();

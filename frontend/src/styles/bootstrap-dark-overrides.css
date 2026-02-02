@@ -198,8 +198,8 @@
   --bs-table-bg: var(--zinc-800);
   --bs-table-color: var(--zinc-300);
   --bs-table-border-color: var(--zinc-700);
-  --bs-table-striped-bg: var(--zinc-900);
-  --bs-table-hover-bg: var(--zinc-700);
+  --bs-table-striped-bg: var(--zinc-950);
+  --bs-table-hover-bg: rgba(217, 119, 6, 0.15);
   color: var(--zinc-300);
 }
 
@@ -213,12 +213,20 @@
   border-bottom-color: var(--zinc-700);
 }
 
+/* Alternating row colors with higher contrast */
 .table-striped > tbody > tr:nth-of-type(odd) > * {
-  background-color: var(--zinc-900);
+  background-color: var(--zinc-300);
+  color: var(--zinc-100);
 }
 
+.table-striped > tbody > tr:nth-of-type(even) > * {
+  background-color: var(--zinc-900);
+  color: var(--zinc-100);
+}
+
+/* Hover state with subtle amber accent */
 .table-hover > tbody > tr:hover > * {
-  background-color: var(--zinc-700);
+  background-color: rgba(217, 119, 6, 0.15) !important;
 }
 
 /* Modals */

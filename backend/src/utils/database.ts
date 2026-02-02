@@ -23,6 +23,12 @@ export function initializeDatabase() {
       first_name TEXT,
       last_name TEXT,
       profile_photo TEXT,
+      email_verified INTEGER DEFAULT 0,
+      verification_code TEXT,
+      verification_code_expires_at TEXT,
+      verification_code_attempts INTEGER DEFAULT 0,
+      password_reset_token TEXT,
+      password_reset_expires_at TEXT,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
       updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )
@@ -67,6 +73,36 @@ export function initializeDatabase() {
     if (!userColumnNames.includes('profile_photo')) {
       db.exec('ALTER TABLE users ADD COLUMN profile_photo TEXT');
       console.log('Added profile_photo column to users table');
+    }
+
+    if (!userColumnNames.includes('email_verified')) {
+      db.exec('ALTER TABLE users ADD COLUMN email_verified INTEGER DEFAULT 0');
+      console.log('Added email_verified column to users table');
+    }
+
+    if (!userColumnNames.includes('verification_code')) {
+      db.exec('ALTER TABLE users ADD COLUMN verification_code TEXT');
+      console.log('Added verification_code column to users table');
+    }
+
+    if (!userColumnNames.includes('verification_code_expires_at')) {
+      db.exec('ALTER TABLE users ADD COLUMN verification_code_expires_at TEXT');
+      console.log('Added verification_code_expires_at column to users table');
+    }
+
+    if (!userColumnNames.includes('verification_code_attempts')) {
+      db.exec('ALTER TABLE users ADD COLUMN verification_code_attempts INTEGER DEFAULT 0');
+      console.log('Added verification_code_attempts column to users table');
+    }
+
+    if (!userColumnNames.includes('password_reset_token')) {
+      db.exec('ALTER TABLE users ADD COLUMN password_reset_token TEXT');
+      console.log('Added password_reset_token column to users table');
+    }
+
+    if (!userColumnNames.includes('password_reset_expires_at')) {
+      db.exec('ALTER TABLE users ADD COLUMN password_reset_expires_at TEXT');
+      console.log('Added password_reset_expires_at column to users table');
     }
   } catch (error) {
     // Table doesn't exist yet, will be created above

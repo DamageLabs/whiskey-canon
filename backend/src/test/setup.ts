@@ -20,6 +20,12 @@ function initializeTestSchema() {
       first_name TEXT,
       last_name TEXT,
       profile_photo TEXT,
+      email_verified INTEGER DEFAULT 0,
+      verification_code TEXT,
+      verification_code_expires_at TEXT,
+      verification_code_attempts INTEGER DEFAULT 0,
+      password_reset_token TEXT,
+      password_reset_expires_at TEXT,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
       updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )

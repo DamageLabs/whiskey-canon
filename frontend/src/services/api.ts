@@ -2,6 +2,19 @@ import { User, Whiskey, CreateWhiskeyData, WhiskeyType } from '../types';
 
 const API_BASE = '/api';
 
+export class APIError extends Error {
+  status: number;
+  requiresVerification?: boolean;
+  email?: string;
+
+  constructor(message: string, status: number, data?: any) {
+    super(message);
+    this.status = status;
+    this.requiresVerification = data?.requiresVerification;
+    this.email = data?.email;
+  }
+}
+
 async function fetchAPI(url: string, options?: RequestInit) {
   const response = await fetch(`${API_BASE}${url}`, {
     ...options,
@@ -18,9 +31,9 @@ async function fetchAPI(url: string, options?: RequestInit) {
     // Handle validation errors array
     if (data.errors && Array.isArray(data.errors)) {
       const errorMessages = data.errors.map((e: any) => e.msg || e.message).join(', ');
-      throw new Error(errorMessages || 'Validation failed');
+      throw new APIError(errorMessages || 'Validation failed', response.status, data);
     }
-    throw new Error(data.error || 'Request failed');
+    throw new APIError(data.error || 'Request failed', response.status, data);
   }
 
   return data;
@@ -42,6 +55,30 @@ export const authAPI = {
   logout: () => fetchAPI('/auth/logout', { method: 'POST' }),
 
   getCurrentUser: (): Promise<{ user: User }> => fetchAPI('/auth/me'),
+
+  verifyEmail: (email: string, code: string) =>
+    fetchAPI('/auth/verify-email', {
+      method: 'POST',
+      body: JSON.stringify({ email, code }),
+    }),
+
+  resendVerification: (email: string) =>
+    fetchAPI('/auth/resend-verification', {
+      method: 'POST',
+      body: JSON.stringify({ email }),
+    }),
+
+  forgotPassword: (email: string) =>
+    fetchAPI('/auth/forgot-password', {
+      method: 'POST',
+      body: JSON.stringify({ email }),
+    }),
+
+  resetPassword: (token: string, password: string) =>
+    fetchAPI('/auth/reset-password', {
+      method: 'POST',
+      body: JSON.stringify({ token, password }),
+    }),
 };
 
 export const whiskeyAPI = {

@@ -22,9 +22,9 @@ describe('Auth Routes', () => {
         });
 
       expect(response.status).toBe(201);
-      expect(response.body.message).toBe('User created successfully');
-      expect(response.body.user.username).toBe('newuser');
-      expect(response.body.user.email).toBe('new@example.com');
+      expect(response.body.message).toContain('User created successfully');
+      expect(response.body.requiresVerification).toBe(true);
+      expect(response.body.email).toBe('new@example.com');
     });
 
     it('rejects duplicate username', async () => {
@@ -99,7 +99,7 @@ describe('Auth Routes', () => {
       expect(response.body.errors[0].msg).toBe('Password must be at least 6 characters');
     });
 
-    it('does not return password in response', async () => {
+    it('does not return user details for security (requires verification)', async () => {
       const response = await request(app)
         .post('/api/auth/register')
         .send({
@@ -109,7 +109,8 @@ describe('Auth Routes', () => {
         });
 
       expect(response.status).toBe(201);
-      expect(response.body.user.password).toBeUndefined();
+      expect(response.body.user).toBeUndefined();
+      expect(response.body.requiresVerification).toBe(true);
     });
 
     it('creates user with optional firstName and lastName', async () => {
@@ -124,8 +125,8 @@ describe('Auth Routes', () => {
         });
 
       expect(response.status).toBe(201);
-      expect(response.body.user.first_name).toBe('John');
-      expect(response.body.user.last_name).toBe('Doe');
+      expect(response.body.requiresVerification).toBe(true);
+      expect(response.body.email).toBe('new@example.com');
     });
   });
 

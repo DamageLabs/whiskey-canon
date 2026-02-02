@@ -1,11 +1,31 @@
+# Dependencies
 node_modules/
+
+# Build output
 dist/
+
+# Database
 *.db
 *.db-journal
+
+# Environment variables
 .env
+
+# OS files
 .DS_Store
+
+# Logs
 *.log
+
+# Test coverage
 coverage/
+
+# IDE settings
 .vscode/
 .idea/
+
+# Uploads
 backend/uploads/profiles/
+
+# Claude Code local settings
+.claude/settings.local.json

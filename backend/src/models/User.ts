@@ -132,4 +132,93 @@ export class UserModel {
 
     return this.findById(id);
   }
+
+  static setVerificationCode(id: number, code: string, expiresAt: Date): User | undefined {
+    const stmt = db.prepare(`
+      UPDATE users
+      SET verification_code = ?,
+          verification_code_expires_at = ?,
+          verification_code_attempts = 0,
+          updated_at = CURRENT_TIMESTAMP
+      WHERE id = ?
+    `);
+    const result = stmt.run(code, expiresAt.toISOString(), id);
+
+    if (result.changes === 0) {
+      return undefined;
+    }
+
+    return this.findById(id);
+  }
+
+  static incrementVerificationAttempts(id: number): number {
+    const stmt = db.prepare(`
+      UPDATE users
+      SET verification_code_attempts = verification_code_attempts + 1,
+          updated_at = CURRENT_TIMESTAMP
+      WHERE id = ?
+    `);
+    stmt.run(id);
+
+    const user = this.findById(id);
+    return user?.verification_code_attempts || 0;
+  }
+
+  static markEmailVerified(id: number): User | undefined {
+    const stmt = db.prepare(`
+      UPDATE users
+      SET email_verified = 1,
+          verification_code = NULL,
+          verification_code_expires_at = NULL,
+          verification_code_attempts = 0,
+          updated_at = CURRENT_TIMESTAMP
+      WHERE id = ?
+    `);
+    const result = stmt.run(id);
+
+    if (result.changes === 0) {
+      return undefined;
+    }
+
+    return this.findById(id);
+  }
+
+  static setPasswordResetToken(id: number, token: string, expiresAt: Date): User | undefined {
+    const stmt = db.prepare(`
+      UPDATE users
+      SET password_reset_token = ?,
+          password_reset_expires_at = ?,
+          updated_at = CURRENT_TIMESTAMP
+      WHERE id = ?
+    `);
+    const result = stmt.run(token, expiresAt.toISOString(), id);
+
+    if (result.changes === 0) {
+      return undefined;
+    }
+
+    return this.findById(id);
+  }
+
+  static findByPasswordResetToken(token: string): User | undefined {
+    const stmt = db.prepare('SELECT * FROM users WHERE password_reset_token = ?');
+    return stmt.get(token) as User | undefined;
+  }
+
+  static clearPasswordResetToken(id: number): User | undefined {
+    const stmt = db.prepare(`
+      UPDATE users
+      SET password_reset_token = NULL,
+          password_reset_expires_at = NULL,
+          updated_at = CURRENT_TIMESTAMP
+      WHERE id = ?
+    `);
+    const result = stmt.run(id);
+
+    if (result.changes === 0) {
+      return undefined;
+    }
+
+    return this.findById(id);
+  }
 }

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+import { authAPI } from '../services/api';
 
 export function RegisterPage() {
   const [firstName, setFirstName] = useState('');
@@ -12,7 +12,6 @@ export function RegisterPage() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-  const { register } = useAuth();
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -26,8 +25,12 @@ export function RegisterPage() {
     setLoading(true);
 
     try {
-      await register(username, email, password, firstName, lastName);
-      navigate('/dashboard');
+      const response = await authAPI.register(username, email, password, undefined, firstName, lastName);
+      if (response.requiresVerification) {
+        navigate(`/verify-email?email=${encodeURIComponent(email)}`);
+      } else {
+        navigate('/login');
+      }
     } catch (err: any) {
       setError(err.message || 'Registration failed');
     } finally {

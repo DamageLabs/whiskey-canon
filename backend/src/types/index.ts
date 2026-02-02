@@ -21,6 +21,12 @@ export interface User {
   first_name?: string;
   last_name?: string;
   profile_photo?: string;
+  email_verified: number;
+  verification_code?: string;
+  verification_code_expires_at?: string;
+  verification_code_attempts: number;
+  password_reset_token?: string;
+  password_reset_expires_at?: string;
   created_at: string;
   updated_at: string;
 }

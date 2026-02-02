@@ -1,11 +1,13 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { APIError } from '../services/api';
 
 export function LoginPage() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [verificationEmail, setVerificationEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { login } = useAuth();
@@ -13,13 +15,19 @@ export function LoginPage() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError('');
+    setVerificationEmail('');
     setLoading(true);
 
     try {
       await login(username, password);
       navigate('/dashboard');
     } catch (err: any) {
-      setError(err.message || 'Login failed');
+      if (err instanceof APIError && err.requiresVerification && err.email) {
+        setVerificationEmail(err.email);
+        setError(err.message);
+      } else {
+        setError(err.message || 'Login failed');
+      }
     } finally {
       setLoading(false);
     }
@@ -38,6 +46,16 @@ export function LoginPage() {
           {error && (
             <div className="alert alert-danger" role="alert">
               {error}
+              {verificationEmail && (
+                <div className="mt-2">
+                  <Link
+                    to={`/verify-email?email=${encodeURIComponent(verificationEmail)}`}
+                    className="alert-link"
+                  >
+                    Click here to verify your email
+                  </Link>
+                </div>
+              )}
             </div>
           )}
 
@@ -83,6 +101,9 @@ export function LoginPage() {
             </button>
           </form>
 
+          <p className="text-center text-muted mb-2">
+            <Link to="/forgot-password" className="text-decoration-none" style={{ color: 'var(--amber-500)' }}>Forgot your password?</Link>
+          </p>
           <p className="text-center text-muted">
             Don't have an account? <Link to="/register" className="text-decoration-none fw-bold" style={{ color: 'var(--amber-500)' }}>Register</Link>
           </p>

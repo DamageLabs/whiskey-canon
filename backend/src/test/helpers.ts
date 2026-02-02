@@ -60,8 +60,8 @@ export async function createTestUser(
   const hashedPassword = await bcrypt.hash(password, 10);
 
   const stmt = testDb.prepare(`
-    INSERT INTO users (username, email, password, role, first_name, last_name)
-    VALUES (?, ?, ?, ?, ?, ?)
+    INSERT INTO users (username, email, password, role, first_name, last_name, email_verified)
+    VALUES (?, ?, ?, ?, ?, ?, 1)
   `);
 
   const result = stmt.run(username, email, hashedPassword, role, firstName || null, lastName || null);

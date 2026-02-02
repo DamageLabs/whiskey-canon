@@ -1,11 +1,11 @@
-import express from 'express';
+import express, { Response } from 'express';
 import { db } from '../utils/database';
 import { requireAuth, AuthRequest } from '../middleware/auth';
 
 const router = express.Router();
 
 // Get comprehensive statistics for user's collection
-router.get('/', requireAuth, (req: AuthRequest, res) => {
+router.get('/', requireAuth, (req: AuthRequest, res: Response) => {
   try {
     if (!req.user) {
       return res.status(401).json({ error: 'Not authenticated' });

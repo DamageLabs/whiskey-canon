@@ -1,6 +1,7 @@
 export enum Role {
   ADMIN = 'admin',
-  EDITOR = 'editor'
+  EDITOR = 'editor',
+  VIEWER = 'viewer'
 }
 
 export enum Permission {
@@ -132,5 +133,8 @@ export const RolePermissions: Record<Role, Permission[]> = {
     Permission.CREATE_WHISKEY,
     Permission.READ_WHISKEY,
     Permission.UPDATE_WHISKEY
+  ],
+  [Role.VIEWER]: [
+    Permission.READ_WHISKEY
   ]
 };

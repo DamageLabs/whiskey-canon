@@ -1,6 +1,6 @@
 import { UserModel } from './models/User';
 import { WhiskeyModel } from './models/Whiskey';
-import { Role, WhiskeyType } from './types';
+import { Role, WhiskeyType, WhiskeyStatus } from './types';
 import { db } from './utils/database';
 
 // Helper function to generate random number in range
@@ -240,11 +240,11 @@ async function seedDemoData() {
       purchase_date: purchaseDate,
       purchase_price: bourbon.msrp * (0.9 + Math.random() * 0.4),
       purchase_location: randomPick(['Total Wine', 'ABC Store', 'Local Shop', 'Online', 'Distillery']),
-      is_opened: isOpened ? 1 : 0,
-      date_opened: dateOpened,
+      is_opened: isOpened,
+      date_opened: dateOpened || undefined,
       remaining_volume: isOpened ? randomInt(300, 700) : 750,
       storage_location: randomPick(['Home Bar', 'Display Shelf', 'Cabinet', 'Climate Cabinet']),
-      status: 'in_collection',
+      status: WhiskeyStatus.IN_COLLECTION,
       country: 'USA',
       proof: bourbon.abv * 2,
       current_market_value: bourbon.secondary,
@@ -283,16 +283,16 @@ async function seedDemoData() {
       purchase_date: purchaseDate,
       purchase_price: scotch.msrp * (0.85 + Math.random() * 0.5),
       purchase_location: randomPick(['Duty Free', 'UK Import', 'Specialty Store', 'Online', 'Scotland Direct']),
-      is_opened: isOpened ? 1 : 0,
-      date_opened: dateOpened,
+      is_opened: isOpened,
+      date_opened: dateOpened || undefined,
       remaining_volume: isOpened ? randomInt(300, 650) : 700,
       storage_location: randomPick(['Display Shelf', 'Cabinet', 'Climate Cabinet', 'Whisky Room']),
-      status: 'in_collection',
+      status: WhiskeyStatus.IN_COLLECTION,
       country: 'Scotland',
       proof: scotch.abv * 1.75,
       current_market_value: scotch.secondary,
-      chill_filtered: 0,
-      natural_color: 1,
+      chill_filtered: false,
+      natural_color: true,
       created_by: scotchEnthusiast.id,
     });
   }
@@ -311,10 +311,10 @@ async function seedDemoData() {
 
     let type = WhiskeyType.BOURBON;
     let country = 'USA';
-    if (scotchData.includes(whiskey)) { type = WhiskeyType.SCOTCH; country = 'Scotland'; }
-    if (japaneseData.includes(whiskey)) { type = WhiskeyType.JAPANESE; country = 'Japan'; }
-    if (irishData.includes(whiskey)) { type = WhiskeyType.IRISH; country = 'Ireland'; }
-    if (ryeData.includes(whiskey)) { type = WhiskeyType.RYE; country = 'USA'; }
+    if ((scotchData as any[]).includes(whiskey)) { type = WhiskeyType.SCOTCH; country = 'Scotland'; }
+    if ((japaneseData as any[]).includes(whiskey)) { type = WhiskeyType.JAPANESE; country = 'Japan'; }
+    if ((irishData as any[]).includes(whiskey)) { type = WhiskeyType.IRISH; country = 'Ireland'; }
+    if ((ryeData as any[]).includes(whiskey)) { type = WhiskeyType.RYE; country = 'USA'; }
 
     WhiskeyModel.create({
       name: whiskey.name,
@@ -333,14 +333,14 @@ async function seedDemoData() {
       purchase_date: purchaseDate,
       purchase_price: whiskey.msrp * (0.9 + Math.random() * 0.3),
       purchase_location: randomPick(['Auction', 'Private Sale', 'Specialty Store', 'International', 'Distillery Direct']),
-      is_opened: isOpened ? 1 : 0,
-      date_opened: dateOpened,
+      is_opened: isOpened,
+      date_opened: dateOpened || undefined,
       remaining_volume: isOpened ? randomInt(400, 700) : (country === 'Scotland' ? 700 : 750),
       storage_location: 'Climate Cabinet',
-      status: 'in_collection',
+      status: WhiskeyStatus.IN_COLLECTION,
       country: country,
       current_market_value: whiskey.secondary,
-      is_investment_bottle: whiskey.msrp > 150 ? 1 : 0,
+      is_investment_bottle: whiskey.msrp > 150,
       created_by: whiskeyCurator.id,
     });
   }
@@ -365,9 +365,9 @@ async function seedDemoData() {
 
     let type = WhiskeyType.BOURBON;
     let country = 'USA';
-    if (scotchData.includes(whiskey)) { type = WhiskeyType.SCOTCH; country = 'Scotland'; }
-    if (japaneseData.includes(whiskey)) { type = WhiskeyType.JAPANESE; country = 'Japan'; }
-    if (irishData.includes(whiskey)) { type = WhiskeyType.IRISH; country = 'Ireland'; }
+    if ((scotchData as any[]).includes(whiskey)) { type = WhiskeyType.SCOTCH; country = 'Scotland'; }
+    if ((japaneseData as any[]).includes(whiskey)) { type = WhiskeyType.JAPANESE; country = 'Japan'; }
+    if ((irishData as any[]).includes(whiskey)) { type = WhiskeyType.IRISH; country = 'Ireland'; }
 
     WhiskeyModel.create({
       name: whiskey.name,
@@ -385,11 +385,11 @@ async function seedDemoData() {
       purchase_date: purchaseDate,
       purchase_price: whiskey.msrp * (0.95 + Math.random() * 0.15),
       purchase_location: randomPick(['Grocery Store', 'Total Wine', 'ABC Store', 'Local Shop']),
-      is_opened: isOpened ? 1 : 0,
-      date_opened: dateOpened,
+      is_opened: isOpened,
+      date_opened: dateOpened || undefined,
       remaining_volume: isOpened ? randomInt(400, 700) : (country === 'Scotland' ? 700 : 750),
       storage_location: 'Kitchen Cabinet',
-      status: 'in_collection',
+      status: WhiskeyStatus.IN_COLLECTION,
       country: country,
       current_market_value: whiskey.secondary || whiskey.msrp * 1.1,
       created_by: newCollector.id,
@@ -413,8 +413,8 @@ async function seedDemoData() {
 
     let type = WhiskeyType.BOURBON;
     let country = 'USA';
-    if (scotchData.includes(whiskey)) { type = WhiskeyType.SCOTCH; country = 'Scotland'; }
-    if (japaneseData.includes(whiskey)) { type = WhiskeyType.JAPANESE; country = 'Japan'; }
+    if ((scotchData as any[]).includes(whiskey)) { type = WhiskeyType.SCOTCH; country = 'Scotland'; }
+    if ((japaneseData as any[]).includes(whiskey)) { type = WhiskeyType.JAPANESE; country = 'Japan'; }
 
     WhiskeyModel.create({
       name: whiskey.name,
@@ -433,13 +433,13 @@ async function seedDemoData() {
       purchase_date: purchaseDate,
       purchase_price: whiskey.msrp * (0.8 + Math.random() * 0.5),
       purchase_location: randomPick(['Auction', 'Private Sale', 'Investment Dealer', 'International']),
-      is_opened: 0,
+      is_opened: false,
       storage_location: randomPick(['Bank Vault', 'Climate Cabinet', 'Safe']),
-      status: 'in_collection',
+      status: WhiskeyStatus.IN_COLLECTION,
       country: country,
       current_market_value: whiskey.secondary,
-      is_investment_bottle: 1,
-      limited_edition: 1,
+      is_investment_bottle: true,
+      limited_edition: true,
       created_by: investor.id,
     });
   }
@@ -459,8 +459,8 @@ async function seedDemoData() {
 
     let type = WhiskeyType.BOURBON;
     let country = 'USA';
-    if (scotchData.includes(whiskey)) { type = WhiskeyType.SCOTCH; country = 'Scotland'; }
-    if (japaneseData.includes(whiskey)) { type = WhiskeyType.JAPANESE; country = 'Japan'; }
+    if ((scotchData as any[]).includes(whiskey)) { type = WhiskeyType.SCOTCH; country = 'Scotland'; }
+    if ((japaneseData as any[]).includes(whiskey)) { type = WhiskeyType.JAPANESE; country = 'Japan'; }
 
     WhiskeyModel.create({
       name: whiskey.name,
@@ -478,11 +478,11 @@ async function seedDemoData() {
       purchase_date: purchaseDate,
       purchase_price: whiskey.msrp,
       purchase_location: randomPick(['Online', 'Local Shop', 'Distillery', 'Specialty Store']),
-      is_opened: isOpened ? 1 : 0,
-      date_opened: dateOpened,
+      is_opened: isOpened,
+      date_opened: dateOpened || undefined,
       remaining_volume: isOpened ? randomInt(300, 700) : (country === 'Scotland' ? 700 : 750),
       storage_location: 'Office Bar',
-      status: 'in_collection',
+      status: WhiskeyStatus.IN_COLLECTION,
       country: country,
       current_market_value: whiskey.secondary || whiskey.msrp * 1.15,
       created_by: admin.id,

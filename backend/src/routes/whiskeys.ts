@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { Response } from 'express';
 import { body, query, validationResult } from 'express-validator';
 import multer from 'multer';
 import { WhiskeyModel } from '../models/Whiskey';
@@ -32,7 +32,7 @@ router.get(
     query('type').optional().isIn(Object.values(WhiskeyType)),
     query('distillery').optional().isString()
   ],
-  (req: AuthRequest, res) => {
+  (req: AuthRequest, res: Response) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
@@ -59,7 +59,7 @@ router.get(
   '/search',
   requirePermission(Permission.READ_WHISKEY),
   [query('q').notEmpty().withMessage('Search query is required')],
-  (req: AuthRequest, res) => {
+  (req: AuthRequest, res: Response) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
@@ -79,7 +79,7 @@ router.get(
 router.get(
   '/export/csv',
   requirePermission(Permission.READ_WHISKEY),
-  (req: AuthRequest, res) => {
+  (req: AuthRequest, res: Response) => {
     try {
       const whiskeys = WhiskeyModel.findAll({ userId: req.user!.id });
 
@@ -222,7 +222,7 @@ router.post(
   '/import/csv',
   requirePermission(Permission.CREATE_WHISKEY),
   upload.single('file'),
-  (req: AuthRequest, res) => {
+  (req: AuthRequest, res: Response) => {
     try {
       if (!req.file) {
         return res.status(400).json({ error: 'No file uploaded' });
@@ -555,7 +555,7 @@ router.post(
 router.get(
   '/:id',
   requirePermission(Permission.READ_WHISKEY),
-  (req: AuthRequest, res) => {
+  (req: AuthRequest, res: Response) => {
     try {
       const whiskey = WhiskeyModel.findById(parseInt(req.params.id), req.user!.id);
 
@@ -590,10 +590,11 @@ router.post(
     body('tasting_notes').optional().trim(),
     body('rating').optional().isFloat({ min: 0, max: 10 }).withMessage('Rating must be between 0 and 10')
   ],
-  (req: AuthRequest, res) => {
+  (req: AuthRequest, res: Response) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
+      res.status(400).json({ errors: errors.array() });
+      return;
     }
 
     try {
@@ -638,11 +639,12 @@ router.put(
     body('tasting_notes').optional().trim(),
     body('rating').optional().isFloat({ min: 0, max: 10 })
   ],
-  (req: AuthRequest, res) => {
+  (req: AuthRequest, res: Response) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       console.error('Validation errors:', errors.array());
-      return res.status(400).json({ errors: errors.array() });
+      res.status(400).json({ errors: errors.array() });
+      return;
     }
 
     try {
@@ -656,7 +658,8 @@ router.put(
       const whiskey = WhiskeyModel.update(parseInt(req.params.id), whiskeyData, req.user!.id);
 
       if (!whiskey) {
-        return res.status(404).json({ error: 'Whiskey not found or you do not have permission to update it' });
+        res.status(404).json({ error: 'Whiskey not found or you do not have permission to update it' });
+        return;
       }
 
       res.json({
@@ -674,7 +677,7 @@ router.put(
 router.delete(
   '/:id',
   requirePermission(Permission.DELETE_WHISKEY),
-  (req: AuthRequest, res) => {
+  (req: AuthRequest, res: Response) => {
     try {
       const deleted = WhiskeyModel.delete(parseInt(req.params.id), req.user!.id);
 

@@ -77,3 +77,9 @@ After running `npm run db:seed:users`:
 - Statistics: `GET /api/statistics`
 - Admin: `GET /api/admin/users`, `PUT /api/admin/users/:id/role`
 - Health: `GET /api/health`
+
+## Git Workflow
+
+- **Always create a new PR** for each set of changes - never update an existing PR unless explicitly told to do so
+- Create feature branches from `main` with descriptive names (e.g., `feature/email-verification`, `docs/update-readme`)
+- Keep PRs focused on a single feature or fix

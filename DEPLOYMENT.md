@@ -349,7 +349,34 @@ pm2 save
 
 ## Production Setup (Optional)
 
-### 1. Install and Configure Nginx
+### Quick Setup with Automated Scripts (Recommended)
+
+The project includes automated scripts for Nginx and SSL setup:
+
+```bash
+# 1. Setup Nginx (installs nginx, copies snippets, generates DH params)
+sudo ./scripts/nginx-setup.sh
+
+# 2. Obtain SSL certificate (test with --staging first)
+sudo ./scripts/ssl-setup.sh -d yourdomain.com -e admin@yourdomain.com --staging  # Test
+sudo ./scripts/ssl-setup.sh -d yourdomain.com -e admin@yourdomain.com            # Production
+
+# 3. Deploy production configuration
+sudo ./scripts/deploy-prod.sh -d yourdomain.com -u $USER
+```
+
+For development with Nginx (optional):
+```bash
+sudo ./scripts/nginx-setup.sh
+sudo ./scripts/deploy-dev.sh
+echo "127.0.0.1 whiskey-canon.local" | sudo tee -a /etc/hosts
+npm run dev
+# Access at http://whiskey-canon.local
+```
+
+### Manual Nginx Setup (Alternative)
+
+If you prefer manual configuration:
 
 ```bash
 # Install Nginx
@@ -415,8 +442,14 @@ sudo systemctl restart nginx
 sudo systemctl enable nginx
 ```
 
-### 2. Setup SSL with Let's Encrypt (Recommended)
+### SSL with Let's Encrypt
 
+**Using automated script (recommended):**
+```bash
+sudo ./scripts/ssl-setup.sh -d YOUR_DOMAIN.com -e admin@YOUR_DOMAIN.com
+```
+
+**Manual setup:**
 ```bash
 # Install Certbot
 sudo apt install certbot python3-certbot-nginx -y

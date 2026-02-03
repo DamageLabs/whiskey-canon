@@ -16,6 +16,9 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Trust proxy (required for secure cookies behind Nginx)
+app.set('trust proxy', 1);
+
 // Initialize database
 initializeDatabase();
 
@@ -37,6 +40,7 @@ app.use(
     cookie: {
       secure: process.env.NODE_ENV === 'production',
       httpOnly: true,
+      sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax',
       maxAge: 1000 * 60 * 60 * 24 * 7 // 7 days
     }
   })

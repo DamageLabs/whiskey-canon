@@ -64,6 +64,16 @@ describe('WhiskeyModel', () => {
 
       expect(whiskey.created_at).toBeDefined();
     });
+
+    it('creates a whiskey with obtained_from field', () => {
+      const whiskey = WhiskeyModel.create(createWhiskeyData(user1.id, {
+        obtained_from: 'John Smith',
+        purchase_location: 'Gift'
+      }));
+
+      expect(whiskey.obtained_from).toBe('John Smith');
+      expect(whiskey.purchase_location).toBe('Gift');
+    });
   });
 
   describe('findById', () => {

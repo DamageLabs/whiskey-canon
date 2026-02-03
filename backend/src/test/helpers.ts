@@ -8,6 +8,7 @@ import authRoutes from '../routes/auth';
 import whiskeyRoutes from '../routes/whiskeys';
 import adminRoutes from '../routes/admin';
 import statisticsRoutes from '../routes/statistics';
+import commentRoutes from '../routes/comments';
 import { Role, WhiskeyType } from '../types';
 
 /**
@@ -36,6 +37,7 @@ export function createTestApp(): express.Application {
   app.use('/api/whiskeys', whiskeyRoutes);
   app.use('/api/admin', adminRoutes);
   app.use('/api/statistics', statisticsRoutes);
+  app.use('/api/comments', commentRoutes);
 
   // Error handler for debugging test failures
   app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
@@ -124,6 +126,8 @@ export function createTestWhiskey(
     abv?: number;
     rating?: number;
     description?: string;
+    obtained_from?: string;
+    purchase_location?: string;
   } = {}
 ): { id: number; name: string; type: WhiskeyType; distillery: string; created_by: number } {
   const data = {
@@ -134,12 +138,14 @@ export function createTestWhiskey(
     age: overrides.age || null,
     abv: overrides.abv || null,
     rating: overrides.rating || null,
-    description: overrides.description || null
+    description: overrides.description || null,
+    obtained_from: overrides.obtained_from || null,
+    purchase_location: overrides.purchase_location || null
   };
 
   const stmt = testDb.prepare(`
-    INSERT INTO whiskeys (name, type, distillery, region, age, abv, rating, description, created_by)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    INSERT INTO whiskeys (name, type, distillery, region, age, abv, rating, description, obtained_from, purchase_location, created_by)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `);
 
   const result = stmt.run(
@@ -151,6 +157,8 @@ export function createTestWhiskey(
     data.abv,
     data.rating,
     data.description,
+    data.obtained_from,
+    data.purchase_location,
     userId
   );
 
@@ -160,5 +168,28 @@ export function createTestWhiskey(
     type: data.type as WhiskeyType,
     distillery: data.distillery,
     created_by: userId
+  };
+}
+
+/**
+ * Creates a test comment directly in the database
+ */
+export function createTestComment(
+  whiskeyId: number,
+  userId: number,
+  content: string = 'Test comment'
+): { id: number; whiskey_id: number; user_id: number; content: string } {
+  const stmt = testDb.prepare(`
+    INSERT INTO whiskey_comments (whiskey_id, user_id, content)
+    VALUES (?, ?, ?)
+  `);
+
+  const result = stmt.run(whiskeyId, userId, content);
+
+  return {
+    id: result.lastInsertRowid as number,
+    whiskey_id: whiskeyId,
+    user_id: userId,
+    content
   };
 }

@@ -24,6 +24,7 @@ export interface CreateWhiskeyData {
   purchase_date?: string;
   purchase_price?: number;
   purchase_location?: string;
+  obtained_from?: string;
   bottle_code?: string;
 
   // Inventory Management
@@ -97,6 +98,7 @@ export interface UpdateWhiskeyData {
   purchase_date?: string;
   purchase_price?: number;
   purchase_location?: string;
+  obtained_from?: string;
   bottle_code?: string;
 
   // Inventory Management
@@ -156,9 +158,11 @@ export class WhiskeyModel {
       INSERT INTO whiskeys (
         name, type, distillery, region, age, abv, size,
         quantity, msrp, secondary_price,
-        description, tasting_notes, rating, created_by
+        description, tasting_notes, rating,
+        purchase_date, purchase_price, purchase_location, obtained_from, bottle_code,
+        created_by
       )
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `);
 
     const result = stmt.run(
@@ -175,6 +179,11 @@ export class WhiskeyModel {
       data.description || null,
       data.tasting_notes || null,
       data.rating || null,
+      data.purchase_date || null,
+      data.purchase_price || null,
+      data.purchase_location || null,
+      data.obtained_from || null,
+      data.bottle_code || null,
       data.created_by
     );
 

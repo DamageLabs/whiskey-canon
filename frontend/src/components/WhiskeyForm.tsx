@@ -39,6 +39,7 @@ export function WhiskeyForm({ whiskey, onClose, onSuccess }: WhiskeyFormProps) {
         purchase_date: whiskey.purchase_date || '',
         purchase_price: whiskey.purchase_price,
         purchase_location: whiskey.purchase_location || '',
+        obtained_from: whiskey.obtained_from || '',
         bottle_code: whiskey.bottle_code || '',
 
         // Inventory Management
@@ -508,6 +509,19 @@ export function WhiskeyForm({ whiskey, onClose, onSuccess }: WhiskeyFormProps) {
                         placeholder="Store name, online, auction, etc."
                         className="form-control"
                         value={formData.purchase_location || ''}
+                        onChange={handleChange}
+                      />
+                    </div>
+
+                    <div className="col-md-4">
+                      <label htmlFor="obtained_from" className="form-label">Obtained From</label>
+                      <input
+                        id="obtained_from"
+                        name="obtained_from"
+                        type="text"
+                        placeholder="Person who gifted bottle"
+                        className="form-control"
+                        value={formData.obtained_from || ''}
                         onChange={handleChange}
                       />
                     </div>

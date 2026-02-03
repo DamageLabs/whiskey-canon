@@ -51,6 +51,7 @@ function initializeTestSchema() {
       purchase_date TEXT,
       purchase_price REAL,
       purchase_location TEXT,
+      obtained_from TEXT,
       bottle_code TEXT,
       is_opened INTEGER DEFAULT 0,
       date_opened TEXT,
@@ -94,6 +95,20 @@ function initializeTestSchema() {
       FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE CASCADE
     )
   `);
+
+  // Create whiskey_comments table
+  testDb.exec(`
+    CREATE TABLE IF NOT EXISTS whiskey_comments (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      whiskey_id INTEGER NOT NULL,
+      user_id INTEGER NOT NULL,
+      content TEXT NOT NULL,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (whiskey_id) REFERENCES whiskeys(id) ON DELETE CASCADE,
+      FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    )
+  `);
 }
 
 // Initialize schema once
@@ -101,10 +116,11 @@ initializeTestSchema();
 
 // Clear tables before each test
 beforeEach(() => {
+  testDb.exec('DELETE FROM whiskey_comments');
   testDb.exec('DELETE FROM whiskeys');
   testDb.exec('DELETE FROM users');
   // Reset auto-increment counters
-  testDb.exec("DELETE FROM sqlite_sequence WHERE name='users' OR name='whiskeys'");
+  testDb.exec("DELETE FROM sqlite_sequence WHERE name='users' OR name='whiskeys' OR name='whiskey_comments'");
 });
 
 // Close database after all tests

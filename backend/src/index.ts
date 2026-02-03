@@ -9,6 +9,7 @@ import authRoutes from './routes/auth';
 import whiskeyRoutes from './routes/whiskeys';
 import adminRoutes from './routes/admin';
 import statisticsRoutes from './routes/statistics';
+import commentRoutes from './routes/comments';
 
 dotenv.config();
 
@@ -54,6 +55,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/whiskeys', whiskeyRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/statistics', statisticsRoutes);
+app.use('/api/comments', commentRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {

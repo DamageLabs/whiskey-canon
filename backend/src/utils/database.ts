@@ -287,6 +287,12 @@ export function initializeDatabase() {
       console.log('Added receipt_image_url column to whiskeys table');
     }
 
+    // Obtained From (person who gifted the bottle)
+    if (!columnNames.includes('obtained_from')) {
+      db.exec('ALTER TABLE whiskeys ADD COLUMN obtained_from TEXT');
+      console.log('Added obtained_from column to whiskeys table');
+    }
+
     // Social & Sharing
     if (!columnNames.includes('is_for_sale')) {
       db.exec('ALTER TABLE whiskeys ADD COLUMN is_for_sale INTEGER DEFAULT 0');
@@ -312,11 +318,27 @@ export function initializeDatabase() {
     // Table doesn't exist yet, will be created above
   }
 
+  // Create whiskey_comments table
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS whiskey_comments (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      whiskey_id INTEGER NOT NULL,
+      user_id INTEGER NOT NULL,
+      content TEXT NOT NULL,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (whiskey_id) REFERENCES whiskeys(id) ON DELETE CASCADE,
+      FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    )
+  `);
+
   // Create indexes
   db.exec(`
     CREATE INDEX IF NOT EXISTS idx_whiskeys_type ON whiskeys(type);
     CREATE INDEX IF NOT EXISTS idx_whiskeys_distillery ON whiskeys(distillery);
     CREATE INDEX IF NOT EXISTS idx_whiskeys_created_by ON whiskeys(created_by);
+    CREATE INDEX IF NOT EXISTS idx_whiskey_comments_whiskey_id ON whiskey_comments(whiskey_id);
+    CREATE INDEX IF NOT EXISTS idx_whiskey_comments_user_id ON whiskey_comments(user_id);
   `);
 
   console.log('Database initialized successfully');

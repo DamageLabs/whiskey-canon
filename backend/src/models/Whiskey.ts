@@ -160,9 +160,13 @@ export class WhiskeyModel {
         quantity, msrp, secondary_price,
         description, tasting_notes, rating,
         purchase_date, purchase_price, purchase_location, obtained_from, bottle_code,
+        is_opened, date_opened, remaining_volume, storage_location, status,
+        country, proof, current_market_value, is_investment_bottle,
+        limited_edition, chill_filtered, natural_color,
+        nose_notes, palate_notes, finish_notes,
         created_by
       )
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `);
 
     const result = stmt.run(
@@ -184,6 +188,21 @@ export class WhiskeyModel {
       data.purchase_location || null,
       data.obtained_from || null,
       data.bottle_code || null,
+      data.is_opened ? 1 : 0,
+      data.date_opened || null,
+      data.remaining_volume || null,
+      data.storage_location || null,
+      data.status || null,
+      data.country || null,
+      data.proof || null,
+      data.current_market_value || null,
+      data.is_investment_bottle ? 1 : 0,
+      data.limited_edition ? 1 : 0,
+      data.chill_filtered === false ? 0 : (data.chill_filtered ? 1 : null),
+      data.natural_color ? 1 : 0,
+      data.nose_notes || null,
+      data.palate_notes || null,
+      data.finish_notes || null,
       data.created_by
     );
 

@@ -54,6 +54,7 @@ export interface Whiskey {
   purchase_date?: string;
   purchase_price?: number;
   purchase_location?: string;
+  obtained_from?: string;
   bottle_code?: string;
 
   // Inventory Management
@@ -130,6 +131,7 @@ export interface CreateWhiskeyData {
   purchase_date?: string;
   purchase_price?: number;
   purchase_location?: string;
+  obtained_from?: string;
   bottle_code?: string;
 
   // Inventory Management
@@ -181,4 +183,16 @@ export interface CreateWhiskeyData {
   is_for_trade?: boolean;
   shared_with?: string;
   private_notes?: string;
+}
+
+export interface WhiskeyComment {
+  id: number;
+  whiskey_id: number;
+  user_id: number;
+  content: string;
+  created_at: string;
+  updated_at: string;
+  // Joined fields
+  username?: string;
+  profile_photo?: string;
 }

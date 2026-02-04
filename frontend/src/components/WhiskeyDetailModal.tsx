@@ -1,4 +1,5 @@
 import { Whiskey } from '../types';
+import { formatCurrency } from '../utils/formatCurrency';
 
 interface WhiskeyDetailModalProps {
   whiskey: Whiskey;
@@ -83,7 +84,7 @@ export function WhiskeyDetailModal({ whiskey, onClose, onEdit, onDelete }: Whisk
                 <div className="col-md-4">
                   <div className="border-start border-4 ps-3" style={{ borderColor: 'var(--amber-500)' }}>
                     <small className="text-muted text-uppercase d-block mb-1">MSRP</small>
-                    <strong>${whiskey.msrp.toFixed(2)}</strong>
+                    <strong>{formatCurrency(whiskey.msrp)}</strong>
                   </div>
                 </div>
               )}
@@ -92,7 +93,7 @@ export function WhiskeyDetailModal({ whiskey, onClose, onEdit, onDelete }: Whisk
                 <div className="col-md-4">
                   <div className="border-start border-4 ps-3" style={{ borderColor: 'var(--amber-500)' }}>
                     <small className="text-muted text-uppercase d-block mb-1">Secondary Price</small>
-                    <strong>${whiskey.secondary_price.toFixed(2)}</strong>
+                    <strong>{formatCurrency(whiskey.secondary_price)}</strong>
                   </div>
                 </div>
               )}

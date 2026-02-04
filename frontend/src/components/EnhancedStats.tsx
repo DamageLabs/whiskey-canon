@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import '../styles/EnhancedStats.css';
+import { formatCurrency } from '../utils/formatCurrency';
 
 interface EnhancedStatsProps {
   onLoad?: () => void;
@@ -59,10 +60,6 @@ export function EnhancedStats({ onLoad }: EnhancedStatsProps) {
 
   const COLORS = ['#f59e0b', '#d97706', '#b45309', '#92400e', '#78350f', '#fbbf24', '#fcd34d', '#fde68a'];
 
-  const formatCurrency = (value: number) => {
-    return value ? `$${value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : 'N/A';
-  };
-
   const formatNumber = (value: number) => {
     return value?.toLocaleString() || '0';
   };
@@ -112,8 +109,8 @@ export function EnhancedStats({ onLoad }: EnhancedStatsProps) {
             <div className="col-md-3">
               <div className="stat-card stat-card-success">
                 <div className="stat-label">Collection Value</div>
-                <div className="stat-value">{formatCurrency(statistics.financial.total_current_value)}</div>
-                <div className="stat-sublabel">Current Market</div>
+                <div className="stat-value">{formatCurrency(statistics.financial.total_secondary_value)}</div>
+                <div className="stat-sublabel">Secondary Market</div>
               </div>
             </div>
             <div className="col-md-3">
@@ -247,7 +244,7 @@ export function EnhancedStats({ onLoad }: EnhancedStatsProps) {
             <div className="col-md-4">
               <div className="stat-card stat-card-info">
                 <div className="stat-label">Avg Bottle Value</div>
-                <div className="stat-value">{formatCurrency(statistics.financial.avg_current_value)}</div>
+                <div className="stat-value">{formatCurrency(statistics.financial.avg_secondary_value)}</div>
               </div>
             </div>
           </div>
@@ -264,7 +261,7 @@ export function EnhancedStats({ onLoad }: EnhancedStatsProps) {
                     <tr>
                       <th>Name</th>
                       <th>Distillery</th>
-                      <th>Current Value</th>
+                      <th>Secondary</th>
                       <th>Purchase Price</th>
                       <th>Gain/Loss</th>
                     </tr>
@@ -274,7 +271,7 @@ export function EnhancedStats({ onLoad }: EnhancedStatsProps) {
                       <tr key={bottle.id}>
                         <td>{bottle.name}</td>
                         <td>{bottle.distillery}</td>
-                        <td>{formatCurrency(bottle.current_market_value)}</td>
+                        <td>{formatCurrency(bottle.secondary_price)}</td>
                         <td>{formatCurrency(bottle.purchase_price)}</td>
                         <td className={bottle.value_gain >= 0 ? 'text-success' : 'text-danger'}>
                           {formatCurrency(bottle.value_gain)}
@@ -300,7 +297,7 @@ export function EnhancedStats({ onLoad }: EnhancedStatsProps) {
                       <th>Name</th>
                       <th>Distillery</th>
                       <th>Purchase Price</th>
-                      <th>Current Value</th>
+                      <th>Secondary</th>
                       <th>ROI %</th>
                     </tr>
                   </thead>
@@ -310,7 +307,7 @@ export function EnhancedStats({ onLoad }: EnhancedStatsProps) {
                         <td>{bottle.name}</td>
                         <td>{bottle.distillery}</td>
                         <td>{formatCurrency(bottle.purchase_price)}</td>
-                        <td>{formatCurrency(bottle.current_market_value)}</td>
+                        <td>{formatCurrency(bottle.secondary_price)}</td>
                         <td className="text-success fw-bold">+{bottle.roi_percentage}%</td>
                       </tr>
                     ))}

@@ -13,6 +13,7 @@ import {
   ResponsiveContainer,
 } from 'recharts';
 import { statisticsAPI } from '../services/api';
+import { formatCurrency } from '../utils/formatCurrency';
 
 interface Statistics {
   financial: any;
@@ -72,8 +73,6 @@ export default function AnalyticsDashboard() {
     return null;
   }
 
-  const formatCurrency = (value: number) => `$${value.toFixed(2)}`;
-
   return (
     <div className="analytics-dashboard">
       <h2 className="mb-4">📊 Collection Analytics</h2>
@@ -85,7 +84,7 @@ export default function AnalyticsDashboard() {
             <div className="card-body">
               <h6 className="card-subtitle mb-2 text-muted">Total Value</h6>
               <h3 className="card-title text-success">
-                {formatCurrency(statistics.financial.total_current_value || 0)}
+                {formatCurrency(statistics.financial.total_secondary_value || 0)}
               </h3>
             </div>
           </div>
@@ -164,7 +163,7 @@ export default function AnalyticsDashboard() {
                   <YAxis />
                   <Tooltip formatter={(value: number) => formatCurrency(value)} />
                   <Legend />
-                  <Bar dataKey="current_market_value" fill="#8884d8" name="Market Value" />
+                  <Bar dataKey="secondary_price" fill="#8884d8" name="Secondary Value" />
                 </BarChart>
               </ResponsiveContainer>
             </div>

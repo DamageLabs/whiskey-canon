@@ -1,4 +1,5 @@
 import { Whiskey, WhiskeyType } from '../types';
+import { formatCurrency } from '../utils/formatCurrency';
 
 interface WhiskeyStatsProps {
   whiskeys: Whiskey[];
@@ -34,18 +35,20 @@ export function WhiskeyStats({ whiskeys }: WhiskeyStatsProps) {
       whiskeys.filter(w => w.abv !== null && w.abv !== undefined).length
     : 0;
 
-  // Calculate total MSRP value (msrp * quantity)
+  // Calculate total MSRP value (msrp * quantity, default quantity to 1)
   const totalMSRPValue = whiskeys.reduce((sum, w) => {
-    if (w.msrp && w.quantity) {
-      return sum + (w.msrp * w.quantity);
+    if (w.msrp) {
+      const qty = w.quantity || 1;
+      return sum + (w.msrp * qty);
     }
     return sum;
   }, 0);
 
-  // Calculate total Secondary market value (secondary_price * quantity)
+  // Calculate total Secondary market value (secondary_price * quantity, default quantity to 1)
   const totalSecondaryValue = whiskeys.reduce((sum, w) => {
-    if (w.secondary_price && w.quantity) {
-      return sum + (w.secondary_price * w.quantity);
+    if (w.secondary_price) {
+      const qty = w.quantity || 1;
+      return sum + (w.secondary_price * qty);
     }
     return sum;
   }, 0);
@@ -68,7 +71,7 @@ export function WhiskeyStats({ whiskeys }: WhiskeyStatsProps) {
           <div className="card-body text-center">
             <h6 className="card-subtitle mb-2 text-muted">MSRP Value</h6>
             <h3 className="card-title text-success mb-0">
-              {totalMSRPValue > 0 ? `$${totalMSRPValue.toFixed(2)}` : 'N/A'}
+              {totalMSRPValue > 0 ? formatCurrency(totalMSRPValue) : 'N/A'}
             </h3>
           </div>
         </div>
@@ -80,7 +83,7 @@ export function WhiskeyStats({ whiskeys }: WhiskeyStatsProps) {
           <div className="card-body text-center">
             <h6 className="card-subtitle mb-2 text-muted">Secondary Value</h6>
             <h3 className="card-title text-danger mb-0">
-              {totalSecondaryValue > 0 ? `$${totalSecondaryValue.toFixed(2)}` : 'N/A'}
+              {totalSecondaryValue > 0 ? formatCurrency(totalSecondaryValue) : 'N/A'}
             </h3>
           </div>
         </div>

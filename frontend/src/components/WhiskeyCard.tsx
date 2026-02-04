@@ -1,4 +1,5 @@
 import { Whiskey } from '../types';
+import { formatCurrency } from '../utils/formatCurrency';
 
 interface WhiskeyCardProps {
   whiskey: Whiskey;
@@ -59,14 +60,14 @@ export function WhiskeyCard({ whiskey, onEdit, onDelete }: WhiskeyCardProps) {
           {whiskey.msrp !== null && whiskey.msrp !== undefined && (
             <div className="d-flex justify-content-between border-bottom pb-2 mb-2">
               <span className="text-muted">MSRP:</span>
-              <strong>${whiskey.msrp.toFixed(2)}</strong>
+              <strong>{formatCurrency(whiskey.msrp)}</strong>
             </div>
           )}
 
           {whiskey.secondary_price !== null && whiskey.secondary_price !== undefined && (
             <div className="d-flex justify-content-between border-bottom pb-2 mb-2">
               <span className="text-muted">Secondary Price:</span>
-              <strong>${whiskey.secondary_price.toFixed(2)}</strong>
+              <strong>{formatCurrency(whiskey.secondary_price)}</strong>
             </div>
           )}
 

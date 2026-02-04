@@ -2,6 +2,7 @@
 
 A comprehensive whiskey collection management application built with TypeScript, React, Express, and SQLite. Track your whiskey collection with detailed information, pricing, tasting notes, inventory management, and investment tracking.
 
+[![Tests](https://github.com/DamageLabs/whiskey-canon/actions/workflows/test.yml/badge.svg)](https://github.com/DamageLabs/whiskey-canon/actions/workflows/test.yml)
 ![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=flat&logo=typescript&logoColor=white)
 ![React](https://img.shields.io/badge/React-20232A?style=flat&logo=react&logoColor=61DAFB)
 ![Express](https://img.shields.io/badge/Express.js-404D59?style=flat&logo=express)

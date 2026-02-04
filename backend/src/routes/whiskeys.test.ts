@@ -1,8 +1,9 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import request from 'supertest';
 import { createTestApp, createTestUser, createAuthenticatedAgent, createTestWhiskey } from '../test/helpers';
 import { Role, WhiskeyType } from '../types';
 import type { Application } from 'express';
+import { WhiskeyModel } from '../models/Whiskey';
 
 describe('Whiskey Routes', () => {
   let app: Application;
@@ -941,6 +942,115 @@ Valid2,scotch,Distillery2
       const response = await agent.delete('/api/whiskeys/all');
 
       expect(response.status).toBe(403);
+    });
+  });
+
+  describe('Error Handling', () => {
+    it('returns 500 when deleteAllByUser throws an error', async () => {
+      const { agent } = await createAuthenticatedAgent(app, 'admin', 'admin@test.com', 'password123', Role.ADMIN);
+
+      // Mock deleteAllByUser to throw an error
+      const spy = vi.spyOn(WhiskeyModel, 'deleteAllByUser').mockImplementation(() => {
+        throw new Error('Database error');
+      });
+
+      const response = await agent.delete('/api/whiskeys/all');
+
+      expect(response.status).toBe(500);
+      expect(response.body.error).toBe('Failed to delete all whiskeys');
+
+      spy.mockRestore();
+    });
+
+    it('returns 500 when delete throws an error', async () => {
+      const { agent, user } = await createAuthenticatedAgent(app, 'admin', 'admin@test.com', 'password123', Role.ADMIN);
+      const whiskey = createTestWhiskey(user.id);
+
+      // Mock delete to throw an error
+      const spy = vi.spyOn(WhiskeyModel, 'delete').mockImplementation(() => {
+        throw new Error('Database error');
+      });
+
+      const response = await agent.delete(`/api/whiskeys/${whiskey.id}`);
+
+      expect(response.status).toBe(500);
+      expect(response.body.error).toBe('Failed to delete whiskey');
+
+      spy.mockRestore();
+    });
+
+    it('returns 500 when update throws an error', async () => {
+      const { agent, user } = await createAuthenticatedAgent(app);
+      const whiskey = createTestWhiskey(user.id);
+
+      // Mock update to throw an error
+      const spy = vi.spyOn(WhiskeyModel, 'update').mockImplementation(() => {
+        throw new Error('Database error');
+      });
+
+      const response = await agent
+        .put(`/api/whiskeys/${whiskey.id}`)
+        .send({ name: 'Updated Name' });
+
+      expect(response.status).toBe(500);
+      expect(response.body.error).toBe('Failed to update whiskey');
+
+      spy.mockRestore();
+    });
+
+    it('returns 500 when deleteMany throws an error', async () => {
+      const { agent, user } = await createAuthenticatedAgent(app, 'admin', 'admin@test.com', 'password123', Role.ADMIN);
+      const whiskey = createTestWhiskey(user.id);
+
+      // Mock deleteMany to throw an error
+      const spy = vi.spyOn(WhiskeyModel, 'deleteMany').mockImplementation(() => {
+        throw new Error('Database error');
+      });
+
+      const response = await agent
+        .delete('/api/whiskeys/bulk')
+        .send({ ids: [whiskey.id] });
+
+      expect(response.status).toBe(500);
+      expect(response.body.error).toBe('Failed to delete whiskeys');
+
+      spy.mockRestore();
+    });
+
+    it('returns 500 when create throws an error', async () => {
+      const { agent } = await createAuthenticatedAgent(app);
+
+      // Mock create to throw an error
+      const spy = vi.spyOn(WhiskeyModel, 'create').mockImplementation(() => {
+        throw new Error('Database error');
+      });
+
+      const response = await agent
+        .post('/api/whiskeys')
+        .send({
+          name: 'Test Whiskey',
+          type: 'bourbon',
+          distillery: 'Test Distillery'
+        });
+
+      expect(response.status).toBe(500);
+      expect(response.body.error).toBe('Failed to create whiskey');
+
+      spy.mockRestore();
+    });
+  });
+
+  describe('Special User Handling', () => {
+    it('sets quantity to 1 for guntharp user when quantity is 0', async () => {
+      const { agent, user } = await createAuthenticatedAgent(app, 'guntharp', 'guntharp@test.com', 'password123');
+      const whiskey = createTestWhiskey(user.id);
+
+      const response = await agent
+        .put(`/api/whiskeys/${whiskey.id}`)
+        .send({ quantity: 0 });
+
+      expect(response.status).toBe(200);
+      expect(response.body.whiskey.quantity).toBe(1);
     });
   });
 });

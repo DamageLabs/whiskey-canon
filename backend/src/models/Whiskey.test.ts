@@ -307,6 +307,79 @@ describe('WhiskeyModel', () => {
     });
   });
 
+  describe('deleteMany', () => {
+    it('deletes multiple whiskeys by ids', () => {
+      const whiskey1 = WhiskeyModel.create(createWhiskeyData(user1.id, { name: 'Whiskey 1' }));
+      const whiskey2 = WhiskeyModel.create(createWhiskeyData(user1.id, { name: 'Whiskey 2' }));
+      const whiskey3 = WhiskeyModel.create(createWhiskeyData(user1.id, { name: 'Whiskey 3' }));
+
+      const deleted = WhiskeyModel.deleteMany([whiskey1.id, whiskey2.id], user1.id);
+
+      expect(deleted).toBe(2);
+      expect(WhiskeyModel.findById(whiskey1.id)).toBeUndefined();
+      expect(WhiskeyModel.findById(whiskey2.id)).toBeUndefined();
+      expect(WhiskeyModel.findById(whiskey3.id)).toBeDefined();
+    });
+
+    it('returns 0 for empty ids array', () => {
+      const deleted = WhiskeyModel.deleteMany([], user1.id);
+
+      expect(deleted).toBe(0);
+    });
+
+    it('only deletes whiskeys belonging to the user', () => {
+      const user1Whiskey = WhiskeyModel.create(createWhiskeyData(user1.id, { name: 'User1 Whiskey' }));
+      const user2Whiskey = WhiskeyModel.create(createWhiskeyData(user2.id, { name: 'User2 Whiskey' }));
+
+      // Try to delete both whiskeys as user1
+      const deleted = WhiskeyModel.deleteMany([user1Whiskey.id, user2Whiskey.id], user1.id);
+
+      // Only user1's whiskey should be deleted
+      expect(deleted).toBe(1);
+      expect(WhiskeyModel.findById(user1Whiskey.id)).toBeUndefined();
+      expect(WhiskeyModel.findById(user2Whiskey.id)).toBeDefined();
+    });
+
+    it('returns 0 when none of the ids belong to user', () => {
+      const user2Whiskey = WhiskeyModel.create(createWhiskeyData(user2.id, { name: 'User2 Whiskey' }));
+
+      const deleted = WhiskeyModel.deleteMany([user2Whiskey.id], user1.id);
+
+      expect(deleted).toBe(0);
+      expect(WhiskeyModel.findById(user2Whiskey.id)).toBeDefined();
+    });
+  });
+
+  describe('deleteAllByUser', () => {
+    it('deletes all whiskeys for a user', () => {
+      WhiskeyModel.create(createWhiskeyData(user1.id, { name: 'Whiskey 1' }));
+      WhiskeyModel.create(createWhiskeyData(user1.id, { name: 'Whiskey 2' }));
+      WhiskeyModel.create(createWhiskeyData(user1.id, { name: 'Whiskey 3' }));
+
+      const deleted = WhiskeyModel.deleteAllByUser(user1.id);
+
+      expect(deleted).toBe(3);
+      expect(WhiskeyModel.findAll({ userId: user1.id })).toHaveLength(0);
+    });
+
+    it('returns 0 when user has no whiskeys', () => {
+      const deleted = WhiskeyModel.deleteAllByUser(user1.id);
+
+      expect(deleted).toBe(0);
+    });
+
+    it('only deletes whiskeys for the specified user', () => {
+      WhiskeyModel.create(createWhiskeyData(user1.id, { name: 'User1 Whiskey' }));
+      WhiskeyModel.create(createWhiskeyData(user2.id, { name: 'User2 Whiskey' }));
+
+      const deleted = WhiskeyModel.deleteAllByUser(user1.id);
+
+      expect(deleted).toBe(1);
+      expect(WhiskeyModel.findAll({ userId: user1.id })).toHaveLength(0);
+      expect(WhiskeyModel.findAll({ userId: user2.id })).toHaveLength(1);
+    });
+  });
+
   describe('search', () => {
     beforeEach(() => {
       WhiskeyModel.create(createWhiskeyData(user1.id, {

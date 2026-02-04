@@ -20,7 +20,10 @@ export default defineConfig({
         'src/utils/update-*.ts',
         'src/utils/migrate.ts',
         'src/utils/database.ts',
-        'src/utils/remove-duplicates.ts'
+        'src/utils/remove-duplicates.ts',
+        // Email utilities - require external service mocking
+        'src/utils/email.ts',
+        'src/utils/verification.ts'
       ]
     }
   },

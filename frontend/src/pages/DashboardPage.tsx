@@ -26,6 +26,10 @@ export function DashboardPage() {
   const [showEnhancedStats, setShowEnhancedStats] = useState(false);
   const [importing, setImporting] = useState(false);
   const [importResult, setImportResult] = useState<any>(null);
+  const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
+  const [showClearConfirm, setShowClearConfirm] = useState(false);
+  const [clearConfirmText, setClearConfirmText] = useState('');
+  const [bulkDeleting, setBulkDeleting] = useState(false);
 
   const canCreate = hasPermission('create:whiskey');
   const canUpdate = hasPermission('update:whiskey');
@@ -106,6 +110,46 @@ export function DashboardPage() {
       setImporting(false);
       // Reset file input
       event.target.value = '';
+    }
+  }
+
+  async function handleBulkDelete() {
+    if (selectedIds.size === 0) return;
+
+    if (!confirm(`Are you sure you want to delete ${selectedIds.size} whiskey(s)?`)) {
+      return;
+    }
+
+    try {
+      setBulkDeleting(true);
+      const result = await whiskeyAPI.deleteMany(Array.from(selectedIds));
+      setWhiskeys(whiskeys.filter(w => !selectedIds.has(w.id)));
+      setSelectedIds(new Set());
+      alert(result.message);
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setBulkDeleting(false);
+    }
+  }
+
+  async function handleClearCollection() {
+    if (clearConfirmText !== 'DELETE') {
+      return;
+    }
+
+    try {
+      setBulkDeleting(true);
+      const result = await whiskeyAPI.deleteAll();
+      setWhiskeys([]);
+      setSelectedIds(new Set());
+      setShowClearConfirm(false);
+      setClearConfirmText('');
+      alert(result.message);
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setBulkDeleting(false);
     }
   }
 
@@ -238,6 +282,36 @@ export function DashboardPage() {
           </div>
         </div>
 
+        {/* Bulk Actions */}
+        {canDelete && whiskeys.length > 0 && viewMode === 'table' && (
+          <div className="d-flex gap-2 mb-3 align-items-center">
+            {selectedIds.size > 0 && (
+              <button
+                onClick={handleBulkDelete}
+                className="btn btn-danger"
+                disabled={bulkDeleting}
+              >
+                <i className="bi bi-trash"></i> Delete Selected ({selectedIds.size})
+              </button>
+            )}
+            <button
+              onClick={() => setShowClearConfirm(true)}
+              className="btn btn-outline-danger"
+              disabled={bulkDeleting}
+            >
+              <i className="bi bi-trash3"></i> Clear Collection
+            </button>
+            {selectedIds.size > 0 && (
+              <button
+                onClick={() => setSelectedIds(new Set())}
+                className="btn btn-outline-secondary btn-sm"
+              >
+                Clear Selection
+              </button>
+            )}
+          </div>
+        )}
+
         {/* Error Alert */}
         {error && (
           <div className="alert alert-danger alert-dismissible fade show" role="alert">
@@ -363,6 +437,9 @@ export function DashboardPage() {
             onRowClick={setSelectedWhiskey}
             onEdit={canUpdate ? handleEdit : undefined}
             onDelete={canDelete ? handleDelete : undefined}
+            selectedIds={selectedIds}
+            onSelectionChange={setSelectedIds}
+            selectionEnabled={canDelete}
           />
         )}
       </div>
@@ -383,6 +460,59 @@ export function DashboardPage() {
           onEdit={canUpdate ? handleEdit : undefined}
           onDelete={canDelete ? handleDelete : undefined}
         />
+      )}
+
+      {/* Clear Collection Confirmation Modal */}
+      {showClearConfirm && (
+        <div className="modal show d-block" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
+          <div className="modal-dialog modal-dialog-centered">
+            <div className="modal-content" style={{ backgroundColor: 'var(--zinc-900)', color: 'var(--zinc-100)' }}>
+              <div className="modal-header border-danger">
+                <h5 className="modal-title text-danger">
+                  <i className="bi bi-exclamation-triangle-fill me-2"></i>
+                  Clear Entire Collection
+                </h5>
+                <button
+                  type="button"
+                  className="btn-close btn-close-white"
+                  onClick={() => { setShowClearConfirm(false); setClearConfirmText(''); }}
+                ></button>
+              </div>
+              <div className="modal-body">
+                <p>
+                  This will permanently delete <strong>all {whiskeys.length} whiskeys</strong> from your collection.
+                  This action cannot be undone.
+                </p>
+                <p className="mb-2">Type <strong>DELETE</strong> to confirm:</p>
+                <input
+                  type="text"
+                  className="form-control"
+                  value={clearConfirmText}
+                  onChange={(e) => setClearConfirmText(e.target.value)}
+                  placeholder="Type DELETE to confirm"
+                  autoFocus
+                />
+              </div>
+              <div className="modal-footer border-0">
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={() => { setShowClearConfirm(false); setClearConfirmText(''); }}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-danger"
+                  onClick={handleClearCollection}
+                  disabled={clearConfirmText !== 'DELETE' || bulkDeleting}
+                >
+                  {bulkDeleting ? 'Deleting...' : 'Delete All Whiskeys'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
       )}
 
       <Footer />

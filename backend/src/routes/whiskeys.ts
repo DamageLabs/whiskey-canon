@@ -673,6 +673,54 @@ router.put(
   }
 );
 
+// Delete multiple whiskeys by IDs - only if they belong to the user
+router.delete(
+  '/bulk',
+  requirePermission(Permission.DELETE_WHISKEY),
+  [
+    body('ids').isArray({ min: 1 }).withMessage('IDs array is required and must not be empty'),
+    body('ids.*').isInt({ min: 1 }).withMessage('Each ID must be a positive integer')
+  ],
+  (req: AuthRequest, res: Response) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    try {
+      const ids = req.body.ids as number[];
+      const deleted = WhiskeyModel.deleteMany(ids, req.user!.id);
+
+      res.json({
+        message: `Successfully deleted ${deleted} whiskey(s)`,
+        deleted
+      });
+    } catch (error) {
+      console.error('Error deleting whiskeys:', error);
+      res.status(500).json({ error: 'Failed to delete whiskeys' });
+    }
+  }
+);
+
+// Delete all whiskeys for the user
+router.delete(
+  '/all',
+  requirePermission(Permission.DELETE_WHISKEY),
+  (req: AuthRequest, res: Response) => {
+    try {
+      const deleted = WhiskeyModel.deleteAllByUser(req.user!.id);
+
+      res.json({
+        message: `Successfully deleted ${deleted} whiskey(s)`,
+        deleted
+      });
+    } catch (error) {
+      console.error('Error deleting all whiskeys:', error);
+      res.status(500).json({ error: 'Failed to delete all whiskeys' });
+    }
+  }
+);
+
 // Delete whiskey - only if it belongs to the user
 router.delete(
   '/:id',

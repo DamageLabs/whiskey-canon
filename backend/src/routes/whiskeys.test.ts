@@ -781,4 +781,166 @@ Valid2,scotch,Distillery2
       expect(response.body.skipped).toHaveLength(1);
     });
   });
+
+  describe('DELETE /api/whiskeys/bulk', () => {
+    it('returns 401 for unauthenticated requests', async () => {
+      const response = await request(app)
+        .delete('/api/whiskeys/bulk')
+        .send({ ids: [1, 2] });
+      expect(response.status).toBe(401);
+    });
+
+    it('deletes multiple whiskeys by ids', async () => {
+      const { agent, user } = await createAuthenticatedAgent(app, 'admin', 'admin@test.com', 'password123', Role.ADMIN);
+
+      const whiskey1 = createTestWhiskey(user.id, { name: 'Whiskey 1' });
+      const whiskey2 = createTestWhiskey(user.id, { name: 'Whiskey 2' });
+      const whiskey3 = createTestWhiskey(user.id, { name: 'Whiskey 3' });
+
+      const response = await agent
+        .delete('/api/whiskeys/bulk')
+        .send({ ids: [whiskey1.id, whiskey2.id] });
+
+      expect(response.status).toBe(200);
+      expect(response.body.deleted).toBe(2);
+
+      // Verify whiskey3 still exists
+      const remaining = await agent.get('/api/whiskeys');
+      expect(remaining.body.whiskeys).toHaveLength(1);
+      expect(remaining.body.whiskeys[0].name).toBe('Whiskey 3');
+    });
+
+    it('returns 400 when ids array is empty', async () => {
+      const { agent } = await createAuthenticatedAgent(app, 'admin', 'admin@test.com', 'password123', Role.ADMIN);
+
+      const response = await agent
+        .delete('/api/whiskeys/bulk')
+        .send({ ids: [] });
+
+      expect(response.status).toBe(400);
+    });
+
+    it('returns 400 when ids array is missing', async () => {
+      const { agent } = await createAuthenticatedAgent(app, 'admin', 'admin@test.com', 'password123', Role.ADMIN);
+
+      const response = await agent
+        .delete('/api/whiskeys/bulk')
+        .send({});
+
+      expect(response.status).toBe(400);
+    });
+
+    it('returns 400 when ids contains invalid values', async () => {
+      const { agent } = await createAuthenticatedAgent(app, 'admin', 'admin@test.com', 'password123', Role.ADMIN);
+
+      const response = await agent
+        .delete('/api/whiskeys/bulk')
+        .send({ ids: ['not-a-number', -1] });
+
+      expect(response.status).toBe(400);
+    });
+
+    it('only deletes whiskeys belonging to the user', async () => {
+      const { agent: agent1, user: user1 } = await createAuthenticatedAgent(app, 'admin1', 'admin1@test.com', 'password123', Role.ADMIN);
+      const user2 = await createTestUser('user2', 'user2@test.com', 'password123', Role.ADMIN);
+
+      const user1Whiskey = createTestWhiskey(user1.id, { name: 'User1 Whiskey' });
+      const user2Whiskey = createTestWhiskey(user2.id, { name: 'User2 Whiskey' });
+
+      // User1 tries to delete both whiskeys
+      const response = await agent1
+        .delete('/api/whiskeys/bulk')
+        .send({ ids: [user1Whiskey.id, user2Whiskey.id] });
+
+      expect(response.status).toBe(200);
+      expect(response.body.deleted).toBe(1); // Only user1's whiskey deleted
+    });
+
+    it('returns 403 for viewer role', async () => {
+      const { agent } = await createAuthenticatedAgent(app, 'viewer', 'viewer@test.com', 'password123', Role.VIEWER);
+
+      const response = await agent
+        .delete('/api/whiskeys/bulk')
+        .send({ ids: [1] });
+
+      expect(response.status).toBe(403);
+    });
+
+    it('returns 403 for editor role', async () => {
+      const { agent } = await createAuthenticatedAgent(app, 'editor', 'editor@test.com', 'password123', Role.EDITOR);
+
+      const response = await agent
+        .delete('/api/whiskeys/bulk')
+        .send({ ids: [1] });
+
+      expect(response.status).toBe(403);
+    });
+  });
+
+  describe('DELETE /api/whiskeys/all', () => {
+    it('returns 401 for unauthenticated requests', async () => {
+      const response = await request(app).delete('/api/whiskeys/all');
+      expect(response.status).toBe(401);
+    });
+
+    it('deletes all whiskeys for the user', async () => {
+      const { agent, user } = await createAuthenticatedAgent(app, 'admin', 'admin@test.com', 'password123', Role.ADMIN);
+
+      createTestWhiskey(user.id, { name: 'Whiskey 1' });
+      createTestWhiskey(user.id, { name: 'Whiskey 2' });
+      createTestWhiskey(user.id, { name: 'Whiskey 3' });
+
+      const response = await agent.delete('/api/whiskeys/all');
+
+      expect(response.status).toBe(200);
+      expect(response.body.deleted).toBe(3);
+
+      // Verify all whiskeys are deleted
+      const remaining = await agent.get('/api/whiskeys');
+      expect(remaining.body.whiskeys).toHaveLength(0);
+    });
+
+    it('only deletes whiskeys for the authenticated user', async () => {
+      const { agent: agent1, user: user1 } = await createAuthenticatedAgent(app, 'admin1', 'admin1@test.com', 'password123', Role.ADMIN);
+      const { agent: agent2, user: user2 } = await createAuthenticatedAgent(app, 'admin2', 'admin2@test.com', 'password123', Role.ADMIN);
+
+      createTestWhiskey(user1.id, { name: 'User1 Whiskey' });
+      createTestWhiskey(user2.id, { name: 'User2 Whiskey' });
+
+      // User1 deletes all their whiskeys
+      const response = await agent1.delete('/api/whiskeys/all');
+
+      expect(response.status).toBe(200);
+      expect(response.body.deleted).toBe(1);
+
+      // Verify user2's whiskey still exists
+      const user2Whiskeys = await agent2.get('/api/whiskeys');
+      expect(user2Whiskeys.body.whiskeys).toHaveLength(1);
+    });
+
+    it('returns 0 when user has no whiskeys', async () => {
+      const { agent } = await createAuthenticatedAgent(app, 'admin', 'admin@test.com', 'password123', Role.ADMIN);
+
+      const response = await agent.delete('/api/whiskeys/all');
+
+      expect(response.status).toBe(200);
+      expect(response.body.deleted).toBe(0);
+    });
+
+    it('returns 403 for viewer role', async () => {
+      const { agent } = await createAuthenticatedAgent(app, 'viewer', 'viewer@test.com', 'password123', Role.VIEWER);
+
+      const response = await agent.delete('/api/whiskeys/all');
+
+      expect(response.status).toBe(403);
+    });
+
+    it('returns 403 for editor role', async () => {
+      const { agent } = await createAuthenticatedAgent(app, 'editor', 'editor@test.com', 'password123', Role.EDITOR);
+
+      const response = await agent.delete('/api/whiskeys/all');
+
+      expect(response.status).toBe(403);
+    });
+  });
 });

@@ -51,14 +51,14 @@ describe('Statistics Routes', () => {
 
       // Create whiskeys with financial data
       testDb.prepare(`
-        INSERT INTO whiskeys (name, type, distillery, created_by, purchase_price, msrp, current_market_value)
-        VALUES (?, ?, ?, ?, ?, ?, ?)
-      `).run('Whiskey 1', 'bourbon', 'Distillery A', user.id, 50, 60, 80);
+        INSERT INTO whiskeys (name, type, distillery, created_by, purchase_price, msrp, current_market_value, secondary_price)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+      `).run('Whiskey 1', 'bourbon', 'Distillery A', user.id, 50, 60, 80, 90);
 
       testDb.prepare(`
-        INSERT INTO whiskeys (name, type, distillery, created_by, purchase_price, msrp, current_market_value)
-        VALUES (?, ?, ?, ?, ?, ?, ?)
-      `).run('Whiskey 2', 'bourbon', 'Distillery B', user.id, 100, 120, 150);
+        INSERT INTO whiskeys (name, type, distillery, created_by, purchase_price, msrp, current_market_value, secondary_price)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+      `).run('Whiskey 2', 'bourbon', 'Distillery B', user.id, 100, 120, 150, 200);
 
       const response = await agent.get('/api/statistics');
 
@@ -67,18 +67,20 @@ describe('Statistics Routes', () => {
       expect(response.body.statistics.financial.total_spent).toBe(150);
       expect(response.body.statistics.financial.total_msrp).toBe(180);
       expect(response.body.statistics.financial.total_current_value).toBe(230);
+      expect(response.body.statistics.financial.total_secondary_value).toBe(290);
+      expect(response.body.statistics.financial.avg_secondary_value).toBe(145);
     });
 
-    it('returns most valuable bottles', async () => {
+    it('returns most valuable bottles by secondary price', async () => {
       const { agent, user } = await createAuthenticatedAgent(app);
 
       testDb.prepare(`
-        INSERT INTO whiskeys (name, type, distillery, created_by, current_market_value)
+        INSERT INTO whiskeys (name, type, distillery, created_by, secondary_price)
         VALUES (?, ?, ?, ?, ?)
       `).run('Cheap Whiskey', 'bourbon', 'Distillery', user.id, 50);
 
       testDb.prepare(`
-        INSERT INTO whiskeys (name, type, distillery, created_by, current_market_value)
+        INSERT INTO whiskeys (name, type, distillery, created_by, secondary_price)
         VALUES (?, ?, ?, ?, ?)
       `).run('Expensive Whiskey', 'bourbon', 'Distillery', user.id, 500);
 
@@ -87,6 +89,7 @@ describe('Statistics Routes', () => {
       expect(response.status).toBe(200);
       expect(response.body.statistics.financial.mostValuable).toHaveLength(2);
       expect(response.body.statistics.financial.mostValuable[0].name).toBe('Expensive Whiskey');
+      expect(response.body.statistics.financial.mostValuable[0].secondary_price).toBe(500);
     });
 
     it('calculates inventory statistics', async () => {
@@ -115,6 +118,34 @@ describe('Statistics Routes', () => {
       expect(response.body.statistics.inventory.unopened_count).toBe(2);
       expect(response.body.statistics.inventory.consumed_count).toBe(1);
       expect(response.body.statistics.inventory.in_collection_count).toBe(2);
+    });
+
+    it('counts whiskeys without status as in_collection', async () => {
+      const { agent, user } = await createAuthenticatedAgent(app);
+
+      // Create whiskeys without status field (NULL)
+      testDb.prepare(`
+        INSERT INTO whiskeys (name, type, distillery, created_by)
+        VALUES (?, ?, ?, ?)
+      `).run('No Status', 'bourbon', 'Distillery', user.id);
+
+      // Create whiskey with empty string status
+      testDb.prepare(`
+        INSERT INTO whiskeys (name, type, distillery, created_by, status)
+        VALUES (?, ?, ?, ?, ?)
+      `).run('Empty Status', 'bourbon', 'Distillery', user.id, '');
+
+      // Create whiskey with explicit in_collection status
+      testDb.prepare(`
+        INSERT INTO whiskeys (name, type, distillery, created_by, status)
+        VALUES (?, ?, ?, ?, ?)
+      `).run('Explicit Status', 'bourbon', 'Distillery', user.id, 'in_collection');
+
+      const response = await agent.get('/api/statistics');
+
+      expect(response.status).toBe(200);
+      // All three should be counted as in_collection
+      expect(response.body.statistics.inventory.in_collection_count).toBe(3);
     });
 
     it('returns bottles running low', async () => {

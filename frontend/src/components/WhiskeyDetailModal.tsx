@@ -62,6 +62,15 @@ export function WhiskeyDetailModal({ whiskey, onClose, onEdit, onDelete }: Whisk
                 </div>
               )}
 
+              {whiskey.proof && (
+                <div className="col-md-4">
+                  <div className="border-start border-4 ps-3" style={{ borderColor: 'var(--amber-500)' }}>
+                    <small className="text-muted text-uppercase d-block mb-1">Proof</small>
+                    <strong>{whiskey.proof}</strong>
+                  </div>
+                </div>
+              )}
+
               {whiskey.size && (
                 <div className="col-md-4">
                   <div className="border-start border-4 ps-3" style={{ borderColor: 'var(--amber-500)' }}>

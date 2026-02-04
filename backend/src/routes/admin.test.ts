@@ -1,8 +1,10 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import request from 'supertest';
 import { createTestApp, createTestUser, createAuthenticatedAgent, createTestWhiskey } from '../test/helpers';
 import { Role } from '../types';
 import type { Application } from 'express';
+import { UserModel } from '../models/User';
+import { WhiskeyModel } from '../models/Whiskey';
 
 describe('Admin Routes', () => {
   let app: Application;
@@ -286,6 +288,39 @@ describe('Admin Routes', () => {
       const response = await agent.get('/api/admin/whiskeys');
 
       expect(response.status).toBe(403);
+    });
+  });
+
+  describe('Error Handling', () => {
+    it('returns 500 when delete user throws an error', async () => {
+      const { agent } = await createAuthenticatedAgent(app, 'admin', 'admin@test.com', 'password123', Role.ADMIN);
+      const user = await createTestUser('todelete', 'todelete@test.com', 'password123');
+
+      const spy = vi.spyOn(UserModel, 'delete').mockImplementation(() => {
+        throw new Error('Database error');
+      });
+
+      const response = await agent.delete(`/api/admin/users/${user.id}`);
+
+      expect(response.status).toBe(500);
+      expect(response.body.error).toBe('Failed to delete user');
+
+      spy.mockRestore();
+    });
+
+    it('returns 500 when get all whiskeys throws an error', async () => {
+      const { agent } = await createAuthenticatedAgent(app, 'admin', 'admin@test.com', 'password123', Role.ADMIN);
+
+      const spy = vi.spyOn(WhiskeyModel, 'findAllWithOwners').mockImplementation(() => {
+        throw new Error('Database error');
+      });
+
+      const response = await agent.get('/api/admin/whiskeys');
+
+      expect(response.status).toBe(500);
+      expect(response.body.error).toBe('Failed to fetch whiskeys');
+
+      spy.mockRestore();
     });
   });
 });

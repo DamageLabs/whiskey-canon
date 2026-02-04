@@ -1,8 +1,16 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import request from 'supertest';
 import { createTestApp, createTestUser, createAuthenticatedAgent } from '../test/helpers';
 import { Role } from '../types';
 import type { Application } from 'express';
+import { testDb } from '../test/setup';
+import * as emailUtils from '../utils/email';
+
+// Mock email functions
+vi.mock('../utils/email', () => ({
+  sendVerificationEmail: vi.fn().mockResolvedValue(true),
+  sendPasswordResetEmail: vi.fn().mockResolvedValue(true)
+}));
 
 describe('Auth Routes', () => {
   let app: Application;
@@ -525,6 +533,229 @@ describe('Auth Routes', () => {
       expect(response.status).toBe(200);
       expect(response.body.message).toBe('Profile photo deleted successfully');
       expect(response.body.user.profile_photo).toBeFalsy();
+    });
+  });
+
+  describe('POST /api/auth/verify-email', () => {
+    it('verifies email with valid code', async () => {
+      // Create unverified user with verification code
+      const user = await createTestUser('unverified', 'unverified@test.com', 'password123');
+      const code = 'TESTCODE';
+      testDb.prepare(`
+        UPDATE users
+        SET email_verified = 0,
+            verification_code = ?,
+            verification_code_expires_at = datetime('now', '+1 hour'),
+            verification_code_attempts = 0
+        WHERE id = ?
+      `).run(code, user.id);
+
+      const response = await request(app)
+        .post('/api/auth/verify-email')
+        .send({ email: 'unverified@test.com', code });
+
+      expect(response.status).toBe(200);
+      expect(response.body.message).toBe('Email verified successfully');
+    });
+
+    it('returns 404 for non-existent user', async () => {
+      const response = await request(app)
+        .post('/api/auth/verify-email')
+        .send({ email: 'nonexistent@test.com', code: 'TESTCODE' });
+
+      expect(response.status).toBe(404);
+    });
+
+    it('returns 400 for already verified email', async () => {
+      await createTestUser('verified', 'verified@test.com', 'password123');
+
+      const response = await request(app)
+        .post('/api/auth/verify-email')
+        .send({ email: 'verified@test.com', code: 'TESTCODE' });
+
+      expect(response.status).toBe(400);
+      expect(response.body.error).toBe('Email is already verified');
+    });
+
+    it('returns 429 after too many attempts', async () => {
+      const user = await createTestUser('toomany', 'toomany@test.com', 'password123');
+      testDb.prepare(`
+        UPDATE users
+        SET email_verified = 0,
+            verification_code = 'CODE1234',
+            verification_code_expires_at = datetime('now', '+1 hour'),
+            verification_code_attempts = 5
+        WHERE id = ?
+      `).run(user.id);
+
+      const response = await request(app)
+        .post('/api/auth/verify-email')
+        .send({ email: 'toomany@test.com', code: 'WRONGCOD' });
+
+      expect(response.status).toBe(429);
+    });
+
+    it('returns 400 for expired code', async () => {
+      const user = await createTestUser('expired', 'expired@test.com', 'password123');
+      const expiredDate = new Date(Date.now() - 3600000).toISOString(); // 1 hour ago
+      testDb.prepare(`
+        UPDATE users
+        SET email_verified = 0,
+            verification_code = 'CODE1234',
+            verification_code_expires_at = ?,
+            verification_code_attempts = 0
+        WHERE id = ?
+      `).run(expiredDate, user.id);
+
+      const response = await request(app)
+        .post('/api/auth/verify-email')
+        .send({ email: 'expired@test.com', code: 'CODE1234' });
+
+      expect(response.status).toBe(400);
+      expect(response.body.error).toContain('expired');
+    });
+
+    it('returns 400 for invalid code', async () => {
+      const user = await createTestUser('wrongcode', 'wrongcode@test.com', 'password123');
+      testDb.prepare(`
+        UPDATE users
+        SET email_verified = 0,
+            verification_code = 'REALCODE',
+            verification_code_expires_at = datetime('now', '+1 hour'),
+            verification_code_attempts = 0
+        WHERE id = ?
+      `).run(user.id);
+
+      const response = await request(app)
+        .post('/api/auth/verify-email')
+        .send({ email: 'wrongcode@test.com', code: 'WRONGCOD' });
+
+      expect(response.status).toBe(400);
+      expect(response.body.error).toBe('Invalid verification code');
+    });
+  });
+
+  describe('POST /api/auth/resend-verification', () => {
+    it('resends verification code for unverified user', async () => {
+      const user = await createTestUser('resend', 'resend@test.com', 'password123');
+      testDb.prepare('UPDATE users SET email_verified = 0 WHERE id = ?').run(user.id);
+
+      const response = await request(app)
+        .post('/api/auth/resend-verification')
+        .send({ email: 'resend@test.com' });
+
+      expect(response.status).toBe(200);
+    });
+
+    it('returns success for non-existent user (security)', async () => {
+      const response = await request(app)
+        .post('/api/auth/resend-verification')
+        .send({ email: 'nonexistent@test.com' });
+
+      expect(response.status).toBe(200);
+    });
+
+    it('returns 400 for already verified email', async () => {
+      await createTestUser('alreadyverified', 'alreadyverified@test.com', 'password123');
+
+      const response = await request(app)
+        .post('/api/auth/resend-verification')
+        .send({ email: 'alreadyverified@test.com' });
+
+      expect(response.status).toBe(400);
+    });
+  });
+
+  describe('POST /api/auth/forgot-password', () => {
+    it('sends password reset email for existing user', async () => {
+      await createTestUser('forgot', 'forgot@test.com', 'password123');
+
+      const response = await request(app)
+        .post('/api/auth/forgot-password')
+        .send({ email: 'forgot@test.com' });
+
+      expect(response.status).toBe(200);
+    });
+
+    it('returns success for non-existent user (security)', async () => {
+      const response = await request(app)
+        .post('/api/auth/forgot-password')
+        .send({ email: 'nonexistent@test.com' });
+
+      expect(response.status).toBe(200);
+    });
+  });
+
+  describe('POST /api/auth/reset-password', () => {
+    it('resets password with valid token', async () => {
+      const user = await createTestUser('reset', 'reset@test.com', 'password123');
+      const token = 'valid-reset-token';
+      testDb.prepare(`
+        UPDATE users
+        SET password_reset_token = ?,
+            password_reset_expires_at = datetime('now', '+1 hour')
+        WHERE id = ?
+      `).run(token, user.id);
+
+      const response = await request(app)
+        .post('/api/auth/reset-password')
+        .send({ token, password: 'newpassword123' });
+
+      expect(response.status).toBe(200);
+      expect(response.body.message).toBe('Password has been reset successfully');
+    });
+
+    it('returns 400 for invalid token', async () => {
+      const response = await request(app)
+        .post('/api/auth/reset-password')
+        .send({ token: 'invalid-token', password: 'newpassword123' });
+
+      expect(response.status).toBe(400);
+      expect(response.body.error).toBe('Invalid or expired reset token');
+    });
+
+    it('returns 400 for expired token', async () => {
+      const user = await createTestUser('expiredreset', 'expiredreset@test.com', 'password123');
+      const token = 'expired-token';
+      const expiredDate = new Date(Date.now() - 3600000).toISOString(); // 1 hour ago
+      testDb.prepare(`
+        UPDATE users
+        SET password_reset_token = ?,
+            password_reset_expires_at = ?
+        WHERE id = ?
+      `).run(token, expiredDate, user.id);
+
+      const response = await request(app)
+        .post('/api/auth/reset-password')
+        .send({ token, password: 'newpassword123' });
+
+      expect(response.status).toBe(400);
+      expect(response.body.error).toContain('expired');
+    });
+  });
+
+  describe('POST /api/auth/login error handling', () => {
+    it('returns 403 for unverified email', async () => {
+      const user = await createTestUser('unverifiedlogin', 'unverifiedlogin@test.com', 'password123');
+      testDb.prepare('UPDATE users SET email_verified = 0 WHERE id = ?').run(user.id);
+
+      const response = await request(app)
+        .post('/api/auth/login')
+        .send({ username: 'unverifiedlogin', password: 'password123' });
+
+      expect(response.status).toBe(403);
+      expect(response.body.requiresVerification).toBe(true);
+    });
+  });
+
+  describe('POST /api/auth/logout', () => {
+    it('logs out authenticated user', async () => {
+      const { agent } = await createAuthenticatedAgent(app);
+
+      const response = await agent.post('/api/auth/logout');
+
+      expect(response.status).toBe(200);
+      expect(response.body.message).toBe('Logout successful');
     });
   });
 });

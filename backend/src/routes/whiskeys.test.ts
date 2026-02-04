@@ -1052,5 +1052,37 @@ Valid2,scotch,Distillery2
       expect(response.status).toBe(200);
       expect(response.body.whiskey.quantity).toBe(1);
     });
+
+    it('sets quantity to 1 for guntharp user when quantity is 0 on create', async () => {
+      const { agent } = await createAuthenticatedAgent(app, 'guntharp', 'guntharp2@test.com', 'password123');
+
+      const response = await agent
+        .post('/api/whiskeys')
+        .send({
+          name: 'Test Bourbon',
+          type: 'bourbon',
+          distillery: 'Test Distillery',
+          quantity: 0
+        });
+
+      expect(response.status).toBe(201);
+      expect(response.body.whiskey.quantity).toBe(1);
+    });
+
+    it('returns 500 when findById throws an error', async () => {
+      const { agent, user } = await createAuthenticatedAgent(app);
+      const whiskey = createTestWhiskey(user.id);
+
+      const spy = vi.spyOn(WhiskeyModel, 'findById').mockImplementation(() => {
+        throw new Error('Database error');
+      });
+
+      const response = await agent.get(`/api/whiskeys/${whiskey.id}`);
+
+      expect(response.status).toBe(500);
+      expect(response.body.error).toBe('Failed to fetch whiskey');
+
+      spy.mockRestore();
+    });
   });
 });

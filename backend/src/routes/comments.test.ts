@@ -1,8 +1,9 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import request from 'supertest';
 import { createTestApp, createTestUser, createAuthenticatedAgent, createTestWhiskey, createTestComment } from '../test/helpers';
 import { Role } from '../types';
 import type { Application } from 'express';
+import { CommentModel } from '../models/Comment';
 
 describe('Comment Routes', () => {
   let app: Application;
@@ -369,6 +370,25 @@ describe('Comment Routes', () => {
         .post(`/api/comments/whiskey/${whiskey2.id}`)
         .send({ content: 'Trying to comment' });
       expect(postResponse.status).toBe(403);
+    });
+  });
+
+  describe('Error Handling', () => {
+    it('returns 500 when delete throws an error', async () => {
+      const { agent, user } = await createAuthenticatedAgent(app);
+      const whiskey = createTestWhiskey(user.id);
+      const comment = createTestComment(whiskey.id, user.id, 'Test comment');
+
+      const spy = vi.spyOn(CommentModel, 'delete').mockImplementation(() => {
+        throw new Error('Database error');
+      });
+
+      const response = await agent.delete(`/api/comments/${comment.id}`);
+
+      expect(response.status).toBe(500);
+      expect(response.body.error).toBe('Failed to delete comment');
+
+      spy.mockRestore();
     });
   });
 });

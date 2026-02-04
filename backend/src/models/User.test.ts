@@ -316,4 +316,143 @@ describe('UserModel', () => {
       expect(whiskeyAfter).toBeUndefined();
     });
   });
+
+  describe('setVerificationCode', () => {
+    it('returns undefined for non-existent user', () => {
+      const code = '123456';
+      const expiresAt = new Date(Date.now() + 3600000);
+
+      const result = UserModel.setVerificationCode(99999, code, expiresAt);
+      expect(result).toBeUndefined();
+    });
+  });
+
+  describe('incrementVerificationAttempts', () => {
+    it('increments verification attempts for user', async () => {
+      const user = await UserModel.create('attempts', 'attempts@example.com', 'password123');
+
+      const attempts1 = UserModel.incrementVerificationAttempts(user.id);
+      expect(attempts1).toBe(1);
+
+      const attempts2 = UserModel.incrementVerificationAttempts(user.id);
+      expect(attempts2).toBe(2);
+    });
+
+    it('returns 0 for non-existent user', () => {
+      const result = UserModel.incrementVerificationAttempts(99999);
+      expect(result).toBe(0);
+    });
+  });
+
+  describe('markEmailVerified', () => {
+    it('marks user email as verified', async () => {
+      const user = await UserModel.create('unverified', 'unverified@example.com', 'password123');
+
+      // Set verification code first
+      testDb.prepare(`
+        UPDATE users
+        SET verification_code = '123456',
+            verification_code_expires_at = datetime('now', '+1 hour'),
+            email_verified = 0
+        WHERE id = ?
+      `).run(user.id);
+
+      const updated = UserModel.markEmailVerified(user.id);
+
+      expect(updated).toBeDefined();
+      expect(updated?.email_verified).toBe(1);
+      expect(updated?.verification_code).toBeNull();
+    });
+
+    it('returns undefined for non-existent user', () => {
+      const result = UserModel.markEmailVerified(99999);
+      expect(result).toBeUndefined();
+    });
+  });
+
+  describe('setPasswordResetToken', () => {
+    it('sets password reset token for user', async () => {
+      const user = await UserModel.create('resettoken', 'resettoken@example.com', 'password123');
+      const token = 'reset-token-abc123';
+      const expiresAt = new Date(Date.now() + 3600000); // 1 hour from now
+
+      const updated = UserModel.setPasswordResetToken(user.id, token, expiresAt);
+
+      expect(updated).toBeDefined();
+      expect(updated?.password_reset_token).toBe(token);
+    });
+
+    it('returns undefined for non-existent user', () => {
+      const token = 'token-for-nobody';
+      const expiresAt = new Date(Date.now() + 3600000);
+
+      const result = UserModel.setPasswordResetToken(99999, token, expiresAt);
+      expect(result).toBeUndefined();
+    });
+  });
+
+  describe('findByPasswordResetToken', () => {
+    it('finds user by valid password reset token', async () => {
+      const user = await UserModel.create('resetuser', 'reset@example.com', 'password123');
+      const token = 'valid-reset-token-123';
+
+      // Set the password reset token directly in the database
+      testDb.prepare(`
+        UPDATE users
+        SET password_reset_token = ?,
+            password_reset_expires_at = datetime('now', '+1 hour')
+        WHERE id = ?
+      `).run(token, user.id);
+
+      const found = UserModel.findByPasswordResetToken(token);
+
+      expect(found).toBeDefined();
+      expect(found?.id).toBe(user.id);
+      expect(found?.username).toBe('resetuser');
+    });
+
+    it('returns undefined for non-existent token', () => {
+      const found = UserModel.findByPasswordResetToken('non-existent-token');
+      expect(found).toBeUndefined();
+    });
+
+    it('returns undefined for empty token', () => {
+      const found = UserModel.findByPasswordResetToken('');
+      expect(found).toBeUndefined();
+    });
+  });
+
+  describe('clearPasswordResetToken', () => {
+    it('clears password reset token for user', async () => {
+      const user = await UserModel.create('clearuser', 'clear@example.com', 'password123');
+      const token = 'token-to-clear';
+
+      // Set the password reset token
+      testDb.prepare(`
+        UPDATE users
+        SET password_reset_token = ?,
+            password_reset_expires_at = datetime('now', '+1 hour')
+        WHERE id = ?
+      `).run(token, user.id);
+
+      // Verify token is set
+      const beforeClear = UserModel.findByPasswordResetToken(token);
+      expect(beforeClear).toBeDefined();
+
+      // Clear the token
+      const updated = UserModel.clearPasswordResetToken(user.id);
+
+      expect(updated).toBeDefined();
+      expect(updated?.id).toBe(user.id);
+
+      // Verify token is cleared
+      const afterClear = UserModel.findByPasswordResetToken(token);
+      expect(afterClear).toBeUndefined();
+    });
+
+    it('returns undefined for non-existent user', () => {
+      const result = UserModel.clearPasswordResetToken(99999);
+      expect(result).toBeUndefined();
+    });
+  });
 });

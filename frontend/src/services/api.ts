@@ -114,6 +114,17 @@ export const whiskeyAPI = {
       method: 'DELETE',
     }),
 
+  deleteMany: (ids: number[]): Promise<{ message: string; deleted: number }> =>
+    fetchAPI('/whiskeys/bulk', {
+      method: 'DELETE',
+      body: JSON.stringify({ ids }),
+    }),
+
+  deleteAll: (): Promise<{ message: string; deleted: number }> =>
+    fetchAPI('/whiskeys/all', {
+      method: 'DELETE',
+    }),
+
   exportCSV: async (): Promise<void> => {
     const response = await fetch(`${API_BASE}/whiskeys/export/csv`, {
       credentials: 'include',

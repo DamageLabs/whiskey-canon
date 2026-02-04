@@ -1,19 +1,54 @@
 import { useState, useMemo } from 'react';
 import { Whiskey } from '../types';
+import { formatCurrencyOrDash } from '../utils/formatCurrency';
 
 interface WhiskeyTableProps {
   whiskeys: Whiskey[];
   onRowClick: (whiskey: Whiskey) => void;
   onEdit?: (whiskey: Whiskey) => void;
   onDelete?: (id: number) => void;
+  selectedIds?: Set<number>;
+  onSelectionChange?: (ids: Set<number>) => void;
+  selectionEnabled?: boolean;
 }
 
 type SortColumn = 'name' | 'type' | 'distillery' | 'region' | 'age' | 'abv' | 'size' | 'quantity' | 'msrp' | 'secondary_price' | 'rating';
 type SortDirection = 'asc' | 'desc';
 
-export function WhiskeyTable({ whiskeys, onRowClick, onEdit, onDelete }: WhiskeyTableProps) {
+export function WhiskeyTable({
+  whiskeys,
+  onRowClick,
+  onEdit,
+  onDelete,
+  selectedIds = new Set(),
+  onSelectionChange,
+  selectionEnabled = false
+}: WhiskeyTableProps) {
   const [sortColumn, setSortColumn] = useState<SortColumn>('name');
   const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
+
+  const allSelected = whiskeys.length > 0 && whiskeys.every(w => selectedIds.has(w.id));
+  const someSelected = whiskeys.some(w => selectedIds.has(w.id)) && !allSelected;
+
+  function handleSelectAll() {
+    if (!onSelectionChange) return;
+    if (allSelected) {
+      onSelectionChange(new Set());
+    } else {
+      onSelectionChange(new Set(whiskeys.map(w => w.id)));
+    }
+  }
+
+  function handleSelectOne(id: number) {
+    if (!onSelectionChange) return;
+    const newSelection = new Set(selectedIds);
+    if (newSelection.has(id)) {
+      newSelection.delete(id);
+    } else {
+      newSelection.add(id);
+    }
+    onSelectionChange(newSelection);
+  }
 
   function handleSort(column: SortColumn) {
     if (sortColumn === column) {
@@ -66,6 +101,18 @@ export function WhiskeyTable({ whiskeys, onRowClick, onEdit, onDelete }: Whiskey
       <table className="table table-hover table-striped align-middle">
         <thead style={{ backgroundColor: 'var(--amber-500)', color: 'white' }}>
           <tr>
+            {selectionEnabled && (
+              <th style={{ width: '40px' }} onClick={(e) => e.stopPropagation()}>
+                <input
+                  type="checkbox"
+                  className="form-check-input"
+                  checked={allSelected}
+                  ref={(el) => { if (el) el.indeterminate = someSelected; }}
+                  onChange={handleSelectAll}
+                  style={{ cursor: 'pointer' }}
+                />
+              </th>
+            )}
             <th onClick={() => handleSort('name')} style={{ cursor: 'pointer', userSelect: 'none' }}>
               Name {renderSortIcon('name')}
             </th>
@@ -107,8 +154,22 @@ export function WhiskeyTable({ whiskeys, onRowClick, onEdit, onDelete }: Whiskey
             <tr
               key={whiskey.id}
               onClick={() => onRowClick(whiskey)}
-              style={{ cursor: 'pointer' }}
+              style={{
+                cursor: 'pointer',
+                backgroundColor: selectedIds.has(whiskey.id) ? 'rgba(91, 155, 213, 0.1)' : undefined
+              }}
             >
+              {selectionEnabled && (
+                <td onClick={(e) => e.stopPropagation()}>
+                  <input
+                    type="checkbox"
+                    className="form-check-input"
+                    checked={selectedIds.has(whiskey.id)}
+                    onChange={() => handleSelectOne(whiskey.id)}
+                    style={{ cursor: 'pointer' }}
+                  />
+                </td>
+              )}
               <td className="fw-bold" style={{ color: 'var(--amber-500)' }}>{whiskey.name}</td>
               <td>
                 <span className="badge text-capitalize text-white" style={{ backgroundColor: 'var(--amber-500)' }}>{whiskey.type}</span>
@@ -119,8 +180,8 @@ export function WhiskeyTable({ whiskeys, onRowClick, onEdit, onDelete }: Whiskey
               <td>{whiskey.abv ? `${whiskey.abv}%` : '-'}</td>
               <td>{whiskey.size || '-'}</td>
               <td>{whiskey.quantity || '-'}</td>
-              <td>{whiskey.msrp ? `$${whiskey.msrp.toFixed(2)}` : '-'}</td>
-              <td>{whiskey.secondary_price ? `$${whiskey.secondary_price.toFixed(2)}` : '-'}</td>
+              <td>{formatCurrencyOrDash(whiskey.msrp)}</td>
+              <td>{formatCurrencyOrDash(whiskey.secondary_price)}</td>
               <td>{whiskey.rating ? `${whiskey.rating.toFixed(2)}/10` : '-'}</td>
               {(onEdit || onDelete) && (
                 <td className="text-center" onClick={(e) => e.stopPropagation()}>

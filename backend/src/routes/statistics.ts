@@ -24,29 +24,30 @@ router.get('/', requireAuth, (req: AuthRequest, res: Response) => {
         COALESCE(SUM(secondary_price), 0) as total_secondary_value,
         COALESCE(AVG(purchase_price), 0) as avg_purchase_price,
         COALESCE(AVG(current_market_value), 0) as avg_current_value,
+        COALESCE(AVG(secondary_price), 0) as avg_secondary_value,
         COALESCE(SUM(current_market_value - purchase_price), 0) as total_gain_loss
       FROM whiskeys
       WHERE created_by = ?
     `).get(userId) as any;
 
-    // Most valuable bottles
+    // Most valuable bottles (by secondary price)
     const mostValuable = db.prepare(`
-      SELECT id, name, distillery, current_market_value, purchase_price,
-             (current_market_value - COALESCE(purchase_price, 0)) as value_gain
+      SELECT id, name, distillery, secondary_price, purchase_price,
+             (secondary_price - COALESCE(purchase_price, 0)) as value_gain
       FROM whiskeys
-      WHERE created_by = ? AND current_market_value IS NOT NULL
-      ORDER BY current_market_value DESC
+      WHERE created_by = ? AND secondary_price IS NOT NULL
+      ORDER BY secondary_price DESC
       LIMIT 10
     `).all(userId);
 
-    // Best ROI bottles
+    // Best ROI bottles (by secondary price)
     const bestROI = db.prepare(`
-      SELECT id, name, distillery, purchase_price, current_market_value,
-             ROUND(((current_market_value - purchase_price) / NULLIF(purchase_price, 0) * 100), 2) as roi_percentage
+      SELECT id, name, distillery, purchase_price, secondary_price,
+             ROUND(((secondary_price - purchase_price) / NULLIF(purchase_price, 0) * 100), 2) as roi_percentage
       FROM whiskeys
       WHERE created_by = ?
         AND purchase_price IS NOT NULL
-        AND current_market_value IS NOT NULL
+        AND secondary_price IS NOT NULL
         AND purchase_price > 0
       ORDER BY roi_percentage DESC
       LIMIT 10
@@ -60,7 +61,7 @@ router.get('/', requireAuth, (req: AuthRequest, res: Response) => {
         AVG(CASE WHEN is_opened = 1 THEN remaining_volume END) as avg_remaining_volume,
         SUM(CASE WHEN remaining_volume < 25 THEN 1 ELSE 0 END) as running_low_count,
         SUM(CASE WHEN status = 'consumed' THEN 1 ELSE 0 END) as consumed_count,
-        SUM(CASE WHEN status = 'in_collection' THEN 1 ELSE 0 END) as in_collection_count,
+        SUM(CASE WHEN status = 'in_collection' OR status IS NULL OR status = '' THEN 1 ELSE 0 END) as in_collection_count,
         SUM(CASE WHEN status = 'sold' THEN 1 ELSE 0 END) as sold_count,
         SUM(CASE WHEN status = 'traded' THEN 1 ELSE 0 END) as traded_count,
         SUM(CASE WHEN status = 'gifted' THEN 1 ELSE 0 END) as gifted_count
@@ -89,7 +90,7 @@ router.get('/', requireAuth, (req: AuthRequest, res: Response) => {
     // Collection Composition
     const typeDistribution = db.prepare(`
       SELECT type, COUNT(*) as count,
-             COALESCE(SUM(current_market_value), 0) as total_value,
+             COALESCE(SUM(secondary_price), 0) as total_value,
              COALESCE(AVG(rating), 0) as avg_rating
       FROM whiskeys
       WHERE created_by = ?
@@ -107,7 +108,7 @@ router.get('/', requireAuth, (req: AuthRequest, res: Response) => {
 
     const topDistilleries = db.prepare(`
       SELECT distillery, COUNT(*) as count,
-             COALESCE(SUM(current_market_value), 0) as total_value
+             COALESCE(SUM(secondary_price), 0) as total_value
       FROM whiskeys
       WHERE created_by = ?
       GROUP BY distillery

@@ -343,4 +343,18 @@ export class WhiskeyModel {
     const stmt = db.prepare(query);
     return stmt.all();
   }
+
+  static deleteMany(ids: number[], userId: number): number {
+    if (ids.length === 0) return 0;
+    const placeholders = ids.map(() => '?').join(',');
+    const stmt = db.prepare(`DELETE FROM whiskeys WHERE id IN (${placeholders}) AND created_by = ?`);
+    const result = stmt.run(...ids, userId);
+    return result.changes;
+  }
+
+  static deleteAllByUser(userId: number): number {
+    const stmt = db.prepare('DELETE FROM whiskeys WHERE created_by = ?');
+    const result = stmt.run(userId);
+    return result.changes;
+  }
 }

@@ -532,4 +532,301 @@ describe('WhiskeyModel', () => {
       expect(whiskey2.rating).toBe(10);
     });
   });
+
+  describe('getPublicStats', () => {
+    it('returns correct stats for user with whiskeys', () => {
+      WhiskeyModel.create(createWhiskeyData(user1.id, {
+        name: 'Bourbon 1',
+        type: WhiskeyType.BOURBON,
+        distillery: 'Buffalo Trace',
+        country: 'USA',
+        rating: 8.5
+      }));
+      WhiskeyModel.create(createWhiskeyData(user1.id, {
+        name: 'Bourbon 2',
+        type: WhiskeyType.BOURBON,
+        distillery: 'Buffalo Trace',
+        country: 'USA',
+        rating: 9.0
+      }));
+      WhiskeyModel.create(createWhiskeyData(user1.id, {
+        name: 'Scotch 1',
+        type: WhiskeyType.SCOTCH,
+        distillery: 'Macallan',
+        country: 'Scotland',
+        rating: 9.5
+      }));
+
+      const stats = WhiskeyModel.getPublicStats(user1.id);
+
+      expect(stats.totalBottles).toBe(3);
+      expect(stats.typeBreakdown).toHaveLength(2);
+      expect(stats.typeBreakdown.find(t => t.type === WhiskeyType.BOURBON)?.count).toBe(2);
+      expect(stats.typeBreakdown.find(t => t.type === WhiskeyType.SCOTCH)?.count).toBe(1);
+      expect(stats.topDistilleries).toHaveLength(2);
+      expect(stats.totalDistilleries).toBe(2);
+      expect(stats.averageRating).toBe(9.0); // (8.5 + 9.0 + 9.5) / 3 = 9.0
+      expect(stats.countriesRepresented.sort()).toEqual(['Scotland', 'USA']);
+    });
+
+    it('returns empty stats for user with no whiskeys', () => {
+      const stats = WhiskeyModel.getPublicStats(user1.id);
+
+      expect(stats.totalBottles).toBe(0);
+      expect(stats.typeBreakdown).toHaveLength(0);
+      expect(stats.topDistilleries).toHaveLength(0);
+      expect(stats.totalDistilleries).toBe(0);
+      expect(stats.averageRating).toBeNull();
+      expect(stats.countriesRepresented).toHaveLength(0);
+    });
+
+    it('returns null averageRating when no whiskeys have ratings', () => {
+      WhiskeyModel.create(createWhiskeyData(user1.id, {
+        name: 'Unrated Bourbon'
+        // No rating provided
+      }));
+
+      const stats = WhiskeyModel.getPublicStats(user1.id);
+
+      expect(stats.totalBottles).toBe(1);
+      expect(stats.averageRating).toBeNull();
+    });
+
+    it('calculates averageRating only from rated whiskeys', () => {
+      WhiskeyModel.create(createWhiskeyData(user1.id, {
+        name: 'Rated Bourbon',
+        rating: 8.0
+      }));
+      WhiskeyModel.create(createWhiskeyData(user1.id, {
+        name: 'Unrated Bourbon'
+        // No rating
+      }));
+
+      const stats = WhiskeyModel.getPublicStats(user1.id);
+
+      expect(stats.totalBottles).toBe(2);
+      expect(stats.averageRating).toBe(8.0); // Only counts the rated one
+    });
+
+    it('only returns stats for specified user', () => {
+      WhiskeyModel.create(createWhiskeyData(user1.id, {
+        name: 'User1 Bourbon',
+        type: WhiskeyType.BOURBON
+      }));
+      WhiskeyModel.create(createWhiskeyData(user2.id, {
+        name: 'User2 Scotch',
+        type: WhiskeyType.SCOTCH
+      }));
+
+      const user1Stats = WhiskeyModel.getPublicStats(user1.id);
+      const user2Stats = WhiskeyModel.getPublicStats(user2.id);
+
+      expect(user1Stats.totalBottles).toBe(1);
+      expect(user1Stats.typeBreakdown[0].type).toBe(WhiskeyType.BOURBON);
+
+      expect(user2Stats.totalBottles).toBe(1);
+      expect(user2Stats.typeBreakdown[0].type).toBe(WhiskeyType.SCOTCH);
+    });
+
+    it('returns top 5 distilleries ordered by count', () => {
+      // Create whiskeys with varying distillery counts
+      for (let i = 0; i < 6; i++) {
+        WhiskeyModel.create(createWhiskeyData(user1.id, {
+          name: `Buffalo Trace ${i}`,
+          distillery: 'Buffalo Trace'
+        }));
+      }
+      for (let i = 0; i < 4; i++) {
+        WhiskeyModel.create(createWhiskeyData(user1.id, {
+          name: `Macallan ${i}`,
+          distillery: 'Macallan'
+        }));
+      }
+      for (let i = 0; i < 3; i++) {
+        WhiskeyModel.create(createWhiskeyData(user1.id, {
+          name: `Makers Mark ${i}`,
+          distillery: 'Makers Mark'
+        }));
+      }
+      for (let i = 0; i < 2; i++) {
+        WhiskeyModel.create(createWhiskeyData(user1.id, {
+          name: `Wild Turkey ${i}`,
+          distillery: 'Wild Turkey'
+        }));
+      }
+      WhiskeyModel.create(createWhiskeyData(user1.id, {
+        name: 'Woodford Reserve 1',
+        distillery: 'Woodford Reserve'
+      }));
+      WhiskeyModel.create(createWhiskeyData(user1.id, {
+        name: 'Four Roses 1',
+        distillery: 'Four Roses'
+      }));
+
+      const stats = WhiskeyModel.getPublicStats(user1.id);
+
+      expect(stats.topDistilleries).toHaveLength(5);
+      expect(stats.topDistilleries[0].distillery).toBe('Buffalo Trace');
+      expect(stats.topDistilleries[0].count).toBe(6);
+      expect(stats.topDistilleries[1].distillery).toBe('Macallan');
+      expect(stats.topDistilleries[1].count).toBe(4);
+      expect(stats.totalDistilleries).toBe(6); // All 6 unique distilleries
+    });
+
+    it('handles single whiskey correctly', () => {
+      WhiskeyModel.create(createWhiskeyData(user1.id, {
+        name: 'Only Bourbon',
+        type: WhiskeyType.BOURBON,
+        distillery: 'Buffalo Trace',
+        country: 'USA',
+        rating: 7.5
+      }));
+
+      const stats = WhiskeyModel.getPublicStats(user1.id);
+
+      expect(stats.totalBottles).toBe(1);
+      expect(stats.typeBreakdown).toHaveLength(1);
+      expect(stats.typeBreakdown[0]).toEqual({ type: WhiskeyType.BOURBON, count: 1 });
+      expect(stats.topDistilleries).toHaveLength(1);
+      expect(stats.topDistilleries[0]).toEqual({ distillery: 'Buffalo Trace', count: 1 });
+      expect(stats.totalDistilleries).toBe(1);
+      expect(stats.averageRating).toBe(7.5);
+      expect(stats.countriesRepresented).toEqual(['USA']);
+    });
+
+    it('excludes empty string countries', () => {
+      WhiskeyModel.create(createWhiskeyData(user1.id, {
+        name: 'Bourbon with Country',
+        country: 'USA'
+      }));
+      WhiskeyModel.create(createWhiskeyData(user1.id, {
+        name: 'Bourbon without Country',
+        country: ''
+      }));
+      WhiskeyModel.create(createWhiskeyData(user1.id, {
+        name: 'Bourbon with null Country'
+        // country is undefined/null
+      }));
+
+      const stats = WhiskeyModel.getPublicStats(user1.id);
+
+      expect(stats.totalBottles).toBe(3);
+      expect(stats.countriesRepresented).toEqual(['USA']);
+    });
+
+    it('orders countries alphabetically', () => {
+      WhiskeyModel.create(createWhiskeyData(user1.id, {
+        name: 'Japanese',
+        country: 'Japan'
+      }));
+      WhiskeyModel.create(createWhiskeyData(user1.id, {
+        name: 'American',
+        country: 'USA'
+      }));
+      WhiskeyModel.create(createWhiskeyData(user1.id, {
+        name: 'Scottish',
+        country: 'Scotland'
+      }));
+      WhiskeyModel.create(createWhiskeyData(user1.id, {
+        name: 'Irish',
+        country: 'Ireland'
+      }));
+
+      const stats = WhiskeyModel.getPublicStats(user1.id);
+
+      expect(stats.countriesRepresented).toEqual(['Ireland', 'Japan', 'Scotland', 'USA']);
+    });
+
+    it('handles duplicate countries correctly', () => {
+      WhiskeyModel.create(createWhiskeyData(user1.id, {
+        name: 'Bourbon 1',
+        country: 'USA'
+      }));
+      WhiskeyModel.create(createWhiskeyData(user1.id, {
+        name: 'Bourbon 2',
+        country: 'USA'
+      }));
+      WhiskeyModel.create(createWhiskeyData(user1.id, {
+        name: 'Scotch 1',
+        country: 'Scotland'
+      }));
+
+      const stats = WhiskeyModel.getPublicStats(user1.id);
+
+      expect(stats.countriesRepresented).toEqual(['Scotland', 'USA']);
+    });
+
+    it('rounds average rating to one decimal place', () => {
+      WhiskeyModel.create(createWhiskeyData(user1.id, {
+        name: 'Bourbon 1',
+        rating: 8.33
+      }));
+      WhiskeyModel.create(createWhiskeyData(user1.id, {
+        name: 'Bourbon 2',
+        rating: 8.67
+      }));
+
+      const stats = WhiskeyModel.getPublicStats(user1.id);
+
+      // (8.33 + 8.67) / 2 = 8.5
+      expect(stats.averageRating).toBe(8.5);
+    });
+
+    it('handles ratings with many decimal places', () => {
+      WhiskeyModel.create(createWhiskeyData(user1.id, {
+        name: 'Bourbon 1',
+        rating: 7.777
+      }));
+      WhiskeyModel.create(createWhiskeyData(user1.id, {
+        name: 'Bourbon 2',
+        rating: 8.333
+      }));
+      WhiskeyModel.create(createWhiskeyData(user1.id, {
+        name: 'Bourbon 3',
+        rating: 9.111
+      }));
+
+      const stats = WhiskeyModel.getPublicStats(user1.id);
+
+      // (7.777 + 8.333 + 9.111) / 3 = 8.407 -> rounded to 8.4
+      expect(stats.averageRating).toBe(8.4);
+    });
+
+    it('returns stats for non-existent user (empty results)', () => {
+      const stats = WhiskeyModel.getPublicStats(99999);
+
+      expect(stats.totalBottles).toBe(0);
+      expect(stats.typeBreakdown).toHaveLength(0);
+      expect(stats.topDistilleries).toHaveLength(0);
+      expect(stats.totalDistilleries).toBe(0);
+      expect(stats.averageRating).toBeNull();
+      expect(stats.countriesRepresented).toHaveLength(0);
+    });
+
+    it('orders type breakdown by count descending', () => {
+      // Create more bourbons than scotch
+      for (let i = 0; i < 5; i++) {
+        WhiskeyModel.create(createWhiskeyData(user1.id, {
+          name: `Bourbon ${i}`,
+          type: WhiskeyType.BOURBON
+        }));
+      }
+      for (let i = 0; i < 3; i++) {
+        WhiskeyModel.create(createWhiskeyData(user1.id, {
+          name: `Scotch ${i}`,
+          type: WhiskeyType.SCOTCH
+        }));
+      }
+      WhiskeyModel.create(createWhiskeyData(user1.id, {
+        name: 'Rye 1',
+        type: WhiskeyType.RYE
+      }));
+
+      const stats = WhiskeyModel.getPublicStats(user1.id);
+
+      expect(stats.typeBreakdown[0]).toEqual({ type: WhiskeyType.BOURBON, count: 5 });
+      expect(stats.typeBreakdown[1]).toEqual({ type: WhiskeyType.SCOTCH, count: 3 });
+      expect(stats.typeBreakdown[2]).toEqual({ type: WhiskeyType.RYE, count: 1 });
+    });
+  });
 });

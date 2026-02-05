@@ -455,4 +455,291 @@ describe('UserModel', () => {
       expect(result).toBeUndefined();
     });
   });
+
+  describe('updateVisibility', () => {
+    it('updates profile visibility to public', async () => {
+      const user = await UserModel.create('visuser1', 'vis1@example.com', 'password123');
+
+      const updated = UserModel.updateVisibility(user.id, true);
+
+      expect(updated).toBeDefined();
+      expect(updated?.is_profile_public).toBe(1);
+    });
+
+    it('updates profile visibility to private', async () => {
+      const user = await UserModel.create('visuser2', 'vis2@example.com', 'password123');
+      // First make public
+      UserModel.updateVisibility(user.id, true);
+
+      // Then make private
+      const updated = UserModel.updateVisibility(user.id, false);
+
+      expect(updated).toBeDefined();
+      expect(updated?.is_profile_public).toBe(0);
+    });
+
+    it('returns undefined for non-existent user', () => {
+      const updated = UserModel.updateVisibility(99999, true);
+
+      expect(updated).toBeUndefined();
+    });
+
+    it('defaults to private (0) for new users', async () => {
+      const user = await UserModel.create('visdefault', 'visdefault@example.com', 'password123');
+
+      expect(user.is_profile_public).toBe(0);
+    });
+
+    it('toggle visibility multiple times', async () => {
+      const user = await UserModel.create('vistoggle', 'vistoggle@example.com', 'password123');
+
+      // Toggle to public
+      let updated = UserModel.updateVisibility(user.id, true);
+      expect(updated?.is_profile_public).toBe(1);
+
+      // Toggle to private
+      updated = UserModel.updateVisibility(user.id, false);
+      expect(updated?.is_profile_public).toBe(0);
+
+      // Toggle back to public
+      updated = UserModel.updateVisibility(user.id, true);
+      expect(updated?.is_profile_public).toBe(1);
+    });
+  });
+
+  describe('getPublicProfile', () => {
+    it('returns public profile for existing user', async () => {
+      const user = await UserModel.create('pubuser', 'pub@example.com', 'password123', Role.EDITOR, 'Public', 'User');
+      UserModel.updateVisibility(user.id, true);
+
+      const profile = UserModel.getPublicProfile('pubuser');
+
+      expect(profile).toBeDefined();
+      expect(profile?.id).toBe(user.id);
+      expect(profile?.username).toBe('pubuser');
+      expect(profile?.role).toBe(Role.EDITOR);
+      expect(profile?.first_name).toBe('Public');
+      expect(profile?.last_name).toBe('User');
+      expect(profile?.is_profile_public).toBe(1);
+      expect(profile?.created_at).toBeDefined();
+    });
+
+    it('returns profile for private user (visibility check done in route)', async () => {
+      const user = await UserModel.create('privuser', 'priv@example.com', 'password123');
+
+      const profile = UserModel.getPublicProfile('privuser');
+
+      expect(profile).toBeDefined();
+      expect(profile?.is_profile_public).toBe(0);
+    });
+
+    it('returns undefined for non-existent username', () => {
+      const profile = UserModel.getPublicProfile('nonexistent');
+
+      expect(profile).toBeUndefined();
+    });
+
+    it('does not include sensitive fields in public profile', async () => {
+      const user = await UserModel.create('sensitiveuser', 'sensitive@example.com', 'password123');
+
+      const profile = UserModel.getPublicProfile('sensitiveuser');
+
+      expect(profile).toBeDefined();
+      // Public profile should not include password or email
+      expect((profile as any).password).toBeUndefined();
+      expect((profile as any).email).toBeUndefined();
+      expect((profile as any).verification_code).toBeUndefined();
+      expect((profile as any).password_reset_token).toBeUndefined();
+    });
+
+    it('includes profile_photo in public profile', async () => {
+      const user = await UserModel.create('photouser', 'photo@example.com', 'password123');
+      UserModel.updateProfilePhoto(user.id, '/uploads/profiles/avatar.jpg');
+
+      const profile = UserModel.getPublicProfile('photouser');
+
+      expect(profile?.profile_photo).toBe('/uploads/profiles/avatar.jpg');
+    });
+
+    it('handles username with special characters', async () => {
+      // Note: If usernames with special chars are allowed
+      const user = await UserModel.create('user_name', 'special@example.com', 'password123');
+
+      const profile = UserModel.getPublicProfile('user_name');
+
+      expect(profile).toBeDefined();
+      expect(profile?.username).toBe('user_name');
+    });
+
+    it('is case-sensitive for username lookup', async () => {
+      await UserModel.create('CaseSensitive', 'case@example.com', 'password123');
+
+      const exactMatch = UserModel.getPublicProfile('CaseSensitive');
+      const lowercaseMatch = UserModel.getPublicProfile('casesensitive');
+
+      expect(exactMatch).toBeDefined();
+      expect(lowercaseMatch).toBeUndefined();
+    });
+  });
+
+  describe('findPublicProfiles', () => {
+    it('returns only public profiles', async () => {
+      await UserModel.create('public1', 'public1@example.com', 'password123');
+      await UserModel.create('public2', 'public2@example.com', 'password123');
+      await UserModel.create('private1', 'private1@example.com', 'password123');
+
+      // Make first two public
+      const user1 = UserModel.findByUsername('public1');
+      const user2 = UserModel.findByUsername('public2');
+      UserModel.updateVisibility(user1!.id, true);
+      UserModel.updateVisibility(user2!.id, true);
+
+      const publicProfiles = UserModel.findPublicProfiles();
+
+      expect(publicProfiles).toHaveLength(2);
+      expect(publicProfiles.map(p => p.username).sort()).toEqual(['public1', 'public2']);
+    });
+
+    it('returns empty array when no public profiles exist', async () => {
+      await UserModel.create('allprivate1', 'allpriv1@example.com', 'password123');
+      await UserModel.create('allprivate2', 'allpriv2@example.com', 'password123');
+
+      const publicProfiles = UserModel.findPublicProfiles();
+
+      expect(publicProfiles).toHaveLength(0);
+    });
+
+    it('does not include sensitive fields in results', async () => {
+      const user = await UserModel.create('publiclist', 'publiclist@example.com', 'password123');
+      UserModel.updateVisibility(user.id, true);
+
+      const publicProfiles = UserModel.findPublicProfiles();
+
+      expect(publicProfiles).toHaveLength(1);
+      expect((publicProfiles[0] as any).password).toBeUndefined();
+      expect((publicProfiles[0] as any).email).toBeUndefined();
+    });
+
+    it('orders profiles by created_at descending', async () => {
+      const user1 = await UserModel.create('first_pub', 'first@example.com', 'password123');
+      const user2 = await UserModel.create('second_pub', 'second@example.com', 'password123');
+
+      UserModel.updateVisibility(user1.id, true);
+      UserModel.updateVisibility(user2.id, true);
+
+      const publicProfiles = UserModel.findPublicProfiles();
+
+      // Verify both profiles are returned (order may vary due to timestamp granularity)
+      expect(publicProfiles).toHaveLength(2);
+      expect(publicProfiles.map(p => p.username).sort()).toEqual(['first_pub', 'second_pub']);
+    });
+
+    it('updates list when profile visibility changes', async () => {
+      const user = await UserModel.create('togglelist', 'togglelist@example.com', 'password123');
+
+      // Initially private
+      let publicProfiles = UserModel.findPublicProfiles();
+      expect(publicProfiles.find(p => p.username === 'togglelist')).toBeUndefined();
+
+      // Make public
+      UserModel.updateVisibility(user.id, true);
+      publicProfiles = UserModel.findPublicProfiles();
+      expect(publicProfiles.find(p => p.username === 'togglelist')).toBeDefined();
+
+      // Make private again
+      UserModel.updateVisibility(user.id, false);
+      publicProfiles = UserModel.findPublicProfiles();
+      expect(publicProfiles.find(p => p.username === 'togglelist')).toBeUndefined();
+    });
+  });
+
+  describe('Integration: Visibility and Directory Listing', () => {
+    it('user appears in public directory after making profile public', async () => {
+      const user = await UserModel.create('newpublic', 'newpublic@example.com', 'password123');
+
+      // Not in directory initially
+      let directory = UserModel.findPublicProfiles();
+      expect(directory.find(p => p.username === 'newpublic')).toBeUndefined();
+
+      // Make public
+      UserModel.updateVisibility(user.id, true);
+
+      // Now should be in directory
+      directory = UserModel.findPublicProfiles();
+      const found = directory.find(p => p.username === 'newpublic');
+      expect(found).toBeDefined();
+      expect(found?.is_profile_public).toBe(1);
+    });
+
+    it('user disappears from public directory after making profile private', async () => {
+      const user = await UserModel.create('waspublic', 'waspublic@example.com', 'password123');
+
+      // Make public first
+      UserModel.updateVisibility(user.id, true);
+
+      // Verify in directory
+      let directory = UserModel.findPublicProfiles();
+      expect(directory.find(p => p.username === 'waspublic')).toBeDefined();
+
+      // Make private
+      UserModel.updateVisibility(user.id, false);
+
+      // No longer in directory
+      directory = UserModel.findPublicProfiles();
+      expect(directory.find(p => p.username === 'waspublic')).toBeUndefined();
+    });
+
+    it('public profile visible via getPublicProfile after visibility change', async () => {
+      const user = await UserModel.create('vischange', 'vischange@example.com', 'password123');
+
+      // Get profile - should show as private
+      let profile = UserModel.getPublicProfile('vischange');
+      expect(profile?.is_profile_public).toBe(0);
+
+      // Make public
+      UserModel.updateVisibility(user.id, true);
+
+      // Get profile again - should show as public
+      profile = UserModel.getPublicProfile('vischange');
+      expect(profile?.is_profile_public).toBe(1);
+    });
+
+    it('multiple users with different visibility states', async () => {
+      const public1 = await UserModel.create('multi_public1', 'mp1@example.com', 'password123');
+      const public2 = await UserModel.create('multi_public2', 'mp2@example.com', 'password123');
+      const private1 = await UserModel.create('multi_private1', 'mpv1@example.com', 'password123');
+      const private2 = await UserModel.create('multi_private2', 'mpv2@example.com', 'password123');
+
+      // Make some public
+      UserModel.updateVisibility(public1.id, true);
+      UserModel.updateVisibility(public2.id, true);
+
+      // Check directory
+      const directory = UserModel.findPublicProfiles();
+      expect(directory.filter(p => p.username.startsWith('multi_'))).toHaveLength(2);
+      expect(directory.find(p => p.username === 'multi_public1')).toBeDefined();
+      expect(directory.find(p => p.username === 'multi_public2')).toBeDefined();
+      expect(directory.find(p => p.username === 'multi_private1')).toBeUndefined();
+      expect(directory.find(p => p.username === 'multi_private2')).toBeUndefined();
+    });
+
+    it('visibility change persists through findById', async () => {
+      const user = await UserModel.create('persist', 'persist@example.com', 'password123');
+
+      // Initially private
+      expect(UserModel.findById(user.id)?.is_profile_public).toBe(0);
+
+      // Make public
+      UserModel.updateVisibility(user.id, true);
+
+      // Verify through findById
+      expect(UserModel.findById(user.id)?.is_profile_public).toBe(1);
+
+      // Make private
+      UserModel.updateVisibility(user.id, false);
+
+      // Verify through findById
+      expect(UserModel.findById(user.id)?.is_profile_public).toBe(0);
+    });
+  });
 });

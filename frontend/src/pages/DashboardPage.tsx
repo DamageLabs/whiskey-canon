@@ -1,8 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { whiskeyAPI } from '../services/api';
-import { Whiskey, WhiskeyType } from '../types';
+import { Whiskey } from '../types';
 import { WhiskeyCard } from '../components/WhiskeyCard';
 import { WhiskeyForm } from '../components/WhiskeyForm';
 import { WhiskeyTable } from '../components/WhiskeyTable';
@@ -10,6 +10,7 @@ import { WhiskeyDetailModal } from '../components/WhiskeyDetailModal';
 import { WhiskeyStats } from '../components/WhiskeyStats';
 import { EnhancedStats } from '../components/EnhancedStats';
 import { Footer } from '../components/Footer';
+import { FilterPanel, FilterState, defaultFilters, applyFilters } from '../components/FilterPanel';
 
 export function DashboardPage() {
   const { user, logout, hasPermission } = useAuth();
@@ -19,7 +20,8 @@ export function DashboardPage() {
   const [showForm, setShowForm] = useState(false);
   const [editingWhiskey, setEditingWhiskey] = useState<Whiskey | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
-  const [filterType, setFilterType] = useState<WhiskeyType | ''>('');
+  const [filters, setFilters] = useState<FilterState>(defaultFilters);
+  const [showFilters, setShowFilters] = useState(false);
   const [error, setError] = useState('');
   const [viewMode, setViewMode] = useState<'cards' | 'table'>('table');
   const [selectedWhiskey, setSelectedWhiskey] = useState<Whiskey | null>(null);
@@ -27,9 +29,12 @@ export function DashboardPage() {
   const [importing, setImporting] = useState(false);
   const [importResult, setImportResult] = useState<any>(null);
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
-  const [showClearConfirm, setShowClearConfirm] = useState(false);
-  const [clearConfirmText, setClearConfirmText] = useState('');
   const [bulkDeleting, setBulkDeleting] = useState(false);
+
+  // Apply filters to whiskeys
+  const filteredWhiskeys = useMemo(() => {
+    return applyFilters(whiskeys, filters);
+  }, [whiskeys, filters]);
 
   const canCreate = hasPermission('create:whiskey');
   const canUpdate = hasPermission('update:whiskey');
@@ -37,13 +42,12 @@ export function DashboardPage() {
 
   useEffect(() => {
     loadWhiskeys();
-  }, [filterType]);
+  }, []);
 
   async function loadWhiskeys() {
     try {
       setLoading(true);
-      const filters = filterType ? { type: filterType } : undefined;
-      const { whiskeys: data } = await whiskeyAPI.getAll(filters);
+      const { whiskeys: data } = await whiskeyAPI.getAll();
       setWhiskeys(data);
     } catch (err: any) {
       setError(err.message);
@@ -133,26 +137,6 @@ export function DashboardPage() {
     }
   }
 
-  async function handleClearCollection() {
-    if (clearConfirmText !== 'DELETE') {
-      return;
-    }
-
-    try {
-      setBulkDeleting(true);
-      const result = await whiskeyAPI.deleteAll();
-      setWhiskeys([]);
-      setSelectedIds(new Set());
-      setShowClearConfirm(false);
-      setClearConfirmText('');
-      alert(result.message);
-    } catch (err: any) {
-      setError(err.message);
-    } finally {
-      setBulkDeleting(false);
-    }
-  }
-
   function handleEdit(whiskey: Whiskey) {
     setEditingWhiskey(whiskey);
     setShowForm(true);
@@ -220,23 +204,9 @@ export function DashboardPage() {
             </div>
           </div>
 
-          {/* Filters and Actions */}
+          {/* Actions */}
           <div className="col-12 col-md-6">
             <div className="d-flex gap-2 flex-wrap justify-content-md-end">
-              <select
-                className="form-select"
-                style={{ width: 'auto' }}
-                value={filterType}
-                onChange={(e) => setFilterType(e.target.value as WhiskeyType | '')}
-              >
-                <option value="">All Types</option>
-                {Object.values(WhiskeyType).map((type) => (
-                  <option key={type} value={type}>
-                    {type.charAt(0).toUpperCase() + type.slice(1)}
-                  </option>
-                ))}
-              </select>
-
               <div className="btn-group" role="group">
                 <button
                   type="button"
@@ -282,33 +252,40 @@ export function DashboardPage() {
           </div>
         </div>
 
+        {/* Filter Panel */}
+        <FilterPanel
+          filters={filters}
+          onFiltersChange={setFilters}
+          whiskeys={whiskeys}
+          isOpen={showFilters}
+          onToggle={() => setShowFilters(!showFilters)}
+        />
+
+        {/* Filter Results Count */}
+        {!loading && whiskeys.length > 0 && filteredWhiskeys.length !== whiskeys.length && (
+          <div className="mb-3">
+            <span className="text-muted">
+              Showing <strong style={{ color: 'var(--amber-500)' }}>{filteredWhiskeys.length}</strong> of {whiskeys.length} whiskeys
+            </span>
+          </div>
+        )}
+
         {/* Bulk Actions */}
-        {canDelete && whiskeys.length > 0 && viewMode === 'table' && (
+        {canDelete && selectedIds.size > 0 && viewMode === 'table' && (
           <div className="d-flex gap-2 mb-3 align-items-center">
-            {selectedIds.size > 0 && (
-              <button
-                onClick={handleBulkDelete}
-                className="btn btn-danger"
-                disabled={bulkDeleting}
-              >
-                <i className="bi bi-trash"></i> Delete Selected ({selectedIds.size})
-              </button>
-            )}
             <button
-              onClick={() => setShowClearConfirm(true)}
-              className="btn btn-outline-danger"
+              onClick={handleBulkDelete}
+              className="btn btn-danger"
               disabled={bulkDeleting}
             >
-              <i className="bi bi-trash3"></i> Clear Collection
+              <i className="bi bi-trash"></i> Delete Selected ({selectedIds.size})
             </button>
-            {selectedIds.size > 0 && (
-              <button
-                onClick={() => setSelectedIds(new Set())}
-                className="btn btn-outline-secondary btn-sm"
-              >
-                Clear Selection
-              </button>
-            )}
+            <button
+              onClick={() => setSelectedIds(new Set())}
+              className="btn btn-outline-secondary btn-sm"
+            >
+              Clear Selection
+            </button>
           </div>
         )}
 
@@ -382,7 +359,7 @@ export function DashboardPage() {
         )}
 
         {/* Statistics Toggle */}
-        {!loading && whiskeys.length > 0 && (
+        {!loading && filteredWhiskeys.length > 0 && (
           <div className="mb-3">
             <button
               className="btn btn-sm"
@@ -400,8 +377,8 @@ export function DashboardPage() {
         )}
 
         {/* Statistics */}
-        {!loading && whiskeys.length > 0 && !showEnhancedStats && <WhiskeyStats whiskeys={whiskeys} />}
-        {!loading && whiskeys.length > 0 && showEnhancedStats && <EnhancedStats />}
+        {!loading && filteredWhiskeys.length > 0 && !showEnhancedStats && <WhiskeyStats whiskeys={filteredWhiskeys} />}
+        {!loading && filteredWhiskeys.length > 0 && showEnhancedStats && <EnhancedStats />}
 
         {/* Content */}
         {loading ? (
@@ -419,9 +396,20 @@ export function DashboardPage() {
               </button>
             )}
           </div>
+        ) : filteredWhiskeys.length === 0 ? (
+          <div className="text-center py-5">
+            <h3 className="text-muted">No whiskeys match your filters</h3>
+            <p className="text-muted">Try adjusting your filter criteria</p>
+            <button
+              onClick={() => setFilters(defaultFilters)}
+              className="btn btn-outline-secondary mt-2"
+            >
+              Clear All Filters
+            </button>
+          </div>
         ) : viewMode === 'cards' ? (
           <div className="row g-4">
-            {whiskeys.map((whiskey) => (
+            {filteredWhiskeys.map((whiskey) => (
               <div key={whiskey.id} className="col-12 col-md-6 col-lg-4 col-xl-3">
                 <WhiskeyCard
                   whiskey={whiskey}
@@ -433,7 +421,7 @@ export function DashboardPage() {
           </div>
         ) : (
           <WhiskeyTable
-            whiskeys={whiskeys}
+            whiskeys={filteredWhiskeys}
             onRowClick={setSelectedWhiskey}
             onEdit={canUpdate ? handleEdit : undefined}
             onDelete={canDelete ? handleDelete : undefined}
@@ -460,59 +448,6 @@ export function DashboardPage() {
           onEdit={canUpdate ? handleEdit : undefined}
           onDelete={canDelete ? handleDelete : undefined}
         />
-      )}
-
-      {/* Clear Collection Confirmation Modal */}
-      {showClearConfirm && (
-        <div className="modal show d-block" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
-          <div className="modal-dialog modal-dialog-centered">
-            <div className="modal-content" style={{ backgroundColor: 'var(--zinc-900)', color: 'var(--zinc-100)' }}>
-              <div className="modal-header border-danger">
-                <h5 className="modal-title text-danger">
-                  <i className="bi bi-exclamation-triangle-fill me-2"></i>
-                  Clear Entire Collection
-                </h5>
-                <button
-                  type="button"
-                  className="btn-close btn-close-white"
-                  onClick={() => { setShowClearConfirm(false); setClearConfirmText(''); }}
-                ></button>
-              </div>
-              <div className="modal-body">
-                <p>
-                  This will permanently delete <strong>all {whiskeys.length} whiskeys</strong> from your collection.
-                  This action cannot be undone.
-                </p>
-                <p className="mb-2">Type <strong>DELETE</strong> to confirm:</p>
-                <input
-                  type="text"
-                  className="form-control"
-                  value={clearConfirmText}
-                  onChange={(e) => setClearConfirmText(e.target.value)}
-                  placeholder="Type DELETE to confirm"
-                  autoFocus
-                />
-              </div>
-              <div className="modal-footer border-0">
-                <button
-                  type="button"
-                  className="btn btn-secondary"
-                  onClick={() => { setShowClearConfirm(false); setClearConfirmText(''); }}
-                >
-                  Cancel
-                </button>
-                <button
-                  type="button"
-                  className="btn btn-danger"
-                  onClick={handleClearCollection}
-                  disabled={clearConfirmText !== 'DELETE' || bulkDeleting}
-                >
-                  {bulkDeleting ? 'Deleting...' : 'Delete All Whiskeys'}
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
       )}
 
       <Footer />

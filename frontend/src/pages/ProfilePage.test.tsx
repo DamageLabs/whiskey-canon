@@ -634,4 +634,141 @@ describe('ProfilePage - Profile Visibility', () => {
       });
     });
   });
+
+  describe('Accessibility', () => {
+    beforeEach(() => {
+      vi.mocked(whiskeyAPI.getAll).mockResolvedValue({ whiskeys: [] });
+    });
+
+    it('visibility toggle buttons are focusable', async () => {
+      renderWithRouter();
+
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: /Private/i })).toBeInTheDocument();
+      });
+
+      const privateButton = screen.getByRole('button', { name: /Private/i });
+      const publicButton = screen.getByRole('button', { name: /Public/i });
+
+      expect(privateButton).not.toHaveAttribute('tabindex', '-1');
+      expect(publicButton).not.toHaveAttribute('tabindex', '-1');
+    });
+
+    it('buttons have accessible names', async () => {
+      renderWithRouter();
+
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: /Private/i })).toBeInTheDocument();
+      });
+
+      // All buttons should have accessible names (text content or aria-label)
+      const buttons = screen.getAllByRole('button');
+      buttons.forEach(button => {
+        const hasAccessibleName = button.textContent?.trim() || button.getAttribute('aria-label');
+        expect(hasAccessibleName).toBeTruthy();
+      });
+    });
+
+    it('modal is visible when triggered', async () => {
+      renderWithRouter();
+
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: /Public/i })).not.toBeDisabled();
+      });
+
+      fireEvent.click(screen.getByRole('button', { name: /Public/i }));
+
+      // Modal should be visible with expected structure
+      expect(screen.getByText('Make Profile Public?')).toBeInTheDocument();
+      expect(screen.getByText('Cancel')).toBeInTheDocument();
+    });
+
+    it('modal has descriptive title', async () => {
+      renderWithRouter();
+
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: /Public/i })).not.toBeDisabled();
+      });
+
+      fireEvent.click(screen.getByRole('button', { name: /Public/i }));
+
+      expect(screen.getByText('Make Profile Public?')).toBeInTheDocument();
+    });
+
+    it('modal Cancel button is keyboard accessible', async () => {
+      renderWithRouter();
+
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: /Public/i })).not.toBeDisabled();
+      });
+
+      fireEvent.click(screen.getByRole('button', { name: /Public/i }));
+
+      const cancelButton = screen.getByRole('button', { name: 'Cancel' });
+      expect(cancelButton).toBeInTheDocument();
+      expect(cancelButton).not.toHaveAttribute('tabindex', '-1');
+    });
+
+    it('toggle buttons indicate current state visually', async () => {
+      renderWithRouter();
+
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: /Private/i })).toBeInTheDocument();
+      });
+
+      const privateButton = screen.getByRole('button', { name: /Private/i });
+      const publicButton = screen.getByRole('button', { name: /Public/i });
+
+      // Private should be active (has btn-secondary class), Public should be inactive (btn-outline-success)
+      expect(privateButton.classList.contains('btn-secondary')).toBe(true);
+      expect(publicButton.classList.contains('btn-outline-success')).toBe(true);
+    });
+
+    it('success alert is present after visibility change', async () => {
+      vi.mocked(authAPI.updateVisibility).mockResolvedValue({
+        message: 'Profile is now public',
+        user: { ...mockUser, is_profile_public: true },
+      });
+
+      renderWithRouter();
+
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: /Public/i })).not.toBeDisabled();
+      });
+
+      fireEvent.click(screen.getByRole('button', { name: /Public/i }));
+
+      const makePublicButtons = screen.getAllByRole('button', { name: /Make Public/i });
+      const modalButton = makePublicButtons.find(btn => btn.classList.contains('btn-success'));
+      fireEvent.click(modalButton!);
+
+      await waitFor(() => {
+        const alert = screen.getByRole('alert');
+        expect(alert).toBeInTheDocument();
+        expect(alert).toHaveTextContent('Profile is now public');
+      });
+    });
+
+    it('error alert is present when update fails', async () => {
+      vi.mocked(authAPI.updateVisibility).mockRejectedValue(new Error('Server error'));
+
+      renderWithRouter();
+
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: /Public/i })).not.toBeDisabled();
+      });
+
+      fireEvent.click(screen.getByRole('button', { name: /Public/i }));
+
+      const makePublicButtons = screen.getAllByRole('button', { name: /Make Public/i });
+      const modalButton = makePublicButtons.find(btn => btn.classList.contains('btn-success'));
+      fireEvent.click(modalButton!);
+
+      await waitFor(() => {
+        const alert = screen.getByRole('alert');
+        expect(alert).toBeInTheDocument();
+        expect(alert).toHaveTextContent('Server error');
+      });
+    });
+  });
 });

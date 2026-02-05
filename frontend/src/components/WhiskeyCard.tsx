@@ -43,6 +43,13 @@ export function WhiskeyCard({ whiskey, onEdit, onDelete }: WhiskeyCardProps) {
             </div>
           )}
 
+          {whiskey.proof && (
+            <div className="d-flex justify-content-between border-bottom pb-2 mb-2">
+              <span className="text-muted">Proof:</span>
+              <strong>{whiskey.proof}</strong>
+            </div>
+          )}
+
           {whiskey.size && (
             <div className="d-flex justify-content-between border-bottom pb-2 mb-2">
               <span className="text-muted">Size:</span>

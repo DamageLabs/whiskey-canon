@@ -38,6 +38,7 @@ describe('WhiskeyModel', () => {
         region: 'Kentucky',
         age: 12,
         abv: 45.0,
+        proof: 90.0,
         size: '750ml',
         quantity: 2,
         msrp: 50.00,
@@ -50,6 +51,7 @@ describe('WhiskeyModel', () => {
       expect(whiskey.region).toBe('Kentucky');
       expect(whiskey.age).toBe(12);
       expect(whiskey.abv).toBe(45.0);
+      expect(whiskey.proof).toBe(90.0);
       expect(whiskey.size).toBe('750ml');
       expect(whiskey.quantity).toBe(2);
       expect(whiskey.msrp).toBe(50.00);

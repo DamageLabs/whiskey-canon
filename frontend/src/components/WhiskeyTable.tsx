@@ -12,7 +12,7 @@ interface WhiskeyTableProps {
   selectionEnabled?: boolean;
 }
 
-type SortColumn = 'name' | 'type' | 'distillery' | 'region' | 'age' | 'abv' | 'size' | 'quantity' | 'msrp' | 'secondary_price' | 'rating';
+type SortColumn = 'name' | 'type' | 'distillery' | 'region' | 'age' | 'abv' | 'proof' | 'size' | 'quantity' | 'msrp' | 'secondary_price' | 'rating';
 type SortDirection = 'asc' | 'desc';
 
 export function WhiskeyTable({
@@ -131,6 +131,9 @@ export function WhiskeyTable({
             <th onClick={() => handleSort('abv')} style={{ cursor: 'pointer', userSelect: 'none' }}>
               ABV {renderSortIcon('abv')}
             </th>
+            <th onClick={() => handleSort('proof')} style={{ cursor: 'pointer', userSelect: 'none' }}>
+              Proof {renderSortIcon('proof')}
+            </th>
             <th onClick={() => handleSort('size')} style={{ cursor: 'pointer', userSelect: 'none' }}>
               Size {renderSortIcon('size')}
             </th>
@@ -178,6 +181,7 @@ export function WhiskeyTable({
               <td>{whiskey.region || '-'}</td>
               <td>{whiskey.age ? `${whiskey.age} years` : '-'}</td>
               <td>{whiskey.abv ? `${whiskey.abv}%` : '-'}</td>
+              <td>{whiskey.proof || '-'}</td>
               <td>{whiskey.size || '-'}</td>
               <td>{whiskey.quantity || '-'}</td>
               <td>{formatCurrencyOrDash(whiskey.msrp)}</td>

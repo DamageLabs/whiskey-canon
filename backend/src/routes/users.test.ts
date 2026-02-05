@@ -423,4 +423,176 @@ describe('Users Routes', () => {
       expect(WhiskeyModel.getPublicStats).toHaveBeenCalledWith(42);
     });
   });
+
+  describe('Editor role authorization', () => {
+    const createAppWithUser = (userId: number, userRole: Role) => {
+      const mockUser = {
+        id: userId,
+        username: `user${userId}`,
+        email: `user${userId}@example.com`,
+        password: 'hashed',
+        role: userRole,
+        email_verified: 1,
+        verification_code_attempts: 0,
+        is_profile_public: 0,
+        created_at: '2024-01-01',
+        updated_at: '2024-01-01',
+      };
+
+      vi.mocked(UserModel.findById).mockReturnValue(mockUser);
+
+      const testApp = express();
+      testApp.use(express.json());
+      testApp.use(
+        session({
+          secret: 'test-secret',
+          resave: false,
+          saveUninitialized: true,
+        })
+      );
+      testApp.use((req, res, next) => {
+        req.session.userId = userId;
+        next();
+      });
+      testApp.use(attachUser);
+      testApp.use('/api/users', usersRoutes);
+      return testApp;
+    };
+
+    describe('GET /api/users/:username - Editor access', () => {
+      it('returns 404 when editor tries to access another users private profile', async () => {
+        const editorApp = createAppWithUser(2, Role.EDITOR);
+
+        vi.mocked(UserModel.getPublicProfile).mockReturnValue({
+          id: 1,
+          username: 'privateuser',
+          role: Role.EDITOR,
+          is_profile_public: 0,
+          created_at: '2024-01-01',
+        });
+
+        const response = await request(editorApp).get('/api/users/privateuser');
+
+        expect(response.status).toBe(404);
+        expect(response.body.error).toBe('Profile not found');
+      });
+
+      it('returns profile when editor accesses another users public profile', async () => {
+        const editorApp = createAppWithUser(2, Role.EDITOR);
+
+        vi.mocked(UserModel.getPublicProfile).mockReturnValue({
+          id: 1,
+          username: 'publicuser',
+          role: Role.EDITOR,
+          is_profile_public: 1,
+          created_at: '2024-01-01',
+        });
+
+        const response = await request(editorApp).get('/api/users/publicuser');
+
+        expect(response.status).toBe(200);
+        expect(response.body.profile).toBeDefined();
+      });
+
+      it('returns 404 when viewer tries to access private profile', async () => {
+        const viewerApp = createAppWithUser(3, Role.VIEWER);
+
+        vi.mocked(UserModel.getPublicProfile).mockReturnValue({
+          id: 1,
+          username: 'privateuser',
+          role: Role.EDITOR,
+          is_profile_public: 0,
+          created_at: '2024-01-01',
+        });
+
+        const response = await request(viewerApp).get('/api/users/privateuser');
+
+        expect(response.status).toBe(404);
+        expect(response.body.error).toBe('Profile not found');
+      });
+    });
+
+    describe('GET /api/users/:username/stats - Editor access', () => {
+      const mockStats = {
+        totalBottles: 5,
+        typeBreakdown: [{ type: 'bourbon', count: 5 }],
+        topDistilleries: [{ distillery: 'Test', count: 5 }],
+        totalDistilleries: 1,
+        averageRating: 8.0,
+        countriesRepresented: ['USA'],
+      };
+
+      it('returns 404 when editor tries to access another users private stats', async () => {
+        const editorApp = createAppWithUser(2, Role.EDITOR);
+
+        vi.mocked(UserModel.getPublicProfile).mockReturnValue({
+          id: 1,
+          username: 'privateuser',
+          role: Role.EDITOR,
+          is_profile_public: 0,
+          created_at: '2024-01-01',
+        });
+
+        const response = await request(editorApp).get('/api/users/privateuser/stats');
+
+        expect(response.status).toBe(404);
+        expect(response.body.error).toBe('Profile not found');
+        expect(WhiskeyModel.getPublicStats).not.toHaveBeenCalled();
+      });
+
+      it('returns stats when editor accesses another users public stats', async () => {
+        const editorApp = createAppWithUser(2, Role.EDITOR);
+
+        vi.mocked(UserModel.getPublicProfile).mockReturnValue({
+          id: 1,
+          username: 'publicuser',
+          role: Role.EDITOR,
+          is_profile_public: 1,
+          created_at: '2024-01-01',
+        });
+        vi.mocked(WhiskeyModel.getPublicStats).mockReturnValue(mockStats);
+
+        const response = await request(editorApp).get('/api/users/publicuser/stats');
+
+        expect(response.status).toBe(200);
+        expect(response.body.stats).toBeDefined();
+        expect(WhiskeyModel.getPublicStats).toHaveBeenCalledWith(1);
+      });
+
+      it('returns 404 when viewer tries to access private stats', async () => {
+        const viewerApp = createAppWithUser(3, Role.VIEWER);
+
+        vi.mocked(UserModel.getPublicProfile).mockReturnValue({
+          id: 1,
+          username: 'privateuser',
+          role: Role.EDITOR,
+          is_profile_public: 0,
+          created_at: '2024-01-01',
+        });
+
+        const response = await request(viewerApp).get('/api/users/privateuser/stats');
+
+        expect(response.status).toBe(404);
+        expect(response.body.error).toBe('Profile not found');
+      });
+
+      it('allows editor to access their own private stats', async () => {
+        const editorApp = createAppWithUser(1, Role.EDITOR);
+
+        vi.mocked(UserModel.getPublicProfile).mockReturnValue({
+          id: 1,
+          username: 'user1',
+          role: Role.EDITOR,
+          is_profile_public: 0,
+          created_at: '2024-01-01',
+        });
+        vi.mocked(WhiskeyModel.getPublicStats).mockReturnValue(mockStats);
+
+        const response = await request(editorApp).get('/api/users/user1/stats');
+
+        expect(response.status).toBe(200);
+        expect(response.body.stats).toBeDefined();
+      });
+    });
+  });
 });

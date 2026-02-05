@@ -9,6 +9,7 @@ import { ResetPasswordPage } from './pages/ResetPasswordPage';
 import { DashboardPage } from './pages/DashboardPage';
 import { AdminPage } from './pages/AdminPage';
 import ProfilePage from './pages/ProfilePage';
+import PublicProfilePage from './pages/PublicProfilePage';
 import AnalyticsPage from './pages/AnalyticsPage';
 import { PrivacyPolicyPage } from './pages/PrivacyPolicyPage';
 import { TermsOfServicePage } from './pages/TermsOfServicePage';
@@ -58,6 +59,7 @@ function App() {
           />
           <Route path="/privacy" element={<PrivacyPolicyPage />} />
           <Route path="/terms" element={<TermsOfServicePage />} />
+          <Route path="/u/:username" element={<PublicProfilePage />} />
           <Route path="/" element={<LandingPage />} />
         </Routes>
       </Router>

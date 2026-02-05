@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { whiskeyAPI } from '../services/api';
+import { whiskeyAPI, authAPI } from '../services/api';
 import { Footer } from '../components/Footer';
 import '../styles/ProfilePage.css';
 
@@ -41,6 +41,10 @@ export default function ProfilePage() {
   const [clearing, setClearing] = useState(false);
   const [collectionCount, setCollectionCount] = useState(0);
 
+  // Visibility state
+  const [showPublicConfirm, setShowPublicConfirm] = useState(false);
+  const [updatingVisibility, setUpdatingVisibility] = useState(false);
+
   // Fetch collection count on mount
   useEffect(() => {
     async function fetchCollectionCount() {
@@ -70,6 +74,32 @@ export default function ProfilePage() {
       setMessage({ type: 'error', text: error.message || 'Failed to clear collection' });
     } finally {
       setClearing(false);
+    }
+  };
+
+  const handleVisibilityToggle = (makePublic: boolean) => {
+    // If making public, show confirmation dialog first
+    if (makePublic && !user?.is_profile_public) {
+      setShowPublicConfirm(true);
+      return;
+    }
+    // Otherwise, update visibility directly (for making private)
+    updateVisibility(makePublic);
+  };
+
+  const updateVisibility = async (makePublic: boolean) => {
+    try {
+      setUpdatingVisibility(true);
+      const result = await authAPI.updateVisibility(makePublic);
+      if (setUser && result.user) {
+        setUser(result.user);
+      }
+      setMessage({ type: 'success', text: result.message });
+      setShowPublicConfirm(false);
+    } catch (error: any) {
+      setMessage({ type: 'error', text: error.message || 'Failed to update visibility' });
+    } finally {
+      setUpdatingVisibility(false);
     }
   };
 
@@ -389,6 +419,70 @@ export default function ProfilePage() {
                 </button>
               </div>
 
+              {/* Profile Visibility */}
+              <div className="profile-section mt-4">
+                <h2>Profile Visibility</h2>
+                <div className="info-group">
+                  <div className="d-flex align-items-center justify-content-between mb-2">
+                    <div>
+                      <label className="mb-1">Current Status</label>
+                      <p className="mb-0">
+                        {user.is_profile_public ? (
+                          <span className="badge bg-success">
+                            <i className="bi bi-globe me-1"></i>
+                            Public
+                          </span>
+                        ) : (
+                          <span className="badge bg-secondary">
+                            <i className="bi bi-lock me-1"></i>
+                            Private
+                          </span>
+                        )}
+                      </p>
+                    </div>
+                  </div>
+                  <p className="text-muted mb-3" style={{ fontSize: '0.9rem' }}>
+                    {user.is_profile_public
+                      ? 'Anyone can view your profile.'
+                      : 'Only you can see your profile.'}
+                  </p>
+                  {user.is_profile_public && (
+                    <p className="mb-3">
+                      <a
+                        href={`/u/${user.username}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-decoration-none"
+                        style={{ color: 'var(--amber-500)' }}
+                      >
+                        <i className="bi bi-box-arrow-up-right me-1"></i>
+                        View your public profile
+                      </a>
+                    </p>
+                  )}
+                  <div className="btn-group" role="group">
+                    <button
+                      type="button"
+                      className={`btn ${!user.is_profile_public ? 'btn-secondary' : 'btn-outline-secondary'}`}
+                      onClick={() => handleVisibilityToggle(false)}
+                      disabled={updatingVisibility || !user.is_profile_public}
+                    >
+                      <i className="bi bi-lock me-1"></i>
+                      Private
+                    </button>
+                    <button
+                      type="button"
+                      className={`btn ${user.is_profile_public ? 'btn-success' : 'btn-outline-success'}`}
+                      onClick={() => handleVisibilityToggle(true)}
+                      disabled={updatingVisibility || user.is_profile_public}
+                    >
+                      <i className="bi bi-globe me-1"></i>
+                      Public
+                    </button>
+                  </div>
+                </div>
+              </div>
+
               {/* Danger Zone */}
               <div className="profile-section mt-5" style={{ borderTop: '1px solid var(--danger, #dc3545)', paddingTop: '2rem' }}>
                 <h2 className="text-danger">Danger Zone</h2>
@@ -629,6 +723,57 @@ export default function ProfilePage() {
                   disabled={clearConfirmText !== 'DELETE' || clearing}
                 >
                   {clearing ? 'Deleting...' : 'Delete All Whiskeys'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Make Profile Public Confirmation Modal */}
+      {showPublicConfirm && (
+        <div className="modal show d-block" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
+          <div className="modal-dialog modal-dialog-centered">
+            <div className="modal-content" style={{ backgroundColor: 'var(--zinc-900)', color: 'var(--zinc-100)' }}>
+              <div className="modal-header">
+                <h5 className="modal-title">
+                  <i className="bi bi-globe me-2"></i>
+                  Make Profile Public?
+                </h5>
+                <button
+                  type="button"
+                  className="btn-close btn-close-white"
+                  onClick={() => setShowPublicConfirm(false)}
+                ></button>
+              </div>
+              <div className="modal-body">
+                <p>
+                  Making your profile public means <strong>anyone</strong> can view your profile information including:
+                </p>
+                <ul>
+                  <li>Your username and display name</li>
+                  <li>Your profile photo</li>
+                  <li>When you joined</li>
+                </ul>
+                <p className="text-muted mb-0">
+                  You can change this setting back to private at any time.
+                </p>
+              </div>
+              <div className="modal-footer border-0">
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={() => setShowPublicConfirm(false)}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-success"
+                  onClick={() => updateVisibility(true)}
+                  disabled={updatingVisibility}
+                >
+                  {updatingVisibility ? 'Updating...' : 'Make Public'}
                 </button>
               </div>
             </div>

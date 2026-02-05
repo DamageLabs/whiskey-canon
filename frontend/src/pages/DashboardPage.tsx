@@ -1,8 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { whiskeyAPI } from '../services/api';
-import { Whiskey, WhiskeyType } from '../types';
+import { Whiskey } from '../types';
 import { WhiskeyCard } from '../components/WhiskeyCard';
 import { WhiskeyForm } from '../components/WhiskeyForm';
 import { WhiskeyTable } from '../components/WhiskeyTable';
@@ -10,6 +10,7 @@ import { WhiskeyDetailModal } from '../components/WhiskeyDetailModal';
 import { WhiskeyStats } from '../components/WhiskeyStats';
 import { EnhancedStats } from '../components/EnhancedStats';
 import { Footer } from '../components/Footer';
+import { FilterPanel, FilterState, defaultFilters, applyFilters } from '../components/FilterPanel';
 
 export function DashboardPage() {
   const { user, logout, hasPermission } = useAuth();
@@ -19,7 +20,8 @@ export function DashboardPage() {
   const [showForm, setShowForm] = useState(false);
   const [editingWhiskey, setEditingWhiskey] = useState<Whiskey | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
-  const [filterType, setFilterType] = useState<WhiskeyType | ''>('');
+  const [filters, setFilters] = useState<FilterState>(defaultFilters);
+  const [showFilters, setShowFilters] = useState(false);
   const [error, setError] = useState('');
   const [viewMode, setViewMode] = useState<'cards' | 'table'>('table');
   const [selectedWhiskey, setSelectedWhiskey] = useState<Whiskey | null>(null);
@@ -31,19 +33,23 @@ export function DashboardPage() {
   const [clearConfirmText, setClearConfirmText] = useState('');
   const [bulkDeleting, setBulkDeleting] = useState(false);
 
+  // Apply filters to whiskeys
+  const filteredWhiskeys = useMemo(() => {
+    return applyFilters(whiskeys, filters);
+  }, [whiskeys, filters]);
+
   const canCreate = hasPermission('create:whiskey');
   const canUpdate = hasPermission('update:whiskey');
   const canDelete = hasPermission('delete:whiskey');
 
   useEffect(() => {
     loadWhiskeys();
-  }, [filterType]);
+  }, []);
 
   async function loadWhiskeys() {
     try {
       setLoading(true);
-      const filters = filterType ? { type: filterType } : undefined;
-      const { whiskeys: data } = await whiskeyAPI.getAll(filters);
+      const { whiskeys: data } = await whiskeyAPI.getAll();
       setWhiskeys(data);
     } catch (err: any) {
       setError(err.message);
@@ -220,23 +226,9 @@ export function DashboardPage() {
             </div>
           </div>
 
-          {/* Filters and Actions */}
+          {/* Actions */}
           <div className="col-12 col-md-6">
             <div className="d-flex gap-2 flex-wrap justify-content-md-end">
-              <select
-                className="form-select"
-                style={{ width: 'auto' }}
-                value={filterType}
-                onChange={(e) => setFilterType(e.target.value as WhiskeyType | '')}
-              >
-                <option value="">All Types</option>
-                {Object.values(WhiskeyType).map((type) => (
-                  <option key={type} value={type}>
-                    {type.charAt(0).toUpperCase() + type.slice(1)}
-                  </option>
-                ))}
-              </select>
-
               <div className="btn-group" role="group">
                 <button
                   type="button"
@@ -281,6 +273,24 @@ export function DashboardPage() {
             </div>
           </div>
         </div>
+
+        {/* Filter Panel */}
+        <FilterPanel
+          filters={filters}
+          onFiltersChange={setFilters}
+          whiskeys={whiskeys}
+          isOpen={showFilters}
+          onToggle={() => setShowFilters(!showFilters)}
+        />
+
+        {/* Filter Results Count */}
+        {!loading && whiskeys.length > 0 && filteredWhiskeys.length !== whiskeys.length && (
+          <div className="mb-3">
+            <span className="text-muted">
+              Showing <strong style={{ color: 'var(--amber-500)' }}>{filteredWhiskeys.length}</strong> of {whiskeys.length} whiskeys
+            </span>
+          </div>
+        )}
 
         {/* Bulk Actions */}
         {canDelete && whiskeys.length > 0 && viewMode === 'table' && (
@@ -382,7 +392,7 @@ export function DashboardPage() {
         )}
 
         {/* Statistics Toggle */}
-        {!loading && whiskeys.length > 0 && (
+        {!loading && filteredWhiskeys.length > 0 && (
           <div className="mb-3">
             <button
               className="btn btn-sm"
@@ -400,8 +410,8 @@ export function DashboardPage() {
         )}
 
         {/* Statistics */}
-        {!loading && whiskeys.length > 0 && !showEnhancedStats && <WhiskeyStats whiskeys={whiskeys} />}
-        {!loading && whiskeys.length > 0 && showEnhancedStats && <EnhancedStats />}
+        {!loading && filteredWhiskeys.length > 0 && !showEnhancedStats && <WhiskeyStats whiskeys={filteredWhiskeys} />}
+        {!loading && filteredWhiskeys.length > 0 && showEnhancedStats && <EnhancedStats />}
 
         {/* Content */}
         {loading ? (
@@ -419,9 +429,20 @@ export function DashboardPage() {
               </button>
             )}
           </div>
+        ) : filteredWhiskeys.length === 0 ? (
+          <div className="text-center py-5">
+            <h3 className="text-muted">No whiskeys match your filters</h3>
+            <p className="text-muted">Try adjusting your filter criteria</p>
+            <button
+              onClick={() => setFilters(defaultFilters)}
+              className="btn btn-outline-secondary mt-2"
+            >
+              Clear All Filters
+            </button>
+          </div>
         ) : viewMode === 'cards' ? (
           <div className="row g-4">
-            {whiskeys.map((whiskey) => (
+            {filteredWhiskeys.map((whiskey) => (
               <div key={whiskey.id} className="col-12 col-md-6 col-lg-4 col-xl-3">
                 <WhiskeyCard
                   whiskey={whiskey}
@@ -433,7 +454,7 @@ export function DashboardPage() {
           </div>
         ) : (
           <WhiskeyTable
-            whiskeys={whiskeys}
+            whiskeys={filteredWhiskeys}
             onRowClick={setSelectedWhiskey}
             onEdit={canUpdate ? handleEdit : undefined}
             onDelete={canDelete ? handleDelete : undefined}

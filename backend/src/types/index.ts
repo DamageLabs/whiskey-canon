@@ -27,6 +27,7 @@ export interface User {
   verification_code_attempts: number;
   password_reset_token?: string;
   password_reset_expires_at?: string;
+  is_profile_public: number;
   created_at: string;
   updated_at: string;
 }
@@ -156,4 +157,15 @@ export interface WhiskeyComment {
   // Joined fields
   username?: string;
   profile_photo?: string;
+}
+
+export interface PublicProfile {
+  id: number;
+  username: string;
+  role: Role;
+  first_name?: string;
+  last_name?: string;
+  profile_photo?: string;
+  is_profile_public: number;
+  created_at: string;
 }

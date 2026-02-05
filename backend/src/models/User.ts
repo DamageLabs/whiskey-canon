@@ -1,6 +1,6 @@
 import { db } from '../utils/database';
 import bcrypt from 'bcryptjs';
-import { User, Role } from '../types';
+import { User, Role, PublicProfile } from '../types';
 
 export class UserModel {
   static async create(
@@ -220,5 +220,40 @@ export class UserModel {
     }
 
     return this.findById(id);
+  }
+
+  static updateVisibility(id: number, isPublic: boolean): User | undefined {
+    const stmt = db.prepare(`
+      UPDATE users
+      SET is_profile_public = ?,
+          updated_at = CURRENT_TIMESTAMP
+      WHERE id = ?
+    `);
+    const result = stmt.run(isPublic ? 1 : 0, id);
+
+    if (result.changes === 0) {
+      return undefined;
+    }
+
+    return this.findById(id);
+  }
+
+  static getPublicProfile(username: string): PublicProfile | undefined {
+    const stmt = db.prepare(`
+      SELECT id, username, role, first_name, last_name, profile_photo, is_profile_public, created_at
+      FROM users
+      WHERE username = ?
+    `);
+    return stmt.get(username) as PublicProfile | undefined;
+  }
+
+  static findPublicProfiles(): PublicProfile[] {
+    const stmt = db.prepare(`
+      SELECT id, username, role, first_name, last_name, profile_photo, is_profile_public, created_at
+      FROM users
+      WHERE is_profile_public = 1
+      ORDER BY created_at DESC
+    `);
+    return stmt.all() as PublicProfile[];
   }
 }

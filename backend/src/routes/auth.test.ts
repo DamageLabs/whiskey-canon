@@ -758,4 +758,92 @@ describe('Auth Routes', () => {
       expect(response.body.message).toBe('Logout successful');
     });
   });
+
+  describe('PATCH /api/auth/settings/visibility', () => {
+    it('returns 401 without authentication', async () => {
+      const response = await request(app)
+        .patch('/api/auth/settings/visibility')
+        .send({ isPublic: true });
+
+      expect(response.status).toBe(401);
+    });
+
+    it('makes profile public', async () => {
+      const { agent } = await createAuthenticatedAgent(app);
+
+      const response = await agent
+        .patch('/api/auth/settings/visibility')
+        .send({ isPublic: true });
+
+      expect(response.status).toBe(200);
+      expect(response.body.message).toBe('Profile is now public');
+      expect(response.body.user.is_profile_public).toBe(1);
+    });
+
+    it('makes profile private', async () => {
+      const { agent, user } = await createAuthenticatedAgent(app);
+
+      // First make it public
+      await agent
+        .patch('/api/auth/settings/visibility')
+        .send({ isPublic: true });
+
+      // Then make it private
+      const response = await agent
+        .patch('/api/auth/settings/visibility')
+        .send({ isPublic: false });
+
+      expect(response.status).toBe(200);
+      expect(response.body.message).toBe('Profile is now private');
+      expect(response.body.user.is_profile_public).toBe(0);
+    });
+
+    it('returns 400 when isPublic is not a boolean', async () => {
+      const { agent } = await createAuthenticatedAgent(app);
+
+      const response = await agent
+        .patch('/api/auth/settings/visibility')
+        .send({ isPublic: 'yes' });
+
+      expect(response.status).toBe(400);
+      expect(response.body.error).toBe('isPublic must be a boolean');
+    });
+
+    it('returns 400 when isPublic is missing', async () => {
+      const { agent } = await createAuthenticatedAgent(app);
+
+      const response = await agent
+        .patch('/api/auth/settings/visibility')
+        .send({});
+
+      expect(response.status).toBe(400);
+      expect(response.body.error).toBe('isPublic must be a boolean');
+    });
+
+    it('does not return password in response', async () => {
+      const { agent } = await createAuthenticatedAgent(app);
+
+      const response = await agent
+        .patch('/api/auth/settings/visibility')
+        .send({ isPublic: true });
+
+      expect(response.status).toBe(200);
+      expect(response.body.user.password).toBeUndefined();
+    });
+
+    it('persists visibility setting', async () => {
+      const { agent } = await createAuthenticatedAgent(app);
+
+      // Make public
+      await agent
+        .patch('/api/auth/settings/visibility')
+        .send({ isPublic: true });
+
+      // Check current user
+      const meResponse = await agent.get('/api/auth/me');
+
+      expect(meResponse.status).toBe(200);
+      expect(meResponse.body.user.is_profile_public).toBe(1);
+    });
+  });
 });

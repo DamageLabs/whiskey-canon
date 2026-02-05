@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 import ProfilePage from './ProfilePage';
-import { whiskeyAPI } from '../services/api';
+import { whiskeyAPI, authAPI } from '../services/api';
 import { Role } from '../types';
 
 // Mock the API
@@ -10,6 +10,9 @@ vi.mock('../services/api', () => ({
   whiskeyAPI: {
     getAll: vi.fn(),
     deleteAll: vi.fn(),
+  },
+  authAPI: {
+    updateVisibility: vi.fn(),
   },
 }));
 
@@ -21,6 +24,7 @@ const mockUser = {
   role: Role.EDITOR,
   first_name: 'Test',
   last_name: 'User',
+  is_profile_public: false,
   created_at: '2024-01-01T00:00:00Z',
   updated_at: '2024-01-01T00:00:00Z',
 };
@@ -428,6 +432,206 @@ describe('ProfilePage - Clear Collection', () => {
       });
 
       consoleSpy.mockRestore();
+    });
+  });
+});
+
+// Create separate test suite for visibility toggle with different mock user
+describe('ProfilePage - Profile Visibility', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.mocked(whiskeyAPI.getAll).mockResolvedValue({ whiskeys: [] });
+  });
+
+  describe('Visibility section', () => {
+    it('renders Profile Visibility section', async () => {
+      renderWithRouter();
+
+      await waitFor(() => {
+        expect(screen.getByText('Profile Visibility')).toBeInTheDocument();
+      });
+    });
+
+    it('shows Private badge when profile is private', async () => {
+      renderWithRouter();
+
+      await waitFor(() => {
+        // There are two "Private" elements - the badge and the button
+        // Use getAllByText and check the badge specifically
+        const privateElements = screen.getAllByText(/Private/);
+        const badge = privateElements.find(el => el.classList.contains('badge'));
+        expect(badge).toBeInTheDocument();
+      });
+    });
+
+    it('shows correct description for private profile', async () => {
+      renderWithRouter();
+
+      await waitFor(() => {
+        expect(screen.getByText('Only you can see your profile.')).toBeInTheDocument();
+      });
+    });
+
+    it('renders Private and Public toggle buttons', async () => {
+      renderWithRouter();
+
+      await waitFor(() => {
+        const privateBtn = screen.getByRole('button', { name: /Private/i });
+        const publicBtn = screen.getByRole('button', { name: /Public/i });
+        expect(privateBtn).toBeInTheDocument();
+        expect(publicBtn).toBeInTheDocument();
+      });
+    });
+
+    it('disables Private button when profile is already private', async () => {
+      renderWithRouter();
+
+      await waitFor(() => {
+        const privateBtn = screen.getByRole('button', { name: /Private/i });
+        expect(privateBtn).toBeDisabled();
+      });
+    });
+
+    it('enables Public button when profile is private', async () => {
+      renderWithRouter();
+
+      await waitFor(() => {
+        const publicBtn = screen.getByRole('button', { name: /Public/i });
+        expect(publicBtn).not.toBeDisabled();
+      });
+    });
+  });
+
+  describe('Make Public confirmation modal', () => {
+    it('opens confirmation modal when clicking Public button', async () => {
+      renderWithRouter();
+
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: /Public/i })).not.toBeDisabled();
+      });
+
+      fireEvent.click(screen.getByRole('button', { name: /Public/i }));
+
+      expect(screen.getByText('Make Profile Public?')).toBeInTheDocument();
+    });
+
+    it('shows warning about what will be visible', async () => {
+      renderWithRouter();
+
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: /Public/i })).not.toBeDisabled();
+      });
+
+      fireEvent.click(screen.getByRole('button', { name: /Public/i }));
+
+      expect(screen.getByText(/Your username and display name/)).toBeInTheDocument();
+      expect(screen.getByText(/Your profile photo/)).toBeInTheDocument();
+      expect(screen.getByText(/When you joined/)).toBeInTheDocument();
+    });
+
+    it('closes modal when Cancel is clicked', async () => {
+      renderWithRouter();
+
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: /Public/i })).not.toBeDisabled();
+      });
+
+      fireEvent.click(screen.getByRole('button', { name: /Public/i }));
+      expect(screen.getByText('Make Profile Public?')).toBeInTheDocument();
+
+      fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+
+      expect(screen.queryByText('Make Profile Public?')).not.toBeInTheDocument();
+    });
+
+    it('calls updateVisibility API when Make Public is confirmed', async () => {
+      vi.mocked(authAPI.updateVisibility).mockResolvedValue({
+        message: 'Profile is now public',
+        user: { ...mockUser, is_profile_public: true },
+      });
+
+      renderWithRouter();
+
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: /Public/i })).not.toBeDisabled();
+      });
+
+      fireEvent.click(screen.getByRole('button', { name: /Public/i }));
+
+      // Find the "Make Public" button in the modal (not the toggle button)
+      const makePublicButtons = screen.getAllByRole('button', { name: /Make Public/i });
+      const modalButton = makePublicButtons.find(btn => btn.classList.contains('btn-success'));
+      fireEvent.click(modalButton!);
+
+      await waitFor(() => {
+        expect(authAPI.updateVisibility).toHaveBeenCalledWith(true);
+      });
+    });
+
+    it('shows success message after making profile public', async () => {
+      vi.mocked(authAPI.updateVisibility).mockResolvedValue({
+        message: 'Profile is now public',
+        user: { ...mockUser, is_profile_public: true },
+      });
+
+      renderWithRouter();
+
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: /Public/i })).not.toBeDisabled();
+      });
+
+      fireEvent.click(screen.getByRole('button', { name: /Public/i }));
+
+      const makePublicButtons = screen.getAllByRole('button', { name: /Make Public/i });
+      const modalButton = makePublicButtons.find(btn => btn.classList.contains('btn-success'));
+      fireEvent.click(modalButton!);
+
+      await waitFor(() => {
+        expect(screen.getByText('Profile is now public')).toBeInTheDocument();
+      });
+    });
+
+    it('closes modal after successful update', async () => {
+      vi.mocked(authAPI.updateVisibility).mockResolvedValue({
+        message: 'Profile is now public',
+        user: { ...mockUser, is_profile_public: true },
+      });
+
+      renderWithRouter();
+
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: /Public/i })).not.toBeDisabled();
+      });
+
+      fireEvent.click(screen.getByRole('button', { name: /Public/i }));
+
+      const makePublicButtons = screen.getAllByRole('button', { name: /Make Public/i });
+      const modalButton = makePublicButtons.find(btn => btn.classList.contains('btn-success'));
+      fireEvent.click(modalButton!);
+
+      await waitFor(() => {
+        expect(screen.queryByText('Make Profile Public?')).not.toBeInTheDocument();
+      });
+    });
+
+    it('shows error message when API call fails', async () => {
+      vi.mocked(authAPI.updateVisibility).mockRejectedValue(new Error('Network error'));
+
+      renderWithRouter();
+
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: /Public/i })).not.toBeDisabled();
+      });
+
+      fireEvent.click(screen.getByRole('button', { name: /Public/i }));
+
+      const makePublicButtons = screen.getAllByRole('button', { name: /Make Public/i });
+      const modalButton = makePublicButtons.find(btn => btn.classList.contains('btn-success'));
+      fireEvent.click(modalButton!);
+
+      await waitFor(() => {
+        expect(screen.getByText('Network error')).toBeInTheDocument();
+      });
     });
   });
 });

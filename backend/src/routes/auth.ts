@@ -488,6 +488,42 @@ router.post(
   }
 );
 
+// Update profile visibility
+router.patch(
+  '/settings/visibility',
+  requireAuth,
+  async (req: AuthRequest, res: Response) => {
+    if (!req.user) {
+      return res.status(401).json({ error: 'Not authenticated' });
+    }
+
+    const { isPublic } = req.body;
+
+    if (typeof isPublic !== 'boolean') {
+      return res.status(400).json({ error: 'isPublic must be a boolean' });
+    }
+
+    try {
+      const updatedUser = UserModel.updateVisibility(req.user.id, isPublic);
+
+      if (!updatedUser) {
+        return res.status(500).json({ error: 'Failed to update visibility' });
+      }
+
+      // Don't send password in response
+      const { password: _, ...userWithoutPassword } = updatedUser;
+
+      res.json({
+        message: `Profile is now ${isPublic ? 'public' : 'private'}`,
+        user: userWithoutPassword
+      });
+    } catch (error) {
+      console.error('Visibility update error:', error);
+      res.status(500).json({ error: 'Failed to update visibility' });
+    }
+  }
+);
+
 // Delete profile photo
 router.delete('/profile/photo', requireAuth, async (req: AuthRequest, res) => {
   try {

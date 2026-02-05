@@ -11,8 +11,20 @@ export interface User {
   first_name?: string;
   last_name?: string;
   profile_photo?: string;
+  is_profile_public?: boolean;
   created_at: string;
   updated_at: string;
+}
+
+export interface PublicProfile {
+  id: number;
+  username: string;
+  role: Role;
+  first_name?: string;
+  last_name?: string;
+  profile_photo?: string;
+  is_profile_public: boolean;
+  created_at: string;
 }
 
 export enum WhiskeyType {

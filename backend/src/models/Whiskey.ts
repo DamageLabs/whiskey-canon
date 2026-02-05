@@ -357,4 +357,72 @@ export class WhiskeyModel {
     const result = stmt.run(userId);
     return result.changes;
   }
+
+  static getPublicStats(userId: number): {
+    totalBottles: number;
+    typeBreakdown: { type: string; count: number }[];
+    topDistilleries: { distillery: string; count: number }[];
+    totalDistilleries: number;
+    averageRating: number | null;
+    countriesRepresented: string[];
+  } {
+    // Total bottles
+    const totalStmt = db.prepare('SELECT COUNT(*) as count FROM whiskeys WHERE created_by = ?');
+    const totalResult = totalStmt.get(userId) as { count: number };
+
+    // Type breakdown
+    const typeStmt = db.prepare(`
+      SELECT type, COUNT(*) as count
+      FROM whiskeys
+      WHERE created_by = ?
+      GROUP BY type
+      ORDER BY count DESC
+    `);
+    const typeBreakdown = typeStmt.all(userId) as { type: string; count: number }[];
+
+    // Total unique distilleries
+    const totalDistilleriesStmt = db.prepare('SELECT COUNT(DISTINCT distillery) as count FROM whiskeys WHERE created_by = ?');
+    const totalDistilleriesResult = totalDistilleriesStmt.get(userId) as { count: number };
+
+    // Top 5 distilleries
+    const distilleryStmt = db.prepare(`
+      SELECT distillery, COUNT(*) as count
+      FROM whiskeys
+      WHERE created_by = ?
+      GROUP BY distillery
+      ORDER BY count DESC
+      LIMIT 5
+    `);
+    const topDistilleries = distilleryStmt.all(userId) as { distillery: string; count: number }[];
+
+    // Average rating (only count rated whiskeys)
+    const ratingStmt = db.prepare(`
+      SELECT AVG(rating) as avg_rating
+      FROM whiskeys
+      WHERE created_by = ? AND rating IS NOT NULL
+    `);
+    const ratingResult = ratingStmt.get(userId) as { avg_rating: number | null };
+    const averageRating = ratingResult.avg_rating
+      ? Math.round(ratingResult.avg_rating * 10) / 10
+      : null;
+
+    // Countries represented
+    const countryStmt = db.prepare(`
+      SELECT DISTINCT country
+      FROM whiskeys
+      WHERE created_by = ? AND country IS NOT NULL AND country != ''
+      ORDER BY country
+    `);
+    const countryResults = countryStmt.all(userId) as { country: string }[];
+    const countriesRepresented = countryResults.map(r => r.country);
+
+    return {
+      totalBottles: totalResult.count,
+      typeBreakdown,
+      topDistilleries,
+      totalDistilleries: totalDistilleriesResult.count,
+      averageRating,
+      countriesRepresented,
+    };
+  }
 }

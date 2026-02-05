@@ -29,6 +29,7 @@ export function initializeDatabase() {
       verification_code_attempts INTEGER DEFAULT 0,
       password_reset_token TEXT,
       password_reset_expires_at TEXT,
+      is_profile_public INTEGER DEFAULT 0,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
       updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )
@@ -103,6 +104,11 @@ export function initializeDatabase() {
     if (!userColumnNames.includes('password_reset_expires_at')) {
       db.exec('ALTER TABLE users ADD COLUMN password_reset_expires_at TEXT');
       console.log('Added password_reset_expires_at column to users table');
+    }
+
+    if (!userColumnNames.includes('is_profile_public')) {
+      db.exec('ALTER TABLE users ADD COLUMN is_profile_public INTEGER DEFAULT 0');
+      console.log('Added is_profile_public column to users table');
     }
   } catch (error) {
     // Table doesn't exist yet, will be created above

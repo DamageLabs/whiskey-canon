@@ -26,6 +26,7 @@ function initializeTestSchema() {
       verification_code_attempts INTEGER DEFAULT 0,
       password_reset_token TEXT,
       password_reset_expires_at TEXT,
+      is_profile_public INTEGER DEFAULT 0,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
       updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )

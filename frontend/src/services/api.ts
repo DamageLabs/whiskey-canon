@@ -1,4 +1,4 @@
-import { User, Whiskey, CreateWhiskeyData, WhiskeyType } from '../types';
+import { User, Whiskey, CreateWhiskeyData, WhiskeyType, PublicProfile } from '../types';
 
 const API_BASE = '/api';
 
@@ -78,6 +78,12 @@ export const authAPI = {
     fetchAPI('/auth/reset-password', {
       method: 'POST',
       body: JSON.stringify({ token, password }),
+    }),
+
+  updateVisibility: (isPublic: boolean): Promise<{ message: string; user: User }> =>
+    fetchAPI('/auth/settings/visibility', {
+      method: 'PATCH',
+      body: JSON.stringify({ isPublic }),
     }),
 };
 
@@ -181,4 +187,24 @@ export const whiskeyAPI = {
 
 export const statisticsAPI = {
   getAll: () => fetchAPI('/statistics'),
+};
+
+export interface PublicStats {
+  totalBottles: number;
+  typeBreakdown: { type: string; count: number }[];
+  topDistilleries: { distillery: string; count: number }[];
+  totalDistilleries: number;
+  averageRating: number | null;
+  countriesRepresented: string[];
+}
+
+export const usersAPI = {
+  getPublicProfile: (username: string): Promise<{ profile: PublicProfile }> =>
+    fetchAPI(`/users/${encodeURIComponent(username)}`),
+
+  getPublicStats: (username: string): Promise<{ stats: PublicStats }> =>
+    fetchAPI(`/users/${encodeURIComponent(username)}/stats`),
+
+  listPublicProfiles: (): Promise<{ profiles: PublicProfile[] }> =>
+    fetchAPI('/users'),
 };

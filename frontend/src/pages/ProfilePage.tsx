@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { whiskeyAPI } from '../services/api';
 import { Footer } from '../components/Footer';
 import '../styles/ProfilePage.css';
 
@@ -33,6 +34,44 @@ export default function ProfilePage() {
     newPassword: '',
     confirmPassword: ''
   });
+
+  // Clear collection state
+  const [showClearConfirm, setShowClearConfirm] = useState(false);
+  const [clearConfirmText, setClearConfirmText] = useState('');
+  const [clearing, setClearing] = useState(false);
+  const [collectionCount, setCollectionCount] = useState(0);
+
+  // Fetch collection count on mount
+  useEffect(() => {
+    async function fetchCollectionCount() {
+      try {
+        const { whiskeys } = await whiskeyAPI.getAll();
+        setCollectionCount(whiskeys.length);
+      } catch (error) {
+        console.error('Failed to fetch collection count:', error);
+      }
+    }
+    fetchCollectionCount();
+  }, []);
+
+  const handleClearCollection = async () => {
+    if (clearConfirmText !== 'DELETE') {
+      return;
+    }
+
+    try {
+      setClearing(true);
+      const result = await whiskeyAPI.deleteAll();
+      setCollectionCount(0);
+      setShowClearConfirm(false);
+      setClearConfirmText('');
+      setMessage({ type: 'success', text: result.message || 'Collection cleared successfully' });
+    } catch (error: any) {
+      setMessage({ type: 'error', text: error.message || 'Failed to clear collection' });
+    } finally {
+      setClearing(false);
+    }
+  };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -349,6 +388,25 @@ export default function ProfilePage() {
                   Edit Profile
                 </button>
               </div>
+
+              {/* Danger Zone */}
+              <div className="profile-section mt-5" style={{ borderTop: '1px solid var(--danger, #dc3545)', paddingTop: '2rem' }}>
+                <h2 className="text-danger">Danger Zone</h2>
+                <div className="info-group">
+                  <label>Clear Collection</label>
+                  <p className="text-muted mb-3">
+                    Permanently delete all whiskeys from your collection. This action cannot be undone.
+                  </p>
+                  <button
+                    className="btn btn-outline-danger"
+                    onClick={() => setShowClearConfirm(true)}
+                    disabled={collectionCount === 0}
+                  >
+                    <i className="bi bi-trash3 me-2"></i>
+                    Clear Collection {collectionCount > 0 && `(${collectionCount} whiskeys)`}
+                  </button>
+                </div>
+              </div>
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="profile-edit">
@@ -524,6 +582,59 @@ export default function ProfilePage() {
           )}
         </div>
       </div>
+
+      {/* Clear Collection Confirmation Modal */}
+      {showClearConfirm && (
+        <div className="modal show d-block" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
+          <div className="modal-dialog modal-dialog-centered">
+            <div className="modal-content" style={{ backgroundColor: 'var(--zinc-900)', color: 'var(--zinc-100)' }}>
+              <div className="modal-header border-danger">
+                <h5 className="modal-title text-danger">
+                  <i className="bi bi-exclamation-triangle-fill me-2"></i>
+                  Clear Entire Collection
+                </h5>
+                <button
+                  type="button"
+                  className="btn-close btn-close-white"
+                  onClick={() => { setShowClearConfirm(false); setClearConfirmText(''); }}
+                ></button>
+              </div>
+              <div className="modal-body">
+                <p>
+                  This will permanently delete <strong>all {collectionCount} whiskeys</strong> from your collection.
+                  This action cannot be undone.
+                </p>
+                <p className="mb-2">Type <strong>DELETE</strong> to confirm:</p>
+                <input
+                  type="text"
+                  className="form-control"
+                  value={clearConfirmText}
+                  onChange={(e) => setClearConfirmText(e.target.value)}
+                  placeholder="Type DELETE to confirm"
+                  autoFocus
+                />
+              </div>
+              <div className="modal-footer border-0">
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={() => { setShowClearConfirm(false); setClearConfirmText(''); }}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-danger"
+                  onClick={handleClearCollection}
+                  disabled={clearConfirmText !== 'DELETE' || clearing}
+                >
+                  {clearing ? 'Deleting...' : 'Delete All Whiskeys'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       <Footer />
     </div>

@@ -17,9 +17,17 @@ export function Footer() {
                 Privacy Policy
               </Link>
               <span style={{ color: 'var(--zinc-600)' }}>|</span>
-              <Link to="/terms" className="text-decoration-none ms-3" style={{ color: 'var(--amber-500)' }}>
+              <Link to="/terms" className="text-decoration-none ms-3 me-3" style={{ color: 'var(--amber-500)' }}>
                 Terms of Service
               </Link>
+              <span style={{ color: 'var(--zinc-600)' }}>|</span>
+              <Link to="/contact" className="text-decoration-none ms-3 me-3" style={{ color: 'var(--amber-500)' }}>
+                Contact Us
+              </Link>
+              <span style={{ color: 'var(--zinc-600)' }}>|</span>
+              <a href="https://github.com/DamageLabs/whiskey-canon" target="_blank" rel="noopener noreferrer" className="ms-3" style={{ color: 'var(--amber-500)' }} aria-label="GitHub Repository">
+                <i className="bi bi-github"></i>
+              </a>
             </p>
           </div>
         </div>

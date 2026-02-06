@@ -11,6 +11,7 @@ import adminRoutes from './routes/admin';
 import statisticsRoutes from './routes/statistics';
 import commentRoutes from './routes/comments';
 import usersRoutes from './routes/users';
+import contactRoutes from './routes/contact';
 
 dotenv.config();
 
@@ -62,6 +63,7 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/statistics', statisticsRoutes);
 app.use('/api/comments', commentRoutes);
 app.use('/api/users', usersRoutes);
+app.use('/api/contact', contactRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {

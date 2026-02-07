@@ -129,8 +129,23 @@ afterAll(() => {
   testDb.close();
 });
 
-// Mock the database module to use test database
+// Mock the config and database modules
 import { vi } from 'vitest';
+
+vi.mock('../utils/config', () => ({
+  config: {
+    port: 3000,
+    nodeEnv: 'test',
+    isProduction: false,
+    sessionSecret: 'test-secret',
+    frontendUrl: 'http://localhost:5173',
+    databasePath: ':memory:',
+    resendApiKey: null,
+    resendFromEmail: 'noreply@whiskey-canon.com',
+    contactEmail: 'noreply@whiskey-canon.com',
+  },
+  validateConfig: vi.fn(),
+}));
 
 vi.mock('../utils/database', async () => {
   return {

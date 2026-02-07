@@ -2,8 +2,8 @@ import express from 'express';
 import session from 'express-session';
 import cors from 'cors';
 import helmet from 'helmet';
-import dotenv from 'dotenv';
 import path from 'path';
+import { config, validateConfig } from './utils/config';
 import { initializeDatabase } from './utils/database';
 import { attachUser } from './middleware/auth';
 import authRoutes from './routes/auth';
@@ -14,13 +14,13 @@ import commentRoutes from './routes/comments';
 import usersRoutes from './routes/users';
 import contactRoutes from './routes/contact';
 
-dotenv.config();
-
 const app = express();
-const PORT = process.env.PORT || 3000;
 
 // Trust proxy (required for secure cookies behind Nginx)
 app.set('trust proxy', 1);
+
+// Validate and log configuration
+validateConfig();
 
 // Initialize database
 initializeDatabase();
@@ -39,11 +39,11 @@ app.use(helmet({
       frameAncestors: ["'none'"],
     },
   },
-  strictTransportSecurity: process.env.NODE_ENV === 'production',
+  strictTransportSecurity: config.isProduction,
 }));
 
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+  origin: config.frontendUrl,
   credentials: true
 }));
 
@@ -53,13 +53,13 @@ app.use(express.urlencoded({ extended: true }));
 // Session configuration
 app.use(
   session({
-    secret: process.env.SESSION_SECRET || 'whiskey-bible-secret',
+    secret: config.sessionSecret,
     resave: false,
     saveUninitialized: false,
     cookie: {
-      secure: process.env.NODE_ENV === 'production',
+      secure: config.isProduction,
       httpOnly: true,
-      sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax',
+      sameSite: config.isProduction ? 'strict' : 'lax',
       maxAge: 1000 * 60 * 60 * 24 * 7 // 7 days
     }
   })
@@ -93,7 +93,7 @@ app.use((err: Error, req: express.Request, res: express.Response, next: express.
   res.status(500).json({ error: 'Internal server error' });
 });
 
-app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
-  console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
+app.listen(config.port, () => {
+  console.log(`Server running on http://localhost:${config.port}`);
+  console.log(`Environment: ${config.nodeEnv}`);
 });

@@ -1,29 +1,23 @@
 import { Resend } from 'resend';
-import dotenv from 'dotenv';
-
-dotenv.config();
+import { config } from './config';
 
 let resend: Resend | null = null;
 
 function getResendClient(): Resend {
   if (!resend) {
-    if (!process.env.RESEND_API_KEY) {
+    if (!config.resendApiKey) {
       throw new Error('RESEND_API_KEY environment variable is not set');
     }
-    resend = new Resend(process.env.RESEND_API_KEY);
+    resend = new Resend(config.resendApiKey);
   }
   return resend;
 }
-
-const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || 'noreply@whiskey-canon.com';
-const CONTACT_EMAIL = process.env.CONTACT_EMAIL || FROM_EMAIL;
-const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5173';
 
 export async function sendVerificationEmail(to: string, code: string): Promise<boolean> {
   try {
     const client = getResendClient();
     const { error } = await client.emails.send({
-      from: FROM_EMAIL,
+      from: config.resendFromEmail,
       to,
       subject: 'Verify your Whiskey Canon account',
       html: `
@@ -72,10 +66,10 @@ export async function sendVerificationEmail(to: string, code: string): Promise<b
 export async function sendPasswordResetEmail(to: string, token: string): Promise<boolean> {
   try {
     const client = getResendClient();
-    const resetUrl = `${FRONTEND_URL}/reset-password?token=${token}`;
+    const resetUrl = `${config.frontendUrl}/reset-password?token=${token}`;
 
     const { error } = await client.emails.send({
-      from: FROM_EMAIL,
+      from: config.resendFromEmail,
       to,
       subject: 'Reset your Whiskey Canon password',
       html: `
@@ -125,7 +119,7 @@ export async function sendPasswordResetEmail(to: string, token: string): Promise
 }
 
 export async function sendContactEmail(name: string, email: string, subject: string, message: string): Promise<boolean> {
-  if (!process.env.RESEND_API_KEY) {
+  if (!config.resendApiKey) {
     console.log('[Contact] RESEND_API_KEY not configured — logging contact form submission:');
     console.log(`  From: ${name} <${email}>`);
     console.log(`  Subject: ${subject}`);
@@ -141,8 +135,8 @@ export async function sendContactEmail(name: string, email: string, subject: str
     const escapedMessage = escapeHtml(message).replace(/\n/g, '<br>');
 
     const { error } = await client.emails.send({
-      from: FROM_EMAIL,
-      to: [CONTACT_EMAIL, email],
+      from: config.resendFromEmail,
+      to: [config.contactEmail, email],
       replyTo: email,
       subject: `[Whiskey Canon Contact] ${subject}`,
       html: `

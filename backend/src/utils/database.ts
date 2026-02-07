@@ -1,10 +1,7 @@
 import Database, { Database as DatabaseType } from 'better-sqlite3';
-import path from 'path';
-import dotenv from 'dotenv';
+import { config } from './config';
 
-dotenv.config();
-
-const dbPath = process.env.DATABASE_PATH || path.join(__dirname, '../../whiskey.db');
+const dbPath = config.databasePath;
 
 export const db: DatabaseType = new Database(dbPath);
 

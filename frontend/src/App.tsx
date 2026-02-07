@@ -14,6 +14,7 @@ import AnalyticsPage from './pages/AnalyticsPage';
 import { PrivacyPolicyPage } from './pages/PrivacyPolicyPage';
 import { TermsOfServicePage } from './pages/TermsOfServicePage';
 import { ContactPage } from './pages/ContactPage';
+import { CommunityPage } from './pages/CommunityPage';
 import { PrivateRoute } from './components/PrivateRoute';
 
 function App() {
@@ -61,6 +62,7 @@ function App() {
           <Route path="/privacy" element={<PrivacyPolicyPage />} />
           <Route path="/terms" element={<TermsOfServicePage />} />
           <Route path="/contact" element={<ContactPage />} />
+          <Route path="/community" element={<CommunityPage />} />
           <Route path="/u/:username" element={<PublicProfilePage />} />
           <Route path="/" element={<LandingPage />} />
         </Routes>

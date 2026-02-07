@@ -139,3 +139,10 @@ vi.mock('../utils/database', async () => {
     closeDatabase: vi.fn()
   };
 });
+
+// Mock rate limiters to pass through in tests — rate limiting is tested in rateLimiter.test.ts
+vi.mock('../middleware/rateLimiter', () => ({
+  authLimiter: (_req: any, _res: any, next: any) => next(),
+  passwordResetLimiter: (_req: any, _res: any, next: any) => next(),
+  contactLimiter: (_req: any, _res: any, next: any) => next(),
+}));

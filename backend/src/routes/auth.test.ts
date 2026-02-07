@@ -12,6 +12,7 @@ vi.mock('../utils/email', () => ({
   sendPasswordResetEmail: vi.fn().mockResolvedValue(true)
 }));
 
+
 describe('Auth Routes', () => {
   let app: Application;
 

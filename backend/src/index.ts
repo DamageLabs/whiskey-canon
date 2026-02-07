@@ -4,7 +4,7 @@ import cors from 'cors';
 import helmet from 'helmet';
 import path from 'path';
 import { config, validateConfig } from './utils/config';
-import { initializeDatabase } from './utils/database';
+import { db, initializeDatabase } from './utils/database';
 import { attachUser } from './middleware/auth';
 import authRoutes from './routes/auth';
 import whiskeyRoutes from './routes/whiskeys';
@@ -13,6 +13,8 @@ import statisticsRoutes from './routes/statistics';
 import commentRoutes from './routes/comments';
 import usersRoutes from './routes/users';
 import contactRoutes from './routes/contact';
+
+const SqliteStore = require('better-sqlite3-session-store')(session);
 
 const app = express();
 
@@ -53,6 +55,13 @@ app.use(express.urlencoded({ extended: true }));
 // Session configuration
 app.use(
   session({
+    store: new SqliteStore({
+      client: db,
+      expired: {
+        clear: true,
+        intervalMs: 900000 // 15 min cleanup
+      }
+    }),
     secret: config.sessionSecret,
     resave: false,
     saveUninitialized: false,

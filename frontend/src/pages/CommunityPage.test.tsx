@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { CommunityPage } from './CommunityPage';
+import { Role } from '../types';
 
 // Mock useNavigate
 const mockNavigate = vi.fn();
@@ -22,19 +23,19 @@ const mockProfiles = [
   {
     id: 1,
     username: 'bourbon_lover',
-    role: 'editor',
+    role: Role.EDITOR,
     first_name: 'John',
     last_name: 'Doe',
-    profile_photo: null,
+    profile_photo: undefined,
     is_profile_public: true,
     created_at: '2026-01-15T00:00:00.000Z',
   },
   {
     id: 2,
     username: 'scotch_fan',
-    role: 'editor',
-    first_name: null,
-    last_name: null,
+    role: Role.EDITOR,
+    first_name: undefined,
+    last_name: undefined,
     profile_photo: 'https://example.com/photo.jpg',
     is_profile_public: true,
     created_at: '2026-02-01T00:00:00.000Z',

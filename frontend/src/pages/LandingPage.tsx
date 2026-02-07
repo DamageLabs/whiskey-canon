@@ -28,6 +28,9 @@ export function LandingPage() {
               <span className="fw-bold" style={{ color: 'var(--zinc-100)' }}>Whiskey Canon</span>
             </div>
             <div className="d-flex gap-2">
+              <button onClick={() => navigate('/community')} className="btn btn-outline-light">
+                Community
+              </button>
               <button onClick={() => navigate('/login')} className="btn btn-outline-light">
                 Login
               </button>

@@ -7,7 +7,7 @@ export function Footer() {
         <div className="row">
           <div className="col-12 text-center">
             <p className="mb-1">
-              <strong>Whiskey Canon</strong> - Track, taste, and treasure your whiskey collection
+              <strong>Whiskey Canon</strong> - Track, Taste, and Treasure your Whiskey collection
             </p>
             <p className="mb-1 small">
               © 2025-2026 Whiskey Canon. All rights reserved.
@@ -23,6 +23,10 @@ export function Footer() {
               <span style={{ color: 'var(--zinc-600)' }}>|</span>
               <Link to="/contact" className="text-decoration-none ms-3 me-3" style={{ color: 'var(--amber-500)' }}>
                 Contact Us
+              </Link>
+              <span style={{ color: 'var(--zinc-600)' }}>|</span>
+              <Link to="/community" className="text-decoration-none ms-3 me-3" style={{ color: 'var(--amber-500)' }}>
+                Community
               </Link>
               <span style={{ color: 'var(--zinc-600)' }}>|</span>
               <a href="https://github.com/DamageLabs/whiskey-canon" target="_blank" rel="noopener noreferrer" className="ms-3" style={{ color: 'var(--amber-500)' }} aria-label="GitHub Repository">

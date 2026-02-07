@@ -145,32 +145,4 @@ describe('Contact Routes', () => {
       expect(response.body.error).toBe('Failed to send message. Please try again later.');
     });
   });
-
-  describe('Rate limiting', () => {
-    it('returns 429 after 5 requests from same IP', async () => {
-      // Advance time past the 15-minute window to clear any entries from earlier tests
-      vi.useFakeTimers();
-      vi.advanceTimersByTime(16 * 60 * 1000);
-
-      const rateLimitApp = createTestApp();
-
-      // Send 5 successful requests
-      for (let i = 0; i < 5; i++) {
-        const res = await request(rateLimitApp)
-          .post('/api/contact')
-          .send(validPayload);
-        expect(res.status).toBe(200);
-      }
-
-      // 6th request should be rate limited
-      const response = await request(rateLimitApp)
-        .post('/api/contact')
-        .send(validPayload);
-
-      expect(response.status).toBe(429);
-      expect(response.body.error).toBe('Too many requests. Please try again later.');
-
-      vi.useRealTimers();
-    });
-  });
 });

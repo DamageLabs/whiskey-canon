@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.0] - 2026-02-07
+
+### Added
+
+- Community page at `/community` listing all public user profiles with search/filter
+- Profile cards with avatars, display names, collection stats (bottles, avg rating, distilleries)
+- Community navigation links in landing page navbar and site footer
+- Community seed script with two public-profile demo users (whiskey_wanderer, cask_hunter)
+- Frontend tests for CommunityPage (17 new tests)
+- Discord bot integration plan (Discord.md)
+- Milestone 6 (Discord Bot Integration) added to development roadmap
+
+### Fixed
+
+- Footer tagline capitalization ("Track, Taste, and Treasure your Whiskey collection")
+
 ## [1.3.0] - 2026-02-06
 
 ### Added

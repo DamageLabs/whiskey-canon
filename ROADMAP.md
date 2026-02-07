@@ -1,7 +1,7 @@
 # Whiskey Canon Roadmap
 
-> Prioritized development roadmap covering all 38 open issues.
-> Last updated: 2026-02-06
+> Prioritized development roadmap covering all 44 open issues.
+> Last updated: 2026-02-07
 
 ## How to Read This Roadmap
 
@@ -13,6 +13,7 @@ Issues are grouped into **5 milestones** ordered by priority. Within each milest
 - **Milestone 3** — Core feature enhancements. High-value improvements to the existing collection management workflow.
 - **Milestone 4** — Advanced features. Net-new capabilities that expand the product beyond collection tracking.
 - **Milestone 5** — Platform expansion. Large initiatives that depend on a stable, feature-rich core.
+- **Milestone 6** — Discord bot integration. A new `bot/` workspace with slash commands for collection interaction.
 
 ---
 
@@ -109,6 +110,23 @@ Issues are grouped into **5 milestones** ordered by priority. Within each milest
 
 ---
 
+## Milestone 6: Discord Bot Integration
+
+*Add a Discord bot for interacting with collections via slash commands. See [`Discord.md`](Discord.md) for full architecture.*
+
+| # | Issue | Type | Area | Rationale |
+|---|-------|------|------|-----------|
+| 39 | [#80 — Add API key authentication for external client access](https://github.com/DamageLabs/whiskey-canon/issues/80) | Feature | Backend | Foundation: adds `x-api-key` header auth alongside session auth so the bot (and future integrations) can call authenticated endpoints. |
+| 40 | [#81 — Add Discord bot workspace with account linking](https://github.com/DamageLabs/whiskey-canon/issues/81) | Feature | Bot | Scaffold `bot/` workspace with discord.js, `/link` and `/unlink` commands, API client wrapper. Depends on #80. |
+| 41 | [#85 — Add API key management UI to Profile page](https://github.com/DamageLabs/whiskey-canon/issues/85) | Feature | Frontend | Web UI for generating, viewing, and revoking API keys. Users need this to get a key for `/link`. Depends on #80. |
+| 42 | [#82 — Add /collection and /profile slash commands](https://github.com/DamageLabs/whiskey-canon/issues/82) | Feature | Bot | First useful commands with rich embed formatting utilities. Depends on #81. |
+| 43 | [#83 — Add /search and /top slash commands](https://github.com/DamageLabs/whiskey-canon/issues/83) | Feature | Bot | Search collection and view top-rated bottles. Depends on #82. |
+| 44 | [#84 — Add /investment, /random, and /drink slash commands](https://github.com/DamageLabs/whiskey-canon/issues/84) | Feature | Bot | Investment portfolio, random bottle picker, drink suggestion. Depends on #82. |
+
+**Estimated scope:** 6 issues. #80 is backend-only; #85 is frontend-only; #81–#84 are the bot workspace. #83 and #84 can be built in parallel.
+
+---
+
 ## Dependency Graph
 
 Key dependency chains that affect implementation order:
@@ -120,6 +138,8 @@ Key dependency chains that affect implementation order:
 #64 (PWA) → #76 (Capacitor mobile)
 #75 (price history) → #71 (wishlist price alerts, meaningful threshold detection)
 #62 (image upload) + #65 (barcode scanning) → #76 (native camera access)
+#80 (API key auth) → #81 (bot workspace) → #82 (collection/profile) → #83 (search/top) + #84 (investment/random/drink)
+#80 (API key auth) → #85 (frontend key management UI)
 ```
 
 ## Issue Summary by Category
@@ -134,6 +154,7 @@ Key dependency chains that affect implementation order:
 | Advanced Features | 6 | #65, #68, #71, #72, #73, #75 |
 | Documentation | 3 | #51, #68, #69 |
 | Platform | 2 | #64, #76 |
+| Discord Bot | 6 | #80, #81, #82, #83, #84, #85 |
 
 > Note: Some issues span multiple categories; each is counted once under its primary category.
 

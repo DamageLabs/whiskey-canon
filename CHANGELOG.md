@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.0] - 2026-02-06
+
+### Added
+
+- Contact Us page with form submission at `/contact`
+- Contact form email endpoint via Resend with rate limiting (5 per IP per 15 min)
+- Input validation on contact form (name, email, subject, message) with express-validator
+- Subject categories for contact form (General Inquiry, Bug Report, Feature Request, Account Issue, Other)
+- Confirmation copy sent to the sender's email alongside the site contact address
+- Backend and frontend unit tests for contact form (295 new test lines)
+- Beta environment setup documentation
+- Prioritized development roadmap covering all open issues (ROADMAP.md)
+
 ## [1.2.0] - 2026-02-05
 
 ### Added

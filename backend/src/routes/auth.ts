@@ -4,6 +4,7 @@ import { UserModel } from '../models/User';
 import { Role } from '../types';
 import { AuthRequest, requireAuth } from '../middleware/auth';
 import { uploadProfilePhoto } from '../middleware/upload';
+import { authLimiter, passwordResetLimiter } from '../middleware/rateLimiter';
 import { generateVerificationCode, getVerificationCodeExpiry, isVerificationCodeExpired, generatePasswordResetToken, getPasswordResetTokenExpiry, isPasswordResetTokenExpired } from '../utils/verification';
 import { sendVerificationEmail, sendPasswordResetEmail } from '../utils/email';
 import fs from 'fs';
@@ -16,6 +17,7 @@ const router = express.Router();
 // Register
 router.post(
   '/register',
+  authLimiter,
   [
     body('username').trim().isLength({ min: 3 }).withMessage('Username must be at least 3 characters'),
     body('email').isEmail().withMessage('Invalid email'),
@@ -71,6 +73,7 @@ router.post(
 // Login
 router.post(
   '/login',
+  authLimiter,
   [
     body('username').trim().notEmpty().withMessage('Username is required'),
     body('password').notEmpty().withMessage('Password is required')
@@ -258,6 +261,7 @@ router.post(
 // Forgot password - request password reset
 router.post(
   '/forgot-password',
+  passwordResetLimiter,
   [
     body('email').isEmail().withMessage('Invalid email')
   ],
@@ -300,6 +304,7 @@ router.post(
 // Reset password - set new password with token
 router.post(
   '/reset-password',
+  passwordResetLimiter,
   [
     body('token').trim().notEmpty().withMessage('Reset token is required'),
     body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters')

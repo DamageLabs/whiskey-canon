@@ -1,6 +1,7 @@
 import express from 'express';
 import session from 'express-session';
 import cors from 'cors';
+import helmet from 'helmet';
 import dotenv from 'dotenv';
 import path from 'path';
 import { initializeDatabase } from './utils/database';
@@ -25,6 +26,22 @@ app.set('trust proxy', 1);
 initializeDatabase();
 
 // Middleware
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'"],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+      imgSrc: ["'self'", "data:", "blob:"],
+      connectSrc: ["'self'"],
+      fontSrc: ["'self'"],
+      objectSrc: ["'none'"],
+      frameAncestors: ["'none'"],
+    },
+  },
+  strictTransportSecurity: process.env.NODE_ENV === 'production',
+}));
+
 app.use(cors({
   origin: process.env.FRONTEND_URL || 'http://localhost:5173',
   credentials: true

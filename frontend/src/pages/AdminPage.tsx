@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { Footer } from '../components/Footer';
+import { getCsrfHeaders } from '../utils/csrf';
 
 interface User {
   id: number;
@@ -101,10 +102,12 @@ export function AdminPage() {
 
   async function handleRoleChange(userId: number, newRole: string) {
     try {
+      const csrfHeaders = await getCsrfHeaders();
       const response = await fetch(`/api/admin/users/${userId}/role`, {
         method: 'PUT',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          ...csrfHeaders,
         },
         credentials: 'include',
         body: JSON.stringify({ role: newRole })
@@ -137,10 +140,12 @@ export function AdminPage() {
 
   async function handleSaveUser(userId: number) {
     try {
+      const csrfHeaders = await getCsrfHeaders();
       const response = await fetch(`/api/admin/users/${userId}`, {
         method: 'PUT',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          ...csrfHeaders,
         },
         credentials: 'include',
         body: JSON.stringify({
@@ -170,9 +175,11 @@ export function AdminPage() {
     }
 
     try {
+      const csrfHeaders = await getCsrfHeaders();
       const response = await fetch(`/api/admin/users/${userId}`, {
         method: 'DELETE',
-        credentials: 'include'
+        credentials: 'include',
+        headers: csrfHeaders,
       });
 
       if (!response.ok) {

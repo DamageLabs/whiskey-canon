@@ -1,4 +1,5 @@
 import { User, Whiskey, CreateWhiskeyData, WhiskeyType, PublicProfile } from '../types';
+import { getCsrfHeaders } from '../utils/csrf';
 
 const API_BASE = '/api';
 
@@ -16,13 +17,21 @@ export class APIError extends Error {
 }
 
 async function fetchAPI(url: string, options?: RequestInit) {
+  let headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    ...(options?.headers as Record<string, string>),
+  };
+
+  const method = (options?.method || 'GET').toUpperCase();
+  if (['POST', 'PUT', 'DELETE', 'PATCH'].includes(method)) {
+    const csrfHeaders = await getCsrfHeaders();
+    headers = { ...headers, ...csrfHeaders };
+  }
+
   const response = await fetch(`${API_BASE}${url}`, {
     ...options,
     credentials: 'include',
-    headers: {
-      'Content-Type': 'application/json',
-      ...options?.headers,
-    },
+    headers,
   });
 
   const data = await response.json();
@@ -169,9 +178,11 @@ export const whiskeyAPI = {
     const formData = new FormData();
     formData.append('file', file);
 
+    const csrfHeaders = await getCsrfHeaders();
     const response = await fetch(`${API_BASE}/whiskeys/import/csv`, {
       method: 'POST',
       credentials: 'include',
+      headers: csrfHeaders,
       body: formData,
     });
 

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { whiskeyAPI, authAPI } from '../services/api';
 import { Footer } from '../components/Footer';
+import { getCsrfHeaders } from '../utils/csrf';
 import '../styles/ProfilePage.css';
 
 interface ProfileFormData {
@@ -147,10 +148,12 @@ export default function ProfilePage() {
         updateData.newPassword = formData.newPassword;
       }
 
+      const csrfHeaders = await getCsrfHeaders();
       const response = await fetch('/api/auth/profile', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
+          ...csrfHeaders,
         },
         credentials: 'include',
         body: JSON.stringify(updateData)
@@ -237,9 +240,11 @@ export default function ProfilePage() {
       const formData = new FormData();
       formData.append('photo', photoFile);
 
+      const csrfHeaders = await getCsrfHeaders();
       const response = await fetch('/api/auth/profile/photo', {
         method: 'POST',
         credentials: 'include',
+        headers: csrfHeaders,
         body: formData
       });
 
@@ -273,9 +278,11 @@ export default function ProfilePage() {
     setMessage(null);
 
     try {
+      const csrfHeaders = await getCsrfHeaders();
       const response = await fetch('/api/auth/profile/photo', {
         method: 'DELETE',
-        credentials: 'include'
+        credentials: 'include',
+        headers: csrfHeaders,
       });
 
       const data = await response.json();

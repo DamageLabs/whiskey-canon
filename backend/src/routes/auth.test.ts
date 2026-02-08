@@ -5,6 +5,7 @@ import { Role } from '../types';
 import type { Application } from 'express';
 import { testDb } from '../test/setup';
 import * as emailUtils from '../utils/email';
+import { validatePassword } from '../utils/password-policy';
 
 // Mock email functions
 vi.mock('../utils/email', () => ({
@@ -27,7 +28,7 @@ describe('Auth Routes', () => {
         .send({
           username: 'newuser',
           email: 'new@example.com',
-          password: 'password123'
+          password: 'Wh1sk3yTest!!'
         });
 
       expect(response.status).toBe(201);
@@ -37,14 +38,14 @@ describe('Auth Routes', () => {
     });
 
     it('rejects duplicate username', async () => {
-      await createTestUser('existinguser', 'existing@example.com', 'password123');
+      await createTestUser('existinguser', 'existing@example.com', 'Wh1sk3yTest!!');
 
       const response = await request(app)
         .post('/api/auth/register')
         .send({
           username: 'existinguser',
           email: 'new@example.com',
-          password: 'password123'
+          password: 'Wh1sk3yTest!!'
         });
 
       expect(response.status).toBe(400);
@@ -52,14 +53,14 @@ describe('Auth Routes', () => {
     });
 
     it('rejects duplicate email', async () => {
-      await createTestUser('existinguser', 'existing@example.com', 'password123');
+      await createTestUser('existinguser', 'existing@example.com', 'Wh1sk3yTest!!');
 
       const response = await request(app)
         .post('/api/auth/register')
         .send({
           username: 'newuser',
           email: 'existing@example.com',
-          password: 'password123'
+          password: 'Wh1sk3yTest!!'
         });
 
       expect(response.status).toBe(400);
@@ -72,7 +73,7 @@ describe('Auth Routes', () => {
         .send({
           username: 'ab',
           email: 'new@example.com',
-          password: 'password123'
+          password: 'Wh1sk3yTest!!'
         });
 
       expect(response.status).toBe(400);
@@ -86,7 +87,7 @@ describe('Auth Routes', () => {
         .send({
           username: 'newuser',
           email: 'invalid-email',
-          password: 'password123'
+          password: 'Wh1sk3yTest!!'
         });
 
       expect(response.status).toBe(400);
@@ -94,7 +95,7 @@ describe('Auth Routes', () => {
       expect(response.body.errors[0].msg).toBe('Invalid email');
     });
 
-    it('validates password length (min 6)', async () => {
+    it('validates password complexity', async () => {
       const response = await request(app)
         .post('/api/auth/register')
         .send({
@@ -105,7 +106,36 @@ describe('Auth Routes', () => {
 
       expect(response.status).toBe(400);
       expect(response.body.errors).toBeDefined();
-      expect(response.body.errors[0].msg).toBe('Password must be at least 6 characters');
+      expect(response.body.errors[0].msg).toContain('Password must be at least 12 characters');
+    });
+
+    it('rejects password missing complexity requirements', async () => {
+      const response = await request(app)
+        .post('/api/auth/register')
+        .send({
+          username: 'newuser',
+          email: 'new@example.com',
+          password: 'alllowercase!!'
+        });
+
+      expect(response.status).toBe(400);
+    });
+
+    it('rejects a breached password', async () => {
+      vi.mocked(validatePassword).mockRejectedValueOnce(
+        new Error('This password has been found in a data breach. Please choose a different password')
+      );
+
+      const response = await request(app)
+        .post('/api/auth/register')
+        .send({
+          username: 'newuser',
+          email: 'new@example.com',
+          password: 'Wh1sk3yTest!!'
+        });
+
+      expect(response.status).toBe(400);
+      expect(response.body.errors[0].msg).toContain('data breach');
     });
 
     it('does not return user details for security (requires verification)', async () => {
@@ -114,7 +144,7 @@ describe('Auth Routes', () => {
         .send({
           username: 'newuser',
           email: 'new@example.com',
-          password: 'password123'
+          password: 'Wh1sk3yTest!!'
         });
 
       expect(response.status).toBe(201);
@@ -128,7 +158,7 @@ describe('Auth Routes', () => {
         .send({
           username: 'newuser',
           email: 'new@example.com',
-          password: 'password123',
+          password: 'Wh1sk3yTest!!',
           firstName: 'John',
           lastName: 'Doe'
         });
@@ -141,13 +171,13 @@ describe('Auth Routes', () => {
 
   describe('POST /api/auth/login', () => {
     it('logs in with valid credentials', async () => {
-      await createTestUser('testuser', 'test@example.com', 'password123');
+      await createTestUser('testuser', 'test@example.com', 'Wh1sk3yTest!!');
 
       const response = await request(app)
         .post('/api/auth/login')
         .send({
           username: 'testuser',
-          password: 'password123'
+          password: 'Wh1sk3yTest!!'
         });
 
       expect(response.status).toBe(200);
@@ -156,13 +186,13 @@ describe('Auth Routes', () => {
     });
 
     it('returns 401 for invalid username', async () => {
-      await createTestUser('testuser', 'test@example.com', 'password123');
+      await createTestUser('testuser', 'test@example.com', 'Wh1sk3yTest!!');
 
       const response = await request(app)
         .post('/api/auth/login')
         .send({
           username: 'wronguser',
-          password: 'password123'
+          password: 'Wh1sk3yTest!!'
         });
 
       expect(response.status).toBe(401);
@@ -170,7 +200,7 @@ describe('Auth Routes', () => {
     });
 
     it('returns 401 for invalid password', async () => {
-      await createTestUser('testuser', 'test@example.com', 'password123');
+      await createTestUser('testuser', 'test@example.com', 'Wh1sk3yTest!!');
 
       const response = await request(app)
         .post('/api/auth/login')
@@ -184,13 +214,13 @@ describe('Auth Routes', () => {
     });
 
     it('sets session cookie on success', async () => {
-      await createTestUser('testuser', 'test@example.com', 'password123');
+      await createTestUser('testuser', 'test@example.com', 'Wh1sk3yTest!!');
 
       const response = await request(app)
         .post('/api/auth/login')
         .send({
           username: 'testuser',
-          password: 'password123'
+          password: 'Wh1sk3yTest!!'
         });
 
       expect(response.status).toBe(200);
@@ -198,13 +228,13 @@ describe('Auth Routes', () => {
     });
 
     it('does not return password in response', async () => {
-      await createTestUser('testuser', 'test@example.com', 'password123');
+      await createTestUser('testuser', 'test@example.com', 'Wh1sk3yTest!!');
 
       const response = await request(app)
         .post('/api/auth/login')
         .send({
           username: 'testuser',
-          password: 'password123'
+          password: 'Wh1sk3yTest!!'
         });
 
       expect(response.status).toBe(200);
@@ -215,9 +245,9 @@ describe('Auth Routes', () => {
   describe('POST /api/auth/logout', () => {
     it('clears session and returns success message', async () => {
       // Create user and login manually to avoid agent timing issues
-      await createTestUser('logoutuser', 'logout@test.com', 'password123');
+      await createTestUser('logoutuser', 'logout@test.com', 'Wh1sk3yTest!!');
       const agent = request.agent(app);
-      await agent.post('/api/auth/login').send({ username: 'logoutuser', password: 'password123' });
+      await agent.post('/api/auth/login').send({ username: 'logoutuser', password: 'Wh1sk3yTest!!' });
 
       const response = await agent.post('/api/auth/logout');
 
@@ -298,8 +328,8 @@ describe('Auth Routes', () => {
     });
 
     it('rejects duplicate email', async () => {
-      await createTestUser('otheruser', 'other@example.com', 'password123');
-      const { agent } = await createAuthenticatedAgent(app, 'testuser', 'test@example.com', 'password123');
+      await createTestUser('otheruser', 'other@example.com', 'Wh1sk3yTest!!');
+      const { agent } = await createAuthenticatedAgent(app, 'testuser', 'test@example.com', 'Wh1sk3yTest!!');
 
       const response = await agent
         .put('/api/auth/profile')
@@ -310,13 +340,13 @@ describe('Auth Routes', () => {
     });
 
     it('updates password with correct current password', async () => {
-      const { agent } = await createAuthenticatedAgent(app, 'testuser', 'test@example.com', 'password123');
+      const { agent } = await createAuthenticatedAgent(app, 'testuser', 'test@example.com', 'Wh1sk3yTest!!');
 
       const response = await agent
         .put('/api/auth/profile')
         .send({
-          currentPassword: 'password123',
-          newPassword: 'newpassword456'
+          currentPassword: 'Wh1sk3yTest!!',
+          newPassword: 'N3wPassTest!!'
         });
 
       expect(response.status).toBe(200);
@@ -327,20 +357,20 @@ describe('Auth Routes', () => {
         .post('/api/auth/login')
         .send({
           username: 'testuser',
-          password: 'newpassword456'
+          password: 'N3wPassTest!!'
         });
 
       expect(loginResponse.status).toBe(200);
     });
 
     it('rejects password change with wrong current password', async () => {
-      const { agent } = await createAuthenticatedAgent(app, 'testuser', 'test@example.com', 'password123');
+      const { agent } = await createAuthenticatedAgent(app, 'testuser', 'test@example.com', 'Wh1sk3yTest!!');
 
       const response = await agent
         .put('/api/auth/profile')
         .send({
           currentPassword: 'wrongpassword',
-          newPassword: 'newpassword456'
+          newPassword: 'N3wPassTest!!'
         });
 
       expect(response.status).toBe(401);
@@ -352,7 +382,7 @@ describe('Auth Routes', () => {
 
       const response = await agent
         .put('/api/auth/profile')
-        .send({ newPassword: 'newpassword456' });
+        .send({ newPassword: 'N3wPassTest!!' });
 
       expect(response.status).toBe(400);
       expect(response.body.error).toBe('Current password is required to change password');
@@ -380,13 +410,13 @@ describe('Auth Routes', () => {
       expect(response.body.errors).toBeDefined();
     });
 
-    it('validates new password length', async () => {
+    it('validates new password complexity', async () => {
       const { agent } = await createAuthenticatedAgent(app);
 
       const response = await agent
         .put('/api/auth/profile')
         .send({
-          currentPassword: 'password123',
+          currentPassword: 'Wh1sk3yTest!!',
           newPassword: '12345'
         });
 
@@ -540,7 +570,7 @@ describe('Auth Routes', () => {
   describe('POST /api/auth/verify-email', () => {
     it('verifies email with valid code', async () => {
       // Create unverified user with verification code
-      const user = await createTestUser('unverified', 'unverified@test.com', 'password123');
+      const user = await createTestUser('unverified', 'unverified@test.com', 'Wh1sk3yTest!!');
       const code = 'TESTCODE';
       testDb.prepare(`
         UPDATE users
@@ -568,7 +598,7 @@ describe('Auth Routes', () => {
     });
 
     it('returns 400 for already verified email', async () => {
-      await createTestUser('verified', 'verified@test.com', 'password123');
+      await createTestUser('verified', 'verified@test.com', 'Wh1sk3yTest!!');
 
       const response = await request(app)
         .post('/api/auth/verify-email')
@@ -579,7 +609,7 @@ describe('Auth Routes', () => {
     });
 
     it('returns 429 after too many attempts', async () => {
-      const user = await createTestUser('toomany', 'toomany@test.com', 'password123');
+      const user = await createTestUser('toomany', 'toomany@test.com', 'Wh1sk3yTest!!');
       testDb.prepare(`
         UPDATE users
         SET email_verified = 0,
@@ -597,7 +627,7 @@ describe('Auth Routes', () => {
     });
 
     it('returns 400 for expired code', async () => {
-      const user = await createTestUser('expired', 'expired@test.com', 'password123');
+      const user = await createTestUser('expired', 'expired@test.com', 'Wh1sk3yTest!!');
       const expiredDate = new Date(Date.now() - 3600000).toISOString(); // 1 hour ago
       testDb.prepare(`
         UPDATE users
@@ -617,7 +647,7 @@ describe('Auth Routes', () => {
     });
 
     it('returns 400 for invalid code', async () => {
-      const user = await createTestUser('wrongcode', 'wrongcode@test.com', 'password123');
+      const user = await createTestUser('wrongcode', 'wrongcode@test.com', 'Wh1sk3yTest!!');
       testDb.prepare(`
         UPDATE users
         SET email_verified = 0,
@@ -638,7 +668,7 @@ describe('Auth Routes', () => {
 
   describe('POST /api/auth/resend-verification', () => {
     it('resends verification code for unverified user', async () => {
-      const user = await createTestUser('resend', 'resend@test.com', 'password123');
+      const user = await createTestUser('resend', 'resend@test.com', 'Wh1sk3yTest!!');
       testDb.prepare('UPDATE users SET email_verified = 0 WHERE id = ?').run(user.id);
 
       const response = await request(app)
@@ -657,7 +687,7 @@ describe('Auth Routes', () => {
     });
 
     it('returns 400 for already verified email', async () => {
-      await createTestUser('alreadyverified', 'alreadyverified@test.com', 'password123');
+      await createTestUser('alreadyverified', 'alreadyverified@test.com', 'Wh1sk3yTest!!');
 
       const response = await request(app)
         .post('/api/auth/resend-verification')
@@ -669,7 +699,7 @@ describe('Auth Routes', () => {
 
   describe('POST /api/auth/forgot-password', () => {
     it('sends password reset email for existing user', async () => {
-      await createTestUser('forgot', 'forgot@test.com', 'password123');
+      await createTestUser('forgot', 'forgot@test.com', 'Wh1sk3yTest!!');
 
       const response = await request(app)
         .post('/api/auth/forgot-password')
@@ -689,7 +719,7 @@ describe('Auth Routes', () => {
 
   describe('POST /api/auth/reset-password', () => {
     it('resets password with valid token', async () => {
-      const user = await createTestUser('reset', 'reset@test.com', 'password123');
+      const user = await createTestUser('reset', 'reset@test.com', 'Wh1sk3yTest!!');
       const token = 'valid-reset-token';
       testDb.prepare(`
         UPDATE users
@@ -700,7 +730,7 @@ describe('Auth Routes', () => {
 
       const response = await request(app)
         .post('/api/auth/reset-password')
-        .send({ token, password: 'newpassword123' });
+        .send({ token, password: 'N3wPassReset!!' });
 
       expect(response.status).toBe(200);
       expect(response.body.message).toBe('Password has been reset successfully');
@@ -709,14 +739,14 @@ describe('Auth Routes', () => {
     it('returns 400 for invalid token', async () => {
       const response = await request(app)
         .post('/api/auth/reset-password')
-        .send({ token: 'invalid-token', password: 'newpassword123' });
+        .send({ token: 'invalid-token', password: 'N3wPassReset!!' });
 
       expect(response.status).toBe(400);
       expect(response.body.error).toBe('Invalid or expired reset token');
     });
 
     it('returns 400 for expired token', async () => {
-      const user = await createTestUser('expiredreset', 'expiredreset@test.com', 'password123');
+      const user = await createTestUser('expiredreset', 'expiredreset@test.com', 'Wh1sk3yTest!!');
       const token = 'expired-token';
       const expiredDate = new Date(Date.now() - 3600000).toISOString(); // 1 hour ago
       testDb.prepare(`
@@ -728,7 +758,7 @@ describe('Auth Routes', () => {
 
       const response = await request(app)
         .post('/api/auth/reset-password')
-        .send({ token, password: 'newpassword123' });
+        .send({ token, password: 'N3wPassReset!!' });
 
       expect(response.status).toBe(400);
       expect(response.body.error).toContain('expired');
@@ -737,12 +767,12 @@ describe('Auth Routes', () => {
 
   describe('POST /api/auth/login error handling', () => {
     it('returns 403 for unverified email', async () => {
-      const user = await createTestUser('unverifiedlogin', 'unverifiedlogin@test.com', 'password123');
+      const user = await createTestUser('unverifiedlogin', 'unverifiedlogin@test.com', 'Wh1sk3yTest!!');
       testDb.prepare('UPDATE users SET email_verified = 0 WHERE id = ?').run(user.id);
 
       const response = await request(app)
         .post('/api/auth/login')
-        .send({ username: 'unverifiedlogin', password: 'password123' });
+        .send({ username: 'unverifiedlogin', password: 'Wh1sk3yTest!!' });
 
       expect(response.status).toBe(403);
       expect(response.body.requiresVerification).toBe(true);

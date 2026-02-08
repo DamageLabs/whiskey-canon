@@ -60,7 +60,7 @@ describe('Whiskey Routes', () => {
 
     it('returns only user\'s own whiskeys', async () => {
       const { agent, user } = await createAuthenticatedAgent(app, 'user1', 'user1@test.com');
-      const user2 = await createTestUser('user2', 'user2@test.com', 'password123');
+      const user2 = await createTestUser('user2', 'user2@test.com', 'Wh1sk3yTest!!');
 
       // Create whiskeys for both users
       createTestWhiskey(user.id, { name: 'User1 Whiskey' });
@@ -131,7 +131,7 @@ describe('Whiskey Routes', () => {
 
     it('returns 404 when accessing another user\'s whiskey', async () => {
       const { agent } = await createAuthenticatedAgent(app, 'user1', 'user1@test.com');
-      const user2 = await createTestUser('user2', 'user2@test.com', 'password123');
+      const user2 = await createTestUser('user2', 'user2@test.com', 'Wh1sk3yTest!!');
       const whiskey = createTestWhiskey(user2.id, { name: 'User2 Whiskey' });
 
       const response = await agent.get(`/api/whiskeys/${whiskey.id}`);
@@ -351,7 +351,7 @@ describe('Whiskey Routes', () => {
 
     it('returns 404 when updating another user\'s whiskey', async () => {
       const { agent } = await createAuthenticatedAgent(app, 'user1', 'user1@test.com');
-      const user2 = await createTestUser('user2', 'user2@test.com', 'password123');
+      const user2 = await createTestUser('user2', 'user2@test.com', 'Wh1sk3yTest!!');
       const whiskey = createTestWhiskey(user2.id, { name: 'User2 Whiskey' });
 
       const response = await agent
@@ -378,7 +378,7 @@ describe('Whiskey Routes', () => {
   describe('DELETE /api/whiskeys/:id', () => {
     it('deletes a whiskey (admin role required)', async () => {
       // Note: DELETE requires ADMIN role per RolePermissions
-      const { agent, user } = await createAuthenticatedAgent(app, 'admin', 'admin@test.com', 'password123', Role.ADMIN);
+      const { agent, user } = await createAuthenticatedAgent(app, 'admin', 'admin@test.com', 'Wh1sk3yTest!!', Role.ADMIN);
       const whiskey = createTestWhiskey(user.id);
 
       const response = await agent.delete(`/api/whiskeys/${whiskey.id}`);
@@ -392,7 +392,7 @@ describe('Whiskey Routes', () => {
     });
 
     it('returns 403 for editor role (no delete permission)', async () => {
-      const { agent, user } = await createAuthenticatedAgent(app, 'editor', 'editor@test.com', 'password123', Role.EDITOR);
+      const { agent, user } = await createAuthenticatedAgent(app, 'editor', 'editor@test.com', 'Wh1sk3yTest!!', Role.EDITOR);
       const whiskey = createTestWhiskey(user.id);
 
       const response = await agent.delete(`/api/whiskeys/${whiskey.id}`);
@@ -402,7 +402,7 @@ describe('Whiskey Routes', () => {
     });
 
     it('returns 404 for non-existent whiskey', async () => {
-      const { agent } = await createAuthenticatedAgent(app, 'admin', 'admin@test.com', 'password123', Role.ADMIN);
+      const { agent } = await createAuthenticatedAgent(app, 'admin', 'admin@test.com', 'Wh1sk3yTest!!', Role.ADMIN);
 
       const response = await agent.delete('/api/whiskeys/99999');
 
@@ -410,8 +410,8 @@ describe('Whiskey Routes', () => {
     });
 
     it('returns 404 when deleting another user\'s whiskey', async () => {
-      const { agent } = await createAuthenticatedAgent(app, 'admin1', 'admin1@test.com', 'password123', Role.ADMIN);
-      const user2 = await createTestUser('admin2', 'admin2@test.com', 'password123', Role.ADMIN);
+      const { agent } = await createAuthenticatedAgent(app, 'admin1', 'admin1@test.com', 'Wh1sk3yTest!!', Role.ADMIN);
+      const user2 = await createTestUser('admin2', 'admin2@test.com', 'Wh1sk3yTest!!', Role.ADMIN);
       const whiskey = createTestWhiskey(user2.id);
 
       const response = await agent.delete(`/api/whiskeys/${whiskey.id}`);
@@ -421,8 +421,8 @@ describe('Whiskey Routes', () => {
 
     it('does not delete another user\'s whiskey', async () => {
       // Create two admin users
-      const { agent: agent1 } = await createAuthenticatedAgent(app, 'admin1', 'admin1@test.com', 'password123', Role.ADMIN);
-      const user2 = await createTestUser('admin2', 'admin2@test.com', 'password123', Role.ADMIN);
+      const { agent: agent1 } = await createAuthenticatedAgent(app, 'admin1', 'admin1@test.com', 'Wh1sk3yTest!!', Role.ADMIN);
+      const user2 = await createTestUser('admin2', 'admin2@test.com', 'Wh1sk3yTest!!', Role.ADMIN);
       const whiskey = createTestWhiskey(user2.id, { name: 'User2 Whiskey' });
 
       // Admin1 tries to delete Admin2's whiskey
@@ -430,7 +430,7 @@ describe('Whiskey Routes', () => {
 
       // Login as admin2 and verify whiskey still exists
       const agent2 = request.agent(app);
-      await agent2.post('/api/auth/login').send({ username: 'admin2', password: 'password123' });
+      await agent2.post('/api/auth/login').send({ username: 'admin2', password: 'Wh1sk3yTest!!' });
 
       const response = await agent2.get(`/api/whiskeys/${whiskey.id}`);
       expect(response.status).toBe(200);
@@ -466,7 +466,7 @@ describe('Whiskey Routes', () => {
 
     it('only searches user\'s own whiskeys', async () => {
       const { agent, user } = await createAuthenticatedAgent(app, 'user1', 'user1@test.com');
-      const user2 = await createTestUser('user2', 'user2@test.com', 'password123');
+      const user2 = await createTestUser('user2', 'user2@test.com', 'Wh1sk3yTest!!');
 
       createTestWhiskey(user.id, { name: 'User1 Buffalo', distillery: 'Test' });
       createTestWhiskey(user2.id, { name: 'User2 Buffalo', distillery: 'Test' });
@@ -516,7 +516,7 @@ describe('Whiskey Routes', () => {
 
     it('only exports user\'s own whiskeys', async () => {
       const { agent, user } = await createAuthenticatedAgent(app, 'user1', 'user1@test.com');
-      const user2 = await createTestUser('user2', 'user2@test.com', 'password123');
+      const user2 = await createTestUser('user2', 'user2@test.com', 'Wh1sk3yTest!!');
 
       createTestWhiskey(user.id, { name: 'User1 Bourbon' });
       createTestWhiskey(user2.id, { name: 'User2 Bourbon' });
@@ -544,7 +544,7 @@ describe('Whiskey Routes', () => {
   describe('User Isolation (Integration)', () => {
     it('complete isolation: user cannot see, update, or delete other users whiskeys', async () => {
       // Setup: Admin1 creates a whiskey (use admin to test delete permission)
-      const { agent: agent1, user: user1 } = await createAuthenticatedAgent(app, 'admin1', 'admin1@test.com', 'password123', Role.ADMIN);
+      const { agent: agent1, user: user1 } = await createAuthenticatedAgent(app, 'admin1', 'admin1@test.com', 'Wh1sk3yTest!!', Role.ADMIN);
 
       const createResponse = await agent1
         .post('/api/whiskeys')
@@ -553,9 +553,9 @@ describe('Whiskey Routes', () => {
       const whiskeyId = createResponse.body.whiskey.id;
 
       // Setup: Admin2 logs in
-      await createTestUser('admin2', 'admin2@test.com', 'password123', Role.ADMIN);
+      await createTestUser('admin2', 'admin2@test.com', 'Wh1sk3yTest!!', Role.ADMIN);
       const agent2 = request.agent(app);
-      await agent2.post('/api/auth/login').send({ username: 'admin2', password: 'password123' });
+      await agent2.post('/api/auth/login').send({ username: 'admin2', password: 'Wh1sk3yTest!!' });
 
       // Admin2 cannot see Admin1's whiskey in list
       const listResponse = await agent2.get('/api/whiskeys');
@@ -792,7 +792,7 @@ Valid2,scotch,Distillery2
     });
 
     it('deletes multiple whiskeys by ids', async () => {
-      const { agent, user } = await createAuthenticatedAgent(app, 'admin', 'admin@test.com', 'password123', Role.ADMIN);
+      const { agent, user } = await createAuthenticatedAgent(app, 'admin', 'admin@test.com', 'Wh1sk3yTest!!', Role.ADMIN);
 
       const whiskey1 = createTestWhiskey(user.id, { name: 'Whiskey 1' });
       const whiskey2 = createTestWhiskey(user.id, { name: 'Whiskey 2' });
@@ -812,7 +812,7 @@ Valid2,scotch,Distillery2
     });
 
     it('returns 400 when ids array is empty', async () => {
-      const { agent } = await createAuthenticatedAgent(app, 'admin', 'admin@test.com', 'password123', Role.ADMIN);
+      const { agent } = await createAuthenticatedAgent(app, 'admin', 'admin@test.com', 'Wh1sk3yTest!!', Role.ADMIN);
 
       const response = await agent
         .delete('/api/whiskeys/bulk')
@@ -822,7 +822,7 @@ Valid2,scotch,Distillery2
     });
 
     it('returns 400 when ids array is missing', async () => {
-      const { agent } = await createAuthenticatedAgent(app, 'admin', 'admin@test.com', 'password123', Role.ADMIN);
+      const { agent } = await createAuthenticatedAgent(app, 'admin', 'admin@test.com', 'Wh1sk3yTest!!', Role.ADMIN);
 
       const response = await agent
         .delete('/api/whiskeys/bulk')
@@ -832,7 +832,7 @@ Valid2,scotch,Distillery2
     });
 
     it('returns 400 when ids contains invalid values', async () => {
-      const { agent } = await createAuthenticatedAgent(app, 'admin', 'admin@test.com', 'password123', Role.ADMIN);
+      const { agent } = await createAuthenticatedAgent(app, 'admin', 'admin@test.com', 'Wh1sk3yTest!!', Role.ADMIN);
 
       const response = await agent
         .delete('/api/whiskeys/bulk')
@@ -842,8 +842,8 @@ Valid2,scotch,Distillery2
     });
 
     it('only deletes whiskeys belonging to the user', async () => {
-      const { agent: agent1, user: user1 } = await createAuthenticatedAgent(app, 'admin1', 'admin1@test.com', 'password123', Role.ADMIN);
-      const user2 = await createTestUser('user2', 'user2@test.com', 'password123', Role.ADMIN);
+      const { agent: agent1, user: user1 } = await createAuthenticatedAgent(app, 'admin1', 'admin1@test.com', 'Wh1sk3yTest!!', Role.ADMIN);
+      const user2 = await createTestUser('user2', 'user2@test.com', 'Wh1sk3yTest!!', Role.ADMIN);
 
       const user1Whiskey = createTestWhiskey(user1.id, { name: 'User1 Whiskey' });
       const user2Whiskey = createTestWhiskey(user2.id, { name: 'User2 Whiskey' });
@@ -858,7 +858,7 @@ Valid2,scotch,Distillery2
     });
 
     it('returns 403 for viewer role', async () => {
-      const { agent } = await createAuthenticatedAgent(app, 'viewer', 'viewer@test.com', 'password123', Role.VIEWER);
+      const { agent } = await createAuthenticatedAgent(app, 'viewer', 'viewer@test.com', 'Wh1sk3yTest!!', Role.VIEWER);
 
       const response = await agent
         .delete('/api/whiskeys/bulk')
@@ -868,7 +868,7 @@ Valid2,scotch,Distillery2
     });
 
     it('returns 403 for editor role', async () => {
-      const { agent } = await createAuthenticatedAgent(app, 'editor', 'editor@test.com', 'password123', Role.EDITOR);
+      const { agent } = await createAuthenticatedAgent(app, 'editor', 'editor@test.com', 'Wh1sk3yTest!!', Role.EDITOR);
 
       const response = await agent
         .delete('/api/whiskeys/bulk')
@@ -885,7 +885,7 @@ Valid2,scotch,Distillery2
     });
 
     it('deletes all whiskeys for the user', async () => {
-      const { agent, user } = await createAuthenticatedAgent(app, 'admin', 'admin@test.com', 'password123', Role.ADMIN);
+      const { agent, user } = await createAuthenticatedAgent(app, 'admin', 'admin@test.com', 'Wh1sk3yTest!!', Role.ADMIN);
 
       createTestWhiskey(user.id, { name: 'Whiskey 1' });
       createTestWhiskey(user.id, { name: 'Whiskey 2' });
@@ -902,8 +902,8 @@ Valid2,scotch,Distillery2
     });
 
     it('only deletes whiskeys for the authenticated user', async () => {
-      const { agent: agent1, user: user1 } = await createAuthenticatedAgent(app, 'admin1', 'admin1@test.com', 'password123', Role.ADMIN);
-      const { agent: agent2, user: user2 } = await createAuthenticatedAgent(app, 'admin2', 'admin2@test.com', 'password123', Role.ADMIN);
+      const { agent: agent1, user: user1 } = await createAuthenticatedAgent(app, 'admin1', 'admin1@test.com', 'Wh1sk3yTest!!', Role.ADMIN);
+      const { agent: agent2, user: user2 } = await createAuthenticatedAgent(app, 'admin2', 'admin2@test.com', 'Wh1sk3yTest!!', Role.ADMIN);
 
       createTestWhiskey(user1.id, { name: 'User1 Whiskey' });
       createTestWhiskey(user2.id, { name: 'User2 Whiskey' });
@@ -920,7 +920,7 @@ Valid2,scotch,Distillery2
     });
 
     it('returns 0 when user has no whiskeys', async () => {
-      const { agent } = await createAuthenticatedAgent(app, 'admin', 'admin@test.com', 'password123', Role.ADMIN);
+      const { agent } = await createAuthenticatedAgent(app, 'admin', 'admin@test.com', 'Wh1sk3yTest!!', Role.ADMIN);
 
       const response = await agent.delete('/api/whiskeys/all');
 
@@ -929,7 +929,7 @@ Valid2,scotch,Distillery2
     });
 
     it('returns 403 for viewer role', async () => {
-      const { agent } = await createAuthenticatedAgent(app, 'viewer', 'viewer@test.com', 'password123', Role.VIEWER);
+      const { agent } = await createAuthenticatedAgent(app, 'viewer', 'viewer@test.com', 'Wh1sk3yTest!!', Role.VIEWER);
 
       const response = await agent.delete('/api/whiskeys/all');
 
@@ -937,7 +937,7 @@ Valid2,scotch,Distillery2
     });
 
     it('returns 403 for editor role', async () => {
-      const { agent } = await createAuthenticatedAgent(app, 'editor', 'editor@test.com', 'password123', Role.EDITOR);
+      const { agent } = await createAuthenticatedAgent(app, 'editor', 'editor@test.com', 'Wh1sk3yTest!!', Role.EDITOR);
 
       const response = await agent.delete('/api/whiskeys/all');
 
@@ -947,7 +947,7 @@ Valid2,scotch,Distillery2
 
   describe('Error Handling', () => {
     it('returns 500 when deleteAllByUser throws an error', async () => {
-      const { agent } = await createAuthenticatedAgent(app, 'admin', 'admin@test.com', 'password123', Role.ADMIN);
+      const { agent } = await createAuthenticatedAgent(app, 'admin', 'admin@test.com', 'Wh1sk3yTest!!', Role.ADMIN);
 
       // Mock deleteAllByUser to throw an error
       const spy = vi.spyOn(WhiskeyModel, 'deleteAllByUser').mockImplementation(() => {
@@ -963,7 +963,7 @@ Valid2,scotch,Distillery2
     });
 
     it('returns 500 when delete throws an error', async () => {
-      const { agent, user } = await createAuthenticatedAgent(app, 'admin', 'admin@test.com', 'password123', Role.ADMIN);
+      const { agent, user } = await createAuthenticatedAgent(app, 'admin', 'admin@test.com', 'Wh1sk3yTest!!', Role.ADMIN);
       const whiskey = createTestWhiskey(user.id);
 
       // Mock delete to throw an error
@@ -999,7 +999,7 @@ Valid2,scotch,Distillery2
     });
 
     it('returns 500 when deleteMany throws an error', async () => {
-      const { agent, user } = await createAuthenticatedAgent(app, 'admin', 'admin@test.com', 'password123', Role.ADMIN);
+      const { agent, user } = await createAuthenticatedAgent(app, 'admin', 'admin@test.com', 'Wh1sk3yTest!!', Role.ADMIN);
       const whiskey = createTestWhiskey(user.id);
 
       // Mock deleteMany to throw an error
@@ -1042,7 +1042,7 @@ Valid2,scotch,Distillery2
 
   describe('Special User Handling', () => {
     it('sets quantity to 1 for guntharp user when quantity is 0', async () => {
-      const { agent, user } = await createAuthenticatedAgent(app, 'guntharp', 'guntharp@test.com', 'password123');
+      const { agent, user } = await createAuthenticatedAgent(app, 'guntharp', 'guntharp@test.com', 'Wh1sk3yTest!!');
       const whiskey = createTestWhiskey(user.id);
 
       const response = await agent
@@ -1054,7 +1054,7 @@ Valid2,scotch,Distillery2
     });
 
     it('sets quantity to 1 for guntharp user when quantity is 0 on create', async () => {
-      const { agent } = await createAuthenticatedAgent(app, 'guntharp', 'guntharp2@test.com', 'password123');
+      const { agent } = await createAuthenticatedAgent(app, 'guntharp', 'guntharp2@test.com', 'Wh1sk3yTest!!');
 
       const response = await agent
         .post('/api/whiskeys')

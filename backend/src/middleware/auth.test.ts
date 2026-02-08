@@ -61,7 +61,7 @@ describe('Auth Middleware', () => {
 
   describe('attachUser', () => {
     it('attaches user to request when session has userId', async () => {
-      const user = await createTestUser('testuser', 'test@example.com', 'password123', Role.EDITOR);
+      const user = await createTestUser('testuser', 'test@example.com', 'Wh1sk3yTest!!', Role.EDITOR);
 
       // Set up route that manually sets session and uses attachUser
       app.post('/set-session', (req, res) => {

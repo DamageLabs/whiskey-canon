@@ -9,8 +9,8 @@ describe('WhiskeyModel', () => {
 
   beforeEach(async () => {
     // Create two users for isolation testing
-    user1 = await createTestUser('user1', 'user1@example.com', 'password123', Role.EDITOR);
-    user2 = await createTestUser('user2', 'user2@example.com', 'password123', Role.EDITOR);
+    user1 = await createTestUser('user1', 'user1@example.com', 'Wh1sk3yTest!!', Role.EDITOR);
+    user2 = await createTestUser('user2', 'user2@example.com', 'Wh1sk3yTest!!', Role.EDITOR);
   });
 
   const createWhiskeyData = (userId: number, overrides: Partial<CreateWhiskeyData> = {}): CreateWhiskeyData => ({

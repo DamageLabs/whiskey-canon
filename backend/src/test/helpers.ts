@@ -54,7 +54,7 @@ export function createTestApp(): express.Application {
 export async function createTestUser(
   username: string = 'testuser',
   email: string = 'test@example.com',
-  password: string = 'password123',
+  password: string = 'Wh1sk3yTest!!',
   role: Role = Role.EDITOR,
   firstName?: string,
   lastName?: string
@@ -99,7 +99,7 @@ export async function createAuthenticatedAgent(
   app: express.Application,
   username: string = 'testuser',
   email: string = 'test@example.com',
-  password: string = 'password123',
+  password: string = 'Wh1sk3yTest!!',
   role: Role = Role.EDITOR
 ): Promise<{ agent: request.Agent; user: { id: number; username: string; email: string; role: Role } }> {
   const user = await createTestUser(username, email, password, role);

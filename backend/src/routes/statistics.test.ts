@@ -288,7 +288,7 @@ describe('Statistics Routes', () => {
 
     it('only returns statistics for authenticated user\'s whiskeys', async () => {
       const { agent, user } = await createAuthenticatedAgent(app, 'user1', 'user1@test.com');
-      const user2 = await createTestUser('user2', 'user2@test.com', 'password123');
+      const user2 = await createTestUser('user2', 'user2@test.com', 'Wh1sk3yTest!!');
 
       // Create whiskeys for both users
       createTestWhiskey(user.id, { name: 'User1 Whiskey' });

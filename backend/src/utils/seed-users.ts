@@ -13,25 +13,25 @@ async function seedUsers() {
     {
       username: 'alice_admin',
       email: 'alice@whiskey-canon.com',
-      password: 'Admin123!',
+      password: 'Adm1nWh1skey!!',
       role: Role.ADMIN
     },
     {
       username: 'bob_editor',
       email: 'bob@whiskey-canon.com',
-      password: 'Editor123!',
+      password: 'Ed1torTest!!',
       role: Role.EDITOR
     },
     {
       username: 'charlie_viewer',
       email: 'charlie@whiskey-canon.com',
-      password: 'Viewer123!',
+      password: 'V1ewerTest!!',
       role: Role.VIEWER
     },
     {
       username: 'diana_editor',
       email: 'diana@whiskey-canon.com',
-      password: 'Editor456!',
+      password: 'Ed1torDemo!!',
       role: Role.EDITOR
     }
   ];

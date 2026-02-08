@@ -4,6 +4,8 @@ import { useAuth } from '../context/AuthContext';
 import { whiskeyAPI, authAPI } from '../services/api';
 import { Footer } from '../components/Footer';
 import { getCsrfHeaders } from '../utils/csrf';
+import { PasswordStrengthIndicator } from '../components/PasswordStrengthIndicator';
+import { checkPasswordStrength } from '../utils/passwordPolicy';
 import '../styles/ProfilePage.css';
 
 interface ProfileFormData {
@@ -128,8 +130,8 @@ export default function ProfilePage() {
         return;
       }
 
-      if (formData.newPassword.length < 6) {
-        setMessage({ type: 'error', text: 'New password must be at least 6 characters' });
+      if (!checkPasswordStrength(formData.newPassword).isValid) {
+        setMessage({ type: 'error', text: 'New password does not meet complexity requirements' });
         return;
       }
     }
@@ -647,6 +649,7 @@ export default function ProfilePage() {
                     value={formData.newPassword}
                     onChange={handleInputChange}
                   />
+                  <PasswordStrengthIndicator password={formData.newPassword} />
                 </div>
 
                 <div className="form-group">

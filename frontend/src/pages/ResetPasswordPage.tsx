@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { authAPI } from '../services/api';
+import { PasswordStrengthIndicator } from '../components/PasswordStrengthIndicator';
+import { checkPasswordStrength } from '../utils/passwordPolicy';
 
 export function ResetPasswordPage() {
   const [searchParams] = useSearchParams();
@@ -28,8 +30,8 @@ export function ResetPasswordPage() {
       return;
     }
 
-    if (password.length < 6) {
-      setError('Password must be at least 6 characters');
+    if (!checkPasswordStrength(password).isValid) {
+      setError('Password does not meet complexity requirements');
       return;
     }
 
@@ -89,10 +91,11 @@ export function ResetPasswordPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
-                  minLength={6}
+                  minLength={12}
                   autoComplete="new-password"
                   autoFocus
                 />
+                <PasswordStrengthIndicator password={password} />
               </div>
 
               <div className="mb-3">
@@ -104,7 +107,7 @@ export function ResetPasswordPage() {
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   required
-                  minLength={6}
+                  minLength={12}
                   autoComplete="new-password"
                 />
               </div>

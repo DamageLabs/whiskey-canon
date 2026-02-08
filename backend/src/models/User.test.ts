@@ -7,7 +7,7 @@ import { Role } from '../types';
 describe('UserModel', () => {
   describe('create', () => {
     it('creates a user with required fields', async () => {
-      const user = await UserModel.create('testuser', 'test@example.com', 'password123');
+      const user = await UserModel.create('testuser', 'test@example.com', 'Wh1sk3yTest!!');
 
       expect(user).toBeDefined();
       expect(user.id).toBeDefined();
@@ -17,27 +17,27 @@ describe('UserModel', () => {
     });
 
     it('creates a user with specified role', async () => {
-      const user = await UserModel.create('adminuser', 'admin@example.com', 'password123', Role.ADMIN);
+      const user = await UserModel.create('adminuser', 'admin@example.com', 'Wh1sk3yTest!!', Role.ADMIN);
 
       expect(user.role).toBe(Role.ADMIN);
     });
 
     it('creates a user with firstName and lastName', async () => {
-      const user = await UserModel.create('fullname', 'full@example.com', 'password123', Role.EDITOR, 'John', 'Doe');
+      const user = await UserModel.create('fullname', 'full@example.com', 'Wh1sk3yTest!!', Role.EDITOR, 'John', 'Doe');
 
       expect(user.first_name).toBe('John');
       expect(user.last_name).toBe('Doe');
     });
 
     it('hashes the password', async () => {
-      const user = await UserModel.create('hashtest', 'hash@example.com', 'password123');
+      const user = await UserModel.create('hashtest', 'hash@example.com', 'Wh1sk3yTest!!');
 
-      expect(user.password).not.toBe('password123');
+      expect(user.password).not.toBe('Wh1sk3yTest!!');
       expect(user.password.startsWith('$2')).toBe(true); // bcrypt hash prefix
     });
 
     it('sets created_at timestamp', async () => {
-      const user = await UserModel.create('timestamp', 'time@example.com', 'password123');
+      const user = await UserModel.create('timestamp', 'time@example.com', 'Wh1sk3yTest!!');
 
       expect(user.created_at).toBeDefined();
     });
@@ -45,7 +45,7 @@ describe('UserModel', () => {
 
   describe('findById', () => {
     it('finds user by id', async () => {
-      const created = await UserModel.create('findme', 'find@example.com', 'password123');
+      const created = await UserModel.create('findme', 'find@example.com', 'Wh1sk3yTest!!');
       const found = UserModel.findById(created.id);
 
       expect(found).toBeDefined();
@@ -61,7 +61,7 @@ describe('UserModel', () => {
 
   describe('findByUsername', () => {
     it('finds user by username', async () => {
-      await UserModel.create('uniqueuser', 'unique@example.com', 'password123');
+      await UserModel.create('uniqueuser', 'unique@example.com', 'Wh1sk3yTest!!');
       const found = UserModel.findByUsername('uniqueuser');
 
       expect(found).toBeDefined();
@@ -77,7 +77,7 @@ describe('UserModel', () => {
 
   describe('findByEmail', () => {
     it('finds user by email', async () => {
-      await UserModel.create('emailuser', 'email@example.com', 'password123');
+      await UserModel.create('emailuser', 'email@example.com', 'Wh1sk3yTest!!');
       const found = UserModel.findByEmail('email@example.com');
 
       expect(found).toBeDefined();
@@ -93,9 +93,9 @@ describe('UserModel', () => {
 
   describe('findAll', () => {
     it('returns all users', async () => {
-      await UserModel.create('user1', 'user1@example.com', 'password123');
-      await UserModel.create('user2', 'user2@example.com', 'password123');
-      await UserModel.create('user3', 'user3@example.com', 'password123');
+      await UserModel.create('user1', 'user1@example.com', 'Wh1sk3yTest!!');
+      await UserModel.create('user2', 'user2@example.com', 'Wh1sk3yTest!!');
+      await UserModel.create('user3', 'user3@example.com', 'Wh1sk3yTest!!');
 
       const users = UserModel.findAll();
 
@@ -109,8 +109,8 @@ describe('UserModel', () => {
     });
 
     it('orders by created_at descending', async () => {
-      await UserModel.create('first', 'first@example.com', 'password123');
-      await UserModel.create('second', 'second@example.com', 'password123');
+      await UserModel.create('first', 'first@example.com', 'Wh1sk3yTest!!');
+      await UserModel.create('second', 'second@example.com', 'Wh1sk3yTest!!');
 
       const users = UserModel.findAll();
 
@@ -138,7 +138,7 @@ describe('UserModel', () => {
 
   describe('updateRole', () => {
     it('updates user role', async () => {
-      const user = await UserModel.create('roleuser', 'role@example.com', 'password123', Role.EDITOR);
+      const user = await UserModel.create('roleuser', 'role@example.com', 'Wh1sk3yTest!!', Role.EDITOR);
 
       const updated = UserModel.updateRole(user.id, Role.ADMIN);
 
@@ -155,7 +155,7 @@ describe('UserModel', () => {
 
   describe('updateEmail', () => {
     it('updates user email', async () => {
-      const user = await UserModel.create('emailupdate', 'old@example.com', 'password123');
+      const user = await UserModel.create('emailupdate', 'old@example.com', 'Wh1sk3yTest!!');
 
       const updated = UserModel.updateEmail(user.id, 'new@example.com');
 
@@ -194,7 +194,7 @@ describe('UserModel', () => {
 
   describe('updateProfile', () => {
     it('updates email', async () => {
-      const user = await UserModel.create('profile1', 'profile1@example.com', 'password123');
+      const user = await UserModel.create('profile1', 'profile1@example.com', 'Wh1sk3yTest!!');
 
       const updated = UserModel.updateProfile(user.id, { email: 'updated@example.com' });
 
@@ -202,7 +202,7 @@ describe('UserModel', () => {
     });
 
     it('updates firstName and lastName', async () => {
-      const user = await UserModel.create('profile2', 'profile2@example.com', 'password123');
+      const user = await UserModel.create('profile2', 'profile2@example.com', 'Wh1sk3yTest!!');
 
       const updated = UserModel.updateProfile(user.id, {
         firstName: 'Jane',
@@ -214,7 +214,7 @@ describe('UserModel', () => {
     });
 
     it('updates multiple fields at once', async () => {
-      const user = await UserModel.create('profile3', 'profile3@example.com', 'password123');
+      const user = await UserModel.create('profile3', 'profile3@example.com', 'Wh1sk3yTest!!');
 
       const updated = UserModel.updateProfile(user.id, {
         email: 'multi@example.com',
@@ -228,7 +228,7 @@ describe('UserModel', () => {
     });
 
     it('returns existing user when no updates provided', async () => {
-      const user = await UserModel.create('profile4', 'profile4@example.com', 'password123');
+      const user = await UserModel.create('profile4', 'profile4@example.com', 'Wh1sk3yTest!!');
 
       const updated = UserModel.updateProfile(user.id, {});
 
@@ -242,7 +242,7 @@ describe('UserModel', () => {
     });
 
     it('clears firstName/lastName when set to empty string', async () => {
-      const user = await UserModel.create('profile5', 'profile5@example.com', 'password123', Role.EDITOR, 'First', 'Last');
+      const user = await UserModel.create('profile5', 'profile5@example.com', 'Wh1sk3yTest!!', Role.EDITOR, 'First', 'Last');
 
       const updated = UserModel.updateProfile(user.id, {
         firstName: '',
@@ -256,7 +256,7 @@ describe('UserModel', () => {
 
   describe('updateProfilePhoto', () => {
     it('updates profile photo path', async () => {
-      const user = await UserModel.create('photo1', 'photo1@example.com', 'password123');
+      const user = await UserModel.create('photo1', 'photo1@example.com', 'Wh1sk3yTest!!');
 
       const updated = UserModel.updateProfilePhoto(user.id, '/uploads/profiles/photo.jpg');
 
@@ -264,7 +264,7 @@ describe('UserModel', () => {
     });
 
     it('clears profile photo when set to empty string', async () => {
-      const user = await UserModel.create('photo2', 'photo2@example.com', 'password123');
+      const user = await UserModel.create('photo2', 'photo2@example.com', 'Wh1sk3yTest!!');
       UserModel.updateProfilePhoto(user.id, '/uploads/profiles/photo.jpg');
 
       const updated = UserModel.updateProfilePhoto(user.id, '');
@@ -281,7 +281,7 @@ describe('UserModel', () => {
 
   describe('delete', () => {
     it('deletes user', async () => {
-      const user = await UserModel.create('deleteme', 'delete@example.com', 'password123');
+      const user = await UserModel.create('deleteme', 'delete@example.com', 'Wh1sk3yTest!!');
 
       const deleted = UserModel.delete(user.id);
 
@@ -296,7 +296,7 @@ describe('UserModel', () => {
     });
 
     it('cascades delete to whiskeys', async () => {
-      const user = await UserModel.create('cascade', 'cascade@example.com', 'password123');
+      const user = await UserModel.create('cascade', 'cascade@example.com', 'Wh1sk3yTest!!');
 
       // Create a whiskey for this user
       testDb.prepare(`
@@ -329,7 +329,7 @@ describe('UserModel', () => {
 
   describe('incrementVerificationAttempts', () => {
     it('increments verification attempts for user', async () => {
-      const user = await UserModel.create('attempts', 'attempts@example.com', 'password123');
+      const user = await UserModel.create('attempts', 'attempts@example.com', 'Wh1sk3yTest!!');
 
       const attempts1 = UserModel.incrementVerificationAttempts(user.id);
       expect(attempts1).toBe(1);
@@ -346,7 +346,7 @@ describe('UserModel', () => {
 
   describe('markEmailVerified', () => {
     it('marks user email as verified', async () => {
-      const user = await UserModel.create('unverified', 'unverified@example.com', 'password123');
+      const user = await UserModel.create('unverified', 'unverified@example.com', 'Wh1sk3yTest!!');
 
       // Set verification code first
       testDb.prepare(`
@@ -372,7 +372,7 @@ describe('UserModel', () => {
 
   describe('setPasswordResetToken', () => {
     it('sets password reset token for user', async () => {
-      const user = await UserModel.create('resettoken', 'resettoken@example.com', 'password123');
+      const user = await UserModel.create('resettoken', 'resettoken@example.com', 'Wh1sk3yTest!!');
       const token = 'reset-token-abc123';
       const expiresAt = new Date(Date.now() + 3600000); // 1 hour from now
 
@@ -393,7 +393,7 @@ describe('UserModel', () => {
 
   describe('findByPasswordResetToken', () => {
     it('finds user by valid password reset token', async () => {
-      const user = await UserModel.create('resetuser', 'reset@example.com', 'password123');
+      const user = await UserModel.create('resetuser', 'reset@example.com', 'Wh1sk3yTest!!');
       const token = 'valid-reset-token-123';
 
       // Set the password reset token directly in the database
@@ -424,7 +424,7 @@ describe('UserModel', () => {
 
   describe('clearPasswordResetToken', () => {
     it('clears password reset token for user', async () => {
-      const user = await UserModel.create('clearuser', 'clear@example.com', 'password123');
+      const user = await UserModel.create('clearuser', 'clear@example.com', 'Wh1sk3yTest!!');
       const token = 'token-to-clear';
 
       // Set the password reset token
@@ -458,7 +458,7 @@ describe('UserModel', () => {
 
   describe('updateVisibility', () => {
     it('updates profile visibility to public', async () => {
-      const user = await UserModel.create('visuser1', 'vis1@example.com', 'password123');
+      const user = await UserModel.create('visuser1', 'vis1@example.com', 'Wh1sk3yTest!!');
 
       const updated = UserModel.updateVisibility(user.id, true);
 
@@ -467,7 +467,7 @@ describe('UserModel', () => {
     });
 
     it('updates profile visibility to private', async () => {
-      const user = await UserModel.create('visuser2', 'vis2@example.com', 'password123');
+      const user = await UserModel.create('visuser2', 'vis2@example.com', 'Wh1sk3yTest!!');
       // First make public
       UserModel.updateVisibility(user.id, true);
 
@@ -485,13 +485,13 @@ describe('UserModel', () => {
     });
 
     it('defaults to private (0) for new users', async () => {
-      const user = await UserModel.create('visdefault', 'visdefault@example.com', 'password123');
+      const user = await UserModel.create('visdefault', 'visdefault@example.com', 'Wh1sk3yTest!!');
 
       expect(user.is_profile_public).toBe(0);
     });
 
     it('toggle visibility multiple times', async () => {
-      const user = await UserModel.create('vistoggle', 'vistoggle@example.com', 'password123');
+      const user = await UserModel.create('vistoggle', 'vistoggle@example.com', 'Wh1sk3yTest!!');
 
       // Toggle to public
       let updated = UserModel.updateVisibility(user.id, true);
@@ -509,7 +509,7 @@ describe('UserModel', () => {
 
   describe('getPublicProfile', () => {
     it('returns public profile for existing user', async () => {
-      const user = await UserModel.create('pubuser', 'pub@example.com', 'password123', Role.EDITOR, 'Public', 'User');
+      const user = await UserModel.create('pubuser', 'pub@example.com', 'Wh1sk3yTest!!', Role.EDITOR, 'Public', 'User');
       UserModel.updateVisibility(user.id, true);
 
       const profile = UserModel.getPublicProfile('pubuser');
@@ -525,7 +525,7 @@ describe('UserModel', () => {
     });
 
     it('returns profile for private user (visibility check done in route)', async () => {
-      const user = await UserModel.create('privuser', 'priv@example.com', 'password123');
+      const user = await UserModel.create('privuser', 'priv@example.com', 'Wh1sk3yTest!!');
 
       const profile = UserModel.getPublicProfile('privuser');
 
@@ -540,7 +540,7 @@ describe('UserModel', () => {
     });
 
     it('does not include sensitive fields in public profile', async () => {
-      const user = await UserModel.create('sensitiveuser', 'sensitive@example.com', 'password123');
+      const user = await UserModel.create('sensitiveuser', 'sensitive@example.com', 'Wh1sk3yTest!!');
 
       const profile = UserModel.getPublicProfile('sensitiveuser');
 
@@ -553,7 +553,7 @@ describe('UserModel', () => {
     });
 
     it('includes profile_photo in public profile', async () => {
-      const user = await UserModel.create('photouser', 'photo@example.com', 'password123');
+      const user = await UserModel.create('photouser', 'photo@example.com', 'Wh1sk3yTest!!');
       UserModel.updateProfilePhoto(user.id, '/uploads/profiles/avatar.jpg');
 
       const profile = UserModel.getPublicProfile('photouser');
@@ -563,7 +563,7 @@ describe('UserModel', () => {
 
     it('handles username with special characters', async () => {
       // Note: If usernames with special chars are allowed
-      const user = await UserModel.create('user_name', 'special@example.com', 'password123');
+      const user = await UserModel.create('user_name', 'special@example.com', 'Wh1sk3yTest!!');
 
       const profile = UserModel.getPublicProfile('user_name');
 
@@ -572,7 +572,7 @@ describe('UserModel', () => {
     });
 
     it('is case-sensitive for username lookup', async () => {
-      await UserModel.create('CaseSensitive', 'case@example.com', 'password123');
+      await UserModel.create('CaseSensitive', 'case@example.com', 'Wh1sk3yTest!!');
 
       const exactMatch = UserModel.getPublicProfile('CaseSensitive');
       const lowercaseMatch = UserModel.getPublicProfile('casesensitive');
@@ -584,9 +584,9 @@ describe('UserModel', () => {
 
   describe('findPublicProfiles', () => {
     it('returns only public profiles', async () => {
-      await UserModel.create('public1', 'public1@example.com', 'password123');
-      await UserModel.create('public2', 'public2@example.com', 'password123');
-      await UserModel.create('private1', 'private1@example.com', 'password123');
+      await UserModel.create('public1', 'public1@example.com', 'Wh1sk3yTest!!');
+      await UserModel.create('public2', 'public2@example.com', 'Wh1sk3yTest!!');
+      await UserModel.create('private1', 'private1@example.com', 'Wh1sk3yTest!!');
 
       // Make first two public
       const user1 = UserModel.findByUsername('public1');
@@ -601,8 +601,8 @@ describe('UserModel', () => {
     });
 
     it('returns empty array when no public profiles exist', async () => {
-      await UserModel.create('allprivate1', 'allpriv1@example.com', 'password123');
-      await UserModel.create('allprivate2', 'allpriv2@example.com', 'password123');
+      await UserModel.create('allprivate1', 'allpriv1@example.com', 'Wh1sk3yTest!!');
+      await UserModel.create('allprivate2', 'allpriv2@example.com', 'Wh1sk3yTest!!');
 
       const publicProfiles = UserModel.findPublicProfiles();
 
@@ -610,7 +610,7 @@ describe('UserModel', () => {
     });
 
     it('does not include sensitive fields in results', async () => {
-      const user = await UserModel.create('publiclist', 'publiclist@example.com', 'password123');
+      const user = await UserModel.create('publiclist', 'publiclist@example.com', 'Wh1sk3yTest!!');
       UserModel.updateVisibility(user.id, true);
 
       const publicProfiles = UserModel.findPublicProfiles();
@@ -621,8 +621,8 @@ describe('UserModel', () => {
     });
 
     it('orders profiles by created_at descending', async () => {
-      const user1 = await UserModel.create('first_pub', 'first@example.com', 'password123');
-      const user2 = await UserModel.create('second_pub', 'second@example.com', 'password123');
+      const user1 = await UserModel.create('first_pub', 'first@example.com', 'Wh1sk3yTest!!');
+      const user2 = await UserModel.create('second_pub', 'second@example.com', 'Wh1sk3yTest!!');
 
       UserModel.updateVisibility(user1.id, true);
       UserModel.updateVisibility(user2.id, true);
@@ -635,7 +635,7 @@ describe('UserModel', () => {
     });
 
     it('updates list when profile visibility changes', async () => {
-      const user = await UserModel.create('togglelist', 'togglelist@example.com', 'password123');
+      const user = await UserModel.create('togglelist', 'togglelist@example.com', 'Wh1sk3yTest!!');
 
       // Initially private
       let publicProfiles = UserModel.findPublicProfiles();
@@ -655,7 +655,7 @@ describe('UserModel', () => {
 
   describe('Integration: Visibility and Directory Listing', () => {
     it('user appears in public directory after making profile public', async () => {
-      const user = await UserModel.create('newpublic', 'newpublic@example.com', 'password123');
+      const user = await UserModel.create('newpublic', 'newpublic@example.com', 'Wh1sk3yTest!!');
 
       // Not in directory initially
       let directory = UserModel.findPublicProfiles();
@@ -672,7 +672,7 @@ describe('UserModel', () => {
     });
 
     it('user disappears from public directory after making profile private', async () => {
-      const user = await UserModel.create('waspublic', 'waspublic@example.com', 'password123');
+      const user = await UserModel.create('waspublic', 'waspublic@example.com', 'Wh1sk3yTest!!');
 
       // Make public first
       UserModel.updateVisibility(user.id, true);
@@ -690,7 +690,7 @@ describe('UserModel', () => {
     });
 
     it('public profile visible via getPublicProfile after visibility change', async () => {
-      const user = await UserModel.create('vischange', 'vischange@example.com', 'password123');
+      const user = await UserModel.create('vischange', 'vischange@example.com', 'Wh1sk3yTest!!');
 
       // Get profile - should show as private
       let profile = UserModel.getPublicProfile('vischange');
@@ -705,10 +705,10 @@ describe('UserModel', () => {
     });
 
     it('multiple users with different visibility states', async () => {
-      const public1 = await UserModel.create('multi_public1', 'mp1@example.com', 'password123');
-      const public2 = await UserModel.create('multi_public2', 'mp2@example.com', 'password123');
-      const private1 = await UserModel.create('multi_private1', 'mpv1@example.com', 'password123');
-      const private2 = await UserModel.create('multi_private2', 'mpv2@example.com', 'password123');
+      const public1 = await UserModel.create('multi_public1', 'mp1@example.com', 'Wh1sk3yTest!!');
+      const public2 = await UserModel.create('multi_public2', 'mp2@example.com', 'Wh1sk3yTest!!');
+      const private1 = await UserModel.create('multi_private1', 'mpv1@example.com', 'Wh1sk3yTest!!');
+      const private2 = await UserModel.create('multi_private2', 'mpv2@example.com', 'Wh1sk3yTest!!');
 
       // Make some public
       UserModel.updateVisibility(public1.id, true);
@@ -724,7 +724,7 @@ describe('UserModel', () => {
     });
 
     it('visibility change persists through findById', async () => {
-      const user = await UserModel.create('persist', 'persist@example.com', 'password123');
+      const user = await UserModel.create('persist', 'persist@example.com', 'Wh1sk3yTest!!');
 
       // Initially private
       expect(UserModel.findById(user.id)?.is_profile_public).toBe(0);

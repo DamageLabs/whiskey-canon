@@ -167,3 +167,19 @@ vi.mock('../middleware/csrf', () => ({
   csrfProtection: (_req: any, _res: any, next: any) => next(),
   generateToken: (_req: any, _res: any) => 'test-csrf-token',
 }));
+
+// Mock password policy to avoid external HIBP API calls in tests
+vi.mock('../utils/password-policy', async (importOriginal) => {
+  const original = await importOriginal<typeof import('../utils/password-policy')>();
+  return {
+    ...original,
+    isPasswordBreached: vi.fn().mockResolvedValue(false),
+    validatePassword: vi.fn().mockImplementation(async (password: string) => {
+      const result = original.checkPasswordComplexity(password);
+      if (!result.isValid) {
+        throw new Error(result.errors.join('. '));
+      }
+      // Skip HIBP check in tests by default
+    }),
+  };
+});

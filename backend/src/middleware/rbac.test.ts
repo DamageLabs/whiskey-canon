@@ -36,7 +36,7 @@ describe('RBAC Middleware', () => {
     });
 
     it('allows access when user has required permission (EDITOR with READ_WHISKEY)', async () => {
-      const user = await createTestUser('editor', 'editor@test.com', 'password123', Role.EDITOR);
+      const user = await createTestUser('editor', 'editor@test.com', 'Wh1sk3yTest!!', Role.EDITOR);
 
       app.post('/set-session', (req, res) => {
         req.session.userId = user.id;
@@ -57,7 +57,7 @@ describe('RBAC Middleware', () => {
     });
 
     it('allows access when user has required permission (ADMIN with MANAGE_USERS)', async () => {
-      const user = await createTestUser('admin', 'admin@test.com', 'password123', Role.ADMIN);
+      const user = await createTestUser('admin', 'admin@test.com', 'Wh1sk3yTest!!', Role.ADMIN);
 
       app.post('/set-session', (req, res) => {
         req.session.userId = user.id;
@@ -78,7 +78,7 @@ describe('RBAC Middleware', () => {
     });
 
     it('denies access when user lacks required permission (EDITOR with MANAGE_USERS)', async () => {
-      const user = await createTestUser('editor', 'editor@test.com', 'password123', Role.EDITOR);
+      const user = await createTestUser('editor', 'editor@test.com', 'Wh1sk3yTest!!', Role.EDITOR);
 
       app.post('/set-session', (req, res) => {
         req.session.userId = user.id;
@@ -101,7 +101,7 @@ describe('RBAC Middleware', () => {
     });
 
     it('denies access when user lacks required permission (EDITOR with DELETE_WHISKEY)', async () => {
-      const user = await createTestUser('editor', 'editor@test.com', 'password123', Role.EDITOR);
+      const user = await createTestUser('editor', 'editor@test.com', 'Wh1sk3yTest!!', Role.EDITOR);
 
       app.post('/set-session', (req, res) => {
         req.session.userId = user.id;
@@ -122,7 +122,7 @@ describe('RBAC Middleware', () => {
     });
 
     it('allows ADMIN access to all whiskey permissions', async () => {
-      const user = await createTestUser('admin', 'admin@test.com', 'password123', Role.ADMIN);
+      const user = await createTestUser('admin', 'admin@test.com', 'Wh1sk3yTest!!', Role.ADMIN);
 
       app.post('/set-session', (req, res) => {
         req.session.userId = user.id;
@@ -162,7 +162,7 @@ describe('RBAC Middleware', () => {
     });
 
     it('allows access when user has required role', async () => {
-      const user = await createTestUser('admin', 'admin@test.com', 'password123', Role.ADMIN);
+      const user = await createTestUser('admin', 'admin@test.com', 'Wh1sk3yTest!!', Role.ADMIN);
 
       app.post('/set-session', (req, res) => {
         req.session.userId = user.id;
@@ -183,7 +183,7 @@ describe('RBAC Middleware', () => {
     });
 
     it('denies access when user has different role', async () => {
-      const user = await createTestUser('editor', 'editor@test.com', 'password123', Role.EDITOR);
+      const user = await createTestUser('editor', 'editor@test.com', 'Wh1sk3yTest!!', Role.EDITOR);
 
       app.post('/set-session', (req, res) => {
         req.session.userId = user.id;
@@ -206,7 +206,7 @@ describe('RBAC Middleware', () => {
     });
 
     it('allows access when user has one of multiple allowed roles', async () => {
-      const editor = await createTestUser('editor', 'editor@test.com', 'password123', Role.EDITOR);
+      const editor = await createTestUser('editor', 'editor@test.com', 'Wh1sk3yTest!!', Role.EDITOR);
 
       app.post('/set-session', (req, res) => {
         req.session.userId = editor.id;
@@ -228,7 +228,7 @@ describe('RBAC Middleware', () => {
     });
 
     it('denies access when user role not in allowed list', async () => {
-      const editor = await createTestUser('editor', 'editor@test.com', 'password123', Role.EDITOR);
+      const editor = await createTestUser('editor', 'editor@test.com', 'Wh1sk3yTest!!', Role.EDITOR);
 
       app.post('/set-session', (req, res) => {
         req.session.userId = editor.id;

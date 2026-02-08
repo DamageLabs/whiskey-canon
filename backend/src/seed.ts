@@ -17,7 +17,7 @@ async function seed() {
     const admin = await UserModel.create(
       'admin',
       'admin@whiskeycanon.com',
-      'password123',
+      'Wh1sk3yTest!!',
       Role.ADMIN,
       'Admin',
       'User'
@@ -26,7 +26,7 @@ async function seed() {
     const editor = await UserModel.create(
       'collector',
       'collector@whiskeycanon.com',
-      'password123',
+      'Wh1sk3yTest!!',
       Role.EDITOR,
       'John',
       'Collector'
@@ -35,7 +35,7 @@ async function seed() {
     const viewer = await UserModel.create(
       'enthusiast',
       'enthusiast@whiskeycanon.com',
-      'password123',
+      'Wh1sk3yTest!!',
       Role.VIEWER,
       'Sarah',
       'Enthusiast'
@@ -653,9 +653,9 @@ async function seed() {
     console.log('📊 Seed Summary:');
     console.log('================');
     console.log(`Users created: 3`);
-    console.log(`  - Admin: admin / password123`);
-    console.log(`  - Editor: collector / password123`);
-    console.log(`  - Viewer: enthusiast / password123`);
+    console.log(`  - Admin: admin / Wh1sk3yTest!!`);
+    console.log(`  - Editor: collector / Wh1sk3yTest!!`);
+    console.log(`  - Viewer: enthusiast / Wh1sk3yTest!!`);
     console.log(`\nWhiskeys created: ${whiskeys.length}`);
 
     const typeCount = whiskeys.reduce((acc, w) => {
@@ -687,7 +687,7 @@ async function seed() {
     console.log('\n✅ Database seeded successfully!');
     console.log('\nYou can now login with:');
     console.log('  Username: admin');
-    console.log('  Password: password123\n');
+    console.log('  Password: Wh1sk3yTest!!\n');
 
   } catch (error) {
     console.error('❌ Error seeding database:', error);

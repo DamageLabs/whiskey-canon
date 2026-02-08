@@ -1,5 +1,6 @@
 import express, { Response } from 'express';
-import { body, validationResult } from 'express-validator';
+import { body, param, validationResult } from 'express-validator';
+import { validate } from '../middleware/validate';
 import { CommentModel } from '../models/Comment';
 import { WhiskeyModel } from '../models/Whiskey';
 import { AuthRequest, requireAuth } from '../middleware/auth';
@@ -11,12 +12,10 @@ const router = express.Router();
 router.get(
   '/whiskey/:whiskeyId',
   requireAuth,
+  param('whiskeyId').isInt({ min: 1 }).withMessage('Whiskey ID must be a positive integer'),
+  validate,
   async (req: AuthRequest, res: Response) => {
     const whiskeyId = parseInt(req.params.whiskeyId);
-
-    if (isNaN(whiskeyId)) {
-      return res.status(400).json({ error: 'Invalid whiskey ID' });
-    }
 
     try {
       // Check if user has access to this whiskey
@@ -43,12 +42,10 @@ router.get(
 router.get(
   '/whiskey/:whiskeyId/count',
   requireAuth,
+  param('whiskeyId').isInt({ min: 1 }).withMessage('Whiskey ID must be a positive integer'),
+  validate,
   async (req: AuthRequest, res: Response) => {
     const whiskeyId = parseInt(req.params.whiskeyId);
-
-    if (isNaN(whiskeyId)) {
-      return res.status(400).json({ error: 'Invalid whiskey ID' });
-    }
 
     try {
       const count = CommentModel.countByWhiskeyId(whiskeyId);
@@ -65,6 +62,7 @@ router.post(
   '/whiskey/:whiskeyId',
   requireAuth,
   [
+    param('whiskeyId').isInt({ min: 1 }).withMessage('Whiskey ID must be a positive integer'),
     body('content').trim().isLength({ min: 1, max: 2000 }).withMessage('Comment must be between 1 and 2000 characters')
   ],
   async (req: AuthRequest, res: Response) => {
@@ -75,10 +73,6 @@ router.post(
 
     const whiskeyId = parseInt(req.params.whiskeyId);
     const { content } = req.body;
-
-    if (isNaN(whiskeyId)) {
-      return res.status(400).json({ error: 'Invalid whiskey ID' });
-    }
 
     try {
       // Check if whiskey exists and user has access
@@ -106,6 +100,7 @@ router.put(
   '/:id',
   requireAuth,
   [
+    param('id').isInt({ min: 1 }).withMessage('Comment ID must be a positive integer'),
     body('content').trim().isLength({ min: 1, max: 2000 }).withMessage('Comment must be between 1 and 2000 characters')
   ],
   async (req: AuthRequest, res: Response) => {
@@ -116,10 +111,6 @@ router.put(
 
     const commentId = parseInt(req.params.id);
     const { content } = req.body;
-
-    if (isNaN(commentId)) {
-      return res.status(400).json({ error: 'Invalid comment ID' });
-    }
 
     try {
       // Check if user owns the comment or is admin
@@ -144,12 +135,10 @@ router.put(
 router.delete(
   '/:id',
   requireAuth,
+  param('id').isInt({ min: 1 }).withMessage('Comment ID must be a positive integer'),
+  validate,
   async (req: AuthRequest, res: Response) => {
     const commentId = parseInt(req.params.id);
-
-    if (isNaN(commentId)) {
-      return res.status(400).json({ error: 'Invalid comment ID' });
-    }
 
     try {
       // Check if user owns the comment or is admin

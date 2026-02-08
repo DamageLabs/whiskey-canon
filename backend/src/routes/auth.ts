@@ -1,5 +1,6 @@
 import express, { Request, Response } from 'express';
 import { body, validationResult } from 'express-validator';
+import { validate } from '../middleware/validate';
 import { UserModel } from '../models/User';
 import { Role } from '../types';
 import { AuthRequest, requireAuth } from '../middleware/auth';
@@ -506,16 +507,14 @@ router.post(
 router.patch(
   '/settings/visibility',
   requireAuth,
+  body('isPublic').isBoolean().withMessage('isPublic must be a boolean'),
+  validate,
   async (req: AuthRequest, res: Response) => {
     if (!req.user) {
       return res.status(401).json({ error: 'Not authenticated' });
     }
 
     const { isPublic } = req.body;
-
-    if (typeof isPublic !== 'boolean') {
-      return res.status(400).json({ error: 'isPublic must be a boolean' });
-    }
 
     try {
       const updatedUser = UserModel.updateVisibility(req.user.id, isPublic);

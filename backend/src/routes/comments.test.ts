@@ -93,7 +93,7 @@ describe('Comment Routes', () => {
       const response = await agent.get('/api/comments/whiskey/invalid');
 
       expect(response.status).toBe(400);
-      expect(response.body.error).toBe('Invalid whiskey ID');
+      expect(response.body.errors).toBeDefined();
     });
   });
 

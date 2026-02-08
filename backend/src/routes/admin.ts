@@ -1,5 +1,6 @@
 import express, { Response } from 'express';
-import { body, validationResult } from 'express-validator';
+import { body, param, validationResult } from 'express-validator';
+import { validate } from '../middleware/validate';
 import { UserModel } from '../models/User';
 import { WhiskeyModel } from '../models/Whiskey';
 import { Role } from '../types';
@@ -37,6 +38,7 @@ router.put(
   '/users/:id/role',
   requirePermission(Permission.MANAGE_USERS),
   [
+    param('id').isInt({ min: 1 }).withMessage('User ID must be a positive integer'),
     body('role').isIn(Object.values(Role)).withMessage('Invalid role')
   ],
   (req: AuthRequest, res: Response) => {
@@ -76,6 +78,7 @@ router.put(
   '/users/:id',
   requirePermission(Permission.MANAGE_USERS),
   [
+    param('id').isInt({ min: 1 }).withMessage('User ID must be a positive integer'),
     body('email').optional().isEmail().withMessage('Invalid email'),
     body('username').optional().trim().isLength({ min: 3 }).withMessage('Username must be at least 3 characters'),
     body('firstName').optional().trim(),
@@ -138,6 +141,8 @@ router.put(
 router.delete(
   '/users/:id',
   requirePermission(Permission.MANAGE_USERS),
+  param('id').isInt({ min: 1 }).withMessage('User ID must be a positive integer'),
+  validate,
   (req: AuthRequest, res: Response) => {
     try {
       const userId = parseInt(req.params.id);

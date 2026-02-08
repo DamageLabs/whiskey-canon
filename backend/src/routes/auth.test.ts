@@ -837,7 +837,8 @@ describe('Auth Routes', () => {
         .send({ isPublic: 'yes' });
 
       expect(response.status).toBe(400);
-      expect(response.body.error).toBe('isPublic must be a boolean');
+      expect(response.body.errors).toBeDefined();
+      expect(response.body.errors[0].msg).toBe('isPublic must be a boolean');
     });
 
     it('returns 400 when isPublic is missing', async () => {
@@ -848,7 +849,8 @@ describe('Auth Routes', () => {
         .send({});
 
       expect(response.status).toBe(400);
-      expect(response.body.error).toBe('isPublic must be a boolean');
+      expect(response.body.errors).toBeDefined();
+      expect(response.body.errors[0].msg).toBe('isPublic must be a boolean');
     });
 
     it('does not return password in response', async () => {

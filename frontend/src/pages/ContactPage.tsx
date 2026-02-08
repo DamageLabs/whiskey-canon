@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Footer } from '../components/Footer';
+import { getCsrfHeaders } from '../utils/csrf';
 
 export function ContactPage() {
   const navigate = useNavigate();
@@ -19,9 +20,10 @@ export function ContactPage() {
     setError('');
 
     try {
+      const csrfHeaders = await getCsrfHeaders();
       const response = await fetch('/api/contact', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...csrfHeaders },
         credentials: 'include',
         body: JSON.stringify(formData),
       });

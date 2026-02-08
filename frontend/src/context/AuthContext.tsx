@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { User } from '../types';
 import { authAPI } from '../services/api';
+import { ensureCsrfToken } from '../utils/csrf';
 
 interface AuthContextType {
   user: User | null;
@@ -21,6 +22,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    ensureCsrfToken().catch(() => {});
     checkAuth();
   }, []);
 

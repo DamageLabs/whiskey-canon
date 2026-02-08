@@ -1,14 +1,21 @@
 import express, { Response } from 'express';
+import { param } from 'express-validator';
 import { UserModel } from '../models/User';
 import { WhiskeyModel } from '../models/Whiskey';
 import { AuthRequest, attachUser } from '../middleware/auth';
+import { validate } from '../middleware/validate';
 import { Role } from '../types';
 
 const router = express.Router();
 
 // Get public stats for a user
 // Returns 404 for private profiles to avoid leaking user existence
-router.get('/:username/stats', attachUser, (req: AuthRequest, res: Response) => {
+router.get(
+  '/:username/stats',
+  attachUser,
+  param('username').trim().notEmpty().isLength({ min: 3, max: 50 }).withMessage('Invalid username'),
+  validate,
+  (req: AuthRequest, res: Response) => {
   const { username } = req.params;
 
   try {
@@ -37,7 +44,12 @@ router.get('/:username/stats', attachUser, (req: AuthRequest, res: Response) => 
 
 // Get public profile by username
 // Returns 404 for private profiles to avoid leaking user existence
-router.get('/:username', attachUser, (req: AuthRequest, res: Response) => {
+router.get(
+  '/:username',
+  attachUser,
+  param('username').trim().notEmpty().isLength({ min: 3, max: 50 }).withMessage('Invalid username'),
+  validate,
+  (req: AuthRequest, res: Response) => {
   const { username } = req.params;
 
   try {

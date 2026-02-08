@@ -1,5 +1,6 @@
 import express, { Response } from 'express';
-import { body, query, validationResult } from 'express-validator';
+import { body, param, query, validationResult } from 'express-validator';
+import { validate } from '../middleware/validate';
 import multer from 'multer';
 import { WhiskeyModel } from '../models/Whiskey';
 import { WhiskeyType, Permission } from '../types';
@@ -555,6 +556,8 @@ router.post(
 router.get(
   '/:id',
   requirePermission(Permission.READ_WHISKEY),
+  param('id').isInt({ min: 1 }).withMessage('Whiskey ID must be a positive integer'),
+  validate,
   (req: AuthRequest, res: Response) => {
     try {
       const whiskey = WhiskeyModel.findById(parseInt(req.params.id), req.user!.id);
@@ -625,6 +628,7 @@ router.put(
   '/:id',
   requirePermission(Permission.UPDATE_WHISKEY),
   [
+    param('id').isInt({ min: 1 }).withMessage('Whiskey ID must be a positive integer'),
     body('name').optional().trim().notEmpty(),
     body('type').optional().isIn(Object.values(WhiskeyType)),
     body('distillery').optional().trim().notEmpty(),
@@ -725,6 +729,8 @@ router.delete(
 router.delete(
   '/:id',
   requirePermission(Permission.DELETE_WHISKEY),
+  param('id').isInt({ min: 1 }).withMessage('Whiskey ID must be a positive integer'),
+  validate,
   (req: AuthRequest, res: Response) => {
     try {
       const deleted = WhiskeyModel.delete(parseInt(req.params.id), req.user!.id);

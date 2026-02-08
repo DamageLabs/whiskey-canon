@@ -61,14 +61,14 @@ npm run db:add-indexes       # Add performance indexes
 ## Test Users
 
 After running `npm run seed:demo`:
-- `bourbon_lover`, `scotch_fan`, `curator`, `beginner`, `investor` (password: `demo123`)
-- `admin` (password: `admin123`)
+- `bourbon_lover`, `scotch_fan`, `curator`, `beginner`, `investor` (password: `Wh1sk3yDemo!!`)
+- `admin` (password: `Adm1nWh1skey!!`)
 
 After running `npm run db:seed:users`:
-- `alice_admin` (password: `Admin123!`)
-- `bob_editor` (password: `Editor123!`)
-- `charlie_viewer` (password: `Viewer123!`)
-- `diana_editor` (password: `Editor456!`)
+- `alice_admin` (password: `Adm1nWh1skey!!`)
+- `bob_editor` (password: `Ed1torTest!!`)
+- `charlie_viewer` (password: `V1ewerTest!!`)
+- `diana_editor` (password: `Ed1torDemo!!`)
 
 ## API Endpoints
 

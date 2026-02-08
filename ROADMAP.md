@@ -1,7 +1,7 @@
 # Whiskey Canon Roadmap
 
-> Prioritized development roadmap covering all 44 open issues.
-> Last updated: 2026-02-07
+> Prioritized development roadmap covering all open issues.
+> Last updated: 2026-02-08
 
 ## How to Read This Roadmap
 
@@ -17,22 +17,22 @@ Issues are grouped into **5 milestones** ordered by priority. Within each milest
 
 ---
 
-## Milestone 1: Security & Stability
+## ~~Milestone 1: Security & Stability~~ (Complete)
 
-*Protect user data, harden the server, and close security gaps before adding features.*
+*All 8 issues resolved as of 2026-02-08. The application now has a hardened security baseline.*
 
-| # | Issue | Type | Area | Rationale |
-|---|-------|------|------|-----------|
-| 1 | [#46 — Add Helmet middleware for HTTP security headers](https://github.com/DamageLabs/whiskey-canon/issues/46) | Security | Backend | One-line middleware add; immediate protection against clickjacking, MIME sniffing, and XSS. |
-| 2 | [#43 — Add express-rate-limit to auth endpoints](https://github.com/DamageLabs/whiskey-canon/issues/43) | Security | Backend | Prevents brute-force login attacks. Small, isolated change. |
-| 3 | [#49 — Validate required environment variables at startup](https://github.com/DamageLabs/whiskey-canon/issues/49) | Security | Backend | Fail-fast on misconfiguration; prevents silent runtime errors with missing keys. |
-| 4 | [#44 — Replace in-memory session store with persistent store](https://github.com/DamageLabs/whiskey-canon/issues/44) | Stability | Backend | In-memory sessions are lost on restart and leak memory in production. |
-| 5 | [#52 — Enforce stronger password policy](https://github.com/DamageLabs/whiskey-canon/issues/52) | Security | Full-stack | Weak passwords are the #1 account compromise vector. |
-| 6 | [#45 — Add CSRF token validation](https://github.com/DamageLabs/whiskey-canon/issues/45) | Security | Full-stack | Session-based auth without CSRF tokens is vulnerable to cross-site request forgery. |
-| 7 | [#47 — Add express-validator to all routes](https://github.com/DamageLabs/whiskey-canon/issues/47) | Security | Backend | Many routes accept user input without validation; prevents injection and malformed data. |
-| 8 | [#51 — Create security hardening checklist](https://github.com/DamageLabs/whiskey-canon/issues/51) | Docs | Backend | Documents the security posture after the above items are complete; guides deployment. |
+| # | Issue | Status |
+|---|-------|--------|
+| 1 | [#46 — Add Helmet middleware for HTTP security headers](https://github.com/DamageLabs/whiskey-canon/issues/46) | Closed |
+| 2 | [#43 — Add express-rate-limit to auth endpoints](https://github.com/DamageLabs/whiskey-canon/issues/43) | Closed |
+| 3 | [#49 — Validate required environment variables at startup](https://github.com/DamageLabs/whiskey-canon/issues/49) | Closed |
+| 4 | [#44 — Replace in-memory session store with persistent store](https://github.com/DamageLabs/whiskey-canon/issues/44) | Closed |
+| 5 | [#52 — Enforce stronger password policy](https://github.com/DamageLabs/whiskey-canon/issues/52) | Closed |
+| 6 | [#45 — Add CSRF token validation](https://github.com/DamageLabs/whiskey-canon/issues/45) | Closed |
+| 7 | [#47 — Add express-validator to all routes](https://github.com/DamageLabs/whiskey-canon/issues/47) | Closed |
+| 8 | [#51 — Create security hardening checklist](https://github.com/DamageLabs/whiskey-canon/issues/51) | Closed |
 
-**Estimated scope:** 8 issues, primarily backend, mostly small-to-medium changes.
+See [docs/security-hardening.md](docs/security-hardening.md) for the full deployment security checklist and architecture overview.
 
 ---
 
@@ -146,7 +146,7 @@ Key dependency chains that affect implementation order:
 
 | Category | Count | Issues |
 |----------|-------|--------|
-| Security | 8 | #43, #45, #46, #47, #48, #49, #51, #52 |
+| ~~Security~~ | ~~8~~ | ~~#43, #45, #46, #47, #48, #49, #51, #52~~ (all closed) |
 | Testing | 3 | #53, #54, #55 |
 | Infrastructure / DX | 5 | #50, #56, #57, #67, #70 |
 | Performance | 3 | #59, #66, #67 |
@@ -164,8 +164,5 @@ Issues that deliver visible value with minimal effort (< 1 day each):
 
 | Issue | Effort | Impact |
 |-------|--------|--------|
-| [#46 — Helmet middleware](https://github.com/DamageLabs/whiskey-canon/issues/46) | ~30 min | High (security headers) |
-| [#43 — Rate limiting](https://github.com/DamageLabs/whiskey-canon/issues/43) | ~1 hour | High (brute-force protection) |
-| [#49 — Env validation](https://github.com/DamageLabs/whiskey-canon/issues/49) | ~1 hour | Medium (fail-fast startup) |
 | [#36 — Table row contrast](https://github.com/DamageLabs/whiskey-canon/issues/36) | ~30 min | Medium (readability) |
 | [#67 — Bundle analysis + lazy loading](https://github.com/DamageLabs/whiskey-canon/issues/67) | ~2 hours | High (780KB → split bundles) |

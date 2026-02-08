@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.0] - 2026-02-08
+
+### Security
+
+- **Milestone 1: Security & Stability — Complete.** All 8 issues resolved, establishing a hardened security baseline for the application.
+- Add Helmet middleware with strict Content Security Policy and HSTS ([#46](https://github.com/DamageLabs/whiskey-canon/issues/46))
+- Add express-rate-limit to auth, password reset, and contact endpoints ([#43](https://github.com/DamageLabs/whiskey-canon/issues/43))
+- Add CSRF token validation via double-submit cookie pattern on all state-changing requests ([#45](https://github.com/DamageLabs/whiskey-canon/issues/45))
+- Add express-validator to all routes that accept user input — params, body, and query fields ([#47](https://github.com/DamageLabs/whiskey-canon/issues/47))
+- Enforce stronger password policy: 12+ characters, 3/4 character types, Have I Been Pwned breach check ([#52](https://github.com/DamageLabs/whiskey-canon/issues/52))
+- Replace in-memory session store with persistent SQLite-backed store ([#44](https://github.com/DamageLabs/whiskey-canon/issues/44))
+- Validate required environment variables (`SESSION_SECRET`, `FRONTEND_URL`) at startup in production ([#49](https://github.com/DamageLabs/whiskey-canon/issues/49))
+
+### Added
+
+- `SECURITY.md` with vulnerability disclosure policy and supported versions ([#51](https://github.com/DamageLabs/whiskey-canon/issues/51))
+- `docs/security-hardening.md` with pre-deployment checklist, security architecture overview, environment variable reference, and known limitations ([#51](https://github.com/DamageLabs/whiskey-canon/issues/51))
+- Shared `validate` middleware to eliminate repeated validation boilerplate across routes
+- Security section in `CLAUDE.md` referencing the new security documentation
+
 ## [1.4.0] - 2026-02-07
 
 ### Added

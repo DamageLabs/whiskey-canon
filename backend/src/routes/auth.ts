@@ -6,6 +6,7 @@ import { AuthRequest, requireAuth } from '../middleware/auth';
 import { uploadProfilePhoto } from '../middleware/upload';
 import { authLimiter, passwordResetLimiter } from '../middleware/rateLimiter';
 import { generateToken } from '../middleware/csrf';
+import { validatePassword } from '../utils/password-policy';
 import { generateVerificationCode, getVerificationCodeExpiry, isVerificationCodeExpired, generatePasswordResetToken, getPasswordResetTokenExpiry, isPasswordResetTokenExpired } from '../utils/verification';
 import { sendVerificationEmail, sendPasswordResetEmail } from '../utils/email';
 import fs from 'fs';
@@ -29,7 +30,7 @@ router.post(
   [
     body('username').trim().isLength({ min: 3 }).withMessage('Username must be at least 3 characters'),
     body('email').isEmail().withMessage('Invalid email'),
-    body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters'),
+    body('password').custom(validatePassword),
     body('role').optional().isIn(['admin', 'editor']).withMessage('Invalid role'),
     body('firstName').optional().trim(),
     body('lastName').optional().trim()
@@ -315,7 +316,7 @@ router.post(
   passwordResetLimiter,
   [
     body('token').trim().notEmpty().withMessage('Reset token is required'),
-    body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters')
+    body('password').custom(validatePassword)
   ],
   async (req: Request, res: Response) => {
     const errors = validationResult(req);
@@ -371,7 +372,7 @@ router.put(
     body('firstName').optional().trim(),
     body('lastName').optional().trim(),
     body('currentPassword').optional().notEmpty().withMessage('Current password is required'),
-    body('newPassword').optional().isLength({ min: 6 }).withMessage('New password must be at least 6 characters')
+    body('newPassword').optional().custom(validatePassword)
   ],
   async (req: AuthRequest, res: Response) => {
     const errors = validationResult(req);

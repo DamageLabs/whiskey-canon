@@ -78,6 +78,18 @@ After running `npm run db:seed:users`:
 - Admin: `GET /api/admin/users`, `PUT /api/admin/users/:id/role`
 - Health: `GET /api/health`
 
+## Security
+
+See [SECURITY.md](SECURITY.md) for vulnerability disclosure policy and [docs/security-hardening.md](docs/security-hardening.md) for the full deployment security checklist.
+
+Key security middleware (all configured in `src/index.ts`):
+- Helmet (CSP, HSTS, X-Content-Type-Options)
+- CORS (restricted to `FRONTEND_URL`)
+- CSRF (double-submit cookie via `csrf-csrf`)
+- Rate limiting (auth, password reset, contact endpoints)
+- Session store (persistent SQLite, secure cookies)
+- Input validation (`express-validator` on all routes)
+
 ## Git Workflow
 
 - **Always create a new PR** for each set of changes - never update an existing PR unless explicitly told to do so

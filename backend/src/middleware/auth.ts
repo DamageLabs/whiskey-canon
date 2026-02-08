@@ -5,6 +5,7 @@ import { UserModel } from '../models/User';
 declare module 'express-session' {
   interface SessionData {
     userId: number;
+    csrfInit?: boolean;
   }
 }
 

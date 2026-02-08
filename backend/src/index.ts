@@ -1,11 +1,13 @@
 import express from 'express';
 import session from 'express-session';
+import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import helmet from 'helmet';
 import path from 'path';
 import { config, validateConfig } from './utils/config';
 import { db, initializeDatabase } from './utils/database';
 import { attachUser } from './middleware/auth';
+import { csrfProtection } from './middleware/csrf';
 import authRoutes from './routes/auth';
 import whiskeyRoutes from './routes/whiskeys';
 import adminRoutes from './routes/admin';
@@ -51,6 +53,7 @@ app.use(cors({
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
 
 // Session configuration
 app.use(
@@ -77,6 +80,9 @@ app.use(
 // Attach user to request
 app.use(attachUser);
 
+// CSRF protection
+app.use(csrfProtection);
+
 // Serve static files from uploads directory
 const uploadsPath = path.join(__dirname, '../uploads');
 console.log('Serving static files from:', uploadsPath);
@@ -97,7 +103,10 @@ app.get('/api/health', (req, res) => {
 });
 
 // Error handler
-app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
+app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
+  if (err.status === 403 && err.code === 'EBADCSRFTOKEN') {
+    return res.status(403).json({ error: 'Invalid CSRF token' });
+  }
   console.error('Error:', err);
   res.status(500).json({ error: 'Internal server error' });
 });

@@ -161,3 +161,9 @@ vi.mock('../middleware/rateLimiter', () => ({
   passwordResetLimiter: (_req: any, _res: any, next: any) => next(),
   contactLimiter: (_req: any, _res: any, next: any) => next(),
 }));
+
+// Mock CSRF to pass through in tests — CSRF is tested in csrf.test.ts
+vi.mock('../middleware/csrf', () => ({
+  csrfProtection: (_req: any, _res: any, next: any) => next(),
+  generateToken: (_req: any, _res: any) => 'test-csrf-token',
+}));

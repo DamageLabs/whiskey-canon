@@ -5,6 +5,7 @@ import { Role } from '../types';
 import { AuthRequest, requireAuth } from '../middleware/auth';
 import { uploadProfilePhoto } from '../middleware/upload';
 import { authLimiter, passwordResetLimiter } from '../middleware/rateLimiter';
+import { generateToken } from '../middleware/csrf';
 import { generateVerificationCode, getVerificationCodeExpiry, isVerificationCodeExpired, generatePasswordResetToken, getPasswordResetTokenExpiry, isPasswordResetTokenExpired } from '../utils/verification';
 import { sendVerificationEmail, sendPasswordResetEmail } from '../utils/email';
 import fs from 'fs';
@@ -13,6 +14,13 @@ import path from 'path';
 const resendCooldowns = new Map<string, number>();
 
 const router = express.Router();
+
+// Get CSRF token
+router.get('/csrf-token', (req: Request, res: Response) => {
+  const token = generateToken(req, res);
+  req.session.csrfInit = true;
+  res.json({ token });
+});
 
 // Register
 router.post(

@@ -36,7 +36,7 @@ async function seedDemoData() {
   const bourbonCollector = await UserModel.create(
     'bourbon_lover',
     'bourbon@demo.com',
-    'demo123',
+    'Wh1sk3yDemo!!',
     Role.EDITOR,
     'James',
     'Anderson'
@@ -45,7 +45,7 @@ async function seedDemoData() {
   const scotchEnthusiast = await UserModel.create(
     'scotch_fan',
     'scotch@demo.com',
-    'demo123',
+    'Wh1sk3yDemo!!',
     Role.EDITOR,
     'Margaret',
     'Campbell'
@@ -54,7 +54,7 @@ async function seedDemoData() {
   const whiskeyCurator = await UserModel.create(
     'curator',
     'curator@demo.com',
-    'demo123',
+    'Wh1sk3yDemo!!',
     Role.EDITOR,
     'Robert',
     'MacLeod'
@@ -63,7 +63,7 @@ async function seedDemoData() {
   const newCollector = await UserModel.create(
     'beginner',
     'beginner@demo.com',
-    'demo123',
+    'Wh1sk3yDemo!!',
     Role.VIEWER,
     'Sarah',
     'Johnson'
@@ -72,7 +72,7 @@ async function seedDemoData() {
   const investor = await UserModel.create(
     'investor',
     'investor@demo.com',
-    'demo123',
+    'Wh1sk3yDemo!!',
     Role.EDITOR,
     'Michael',
     'Chen'
@@ -81,7 +81,7 @@ async function seedDemoData() {
   const admin = await UserModel.create(
     'admin',
     'admin@demo.com',
-    'admin123',
+    'Adm1nWh1skey!!',
     Role.ADMIN,
     'Admin',
     'User'
@@ -505,11 +505,11 @@ async function seedDemoData() {
   console.log(`\n✅ Demo database seeded successfully!`);
   console.log('\nDemo Login Credentials:');
   console.log('=======================');
-  console.log('bourbon_lover / demo123');
-  console.log('scotch_fan / demo123');
-  console.log('curator / demo123');
-  console.log('beginner / demo123');
-  console.log('investor / demo123');
+  console.log('bourbon_lover / Wh1sk3yDemo!!');
+  console.log('scotch_fan / Wh1sk3yDemo!!');
+  console.log('curator / Wh1sk3yDemo!!');
+  console.log('beginner / Wh1sk3yDemo!!');
+  console.log('investor / Wh1sk3yDemo!!');
   console.log('admin / admin123');
   console.log('\nSeed completed. Exiting...');
   process.exit(0);

@@ -10,8 +10,8 @@ describe('CommentModel', () => {
   let whiskey2: { id: number };
 
   beforeEach(async () => {
-    user1 = await createTestUser('user1', 'user1@example.com', 'password123', Role.EDITOR);
-    user2 = await createTestUser('user2', 'user2@example.com', 'password123', Role.EDITOR);
+    user1 = await createTestUser('user1', 'user1@example.com', 'Wh1sk3yTest!!', Role.EDITOR);
+    user2 = await createTestUser('user2', 'user2@example.com', 'Wh1sk3yTest!!', Role.EDITOR);
     whiskey1 = createTestWhiskey(user1.id, { name: 'Whiskey 1' });
     whiskey2 = createTestWhiskey(user2.id, { name: 'Whiskey 2' });
   });

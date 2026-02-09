@@ -9,6 +9,7 @@ import whiskeyRoutes from '../routes/whiskeys';
 import adminRoutes from '../routes/admin';
 import statisticsRoutes from '../routes/statistics';
 import commentRoutes from '../routes/comments';
+import backupRoutes from '../routes/backups';
 import { Role, WhiskeyType } from '../types';
 
 /**
@@ -38,6 +39,7 @@ export function createTestApp(): express.Application {
   app.use('/api/admin', adminRoutes);
   app.use('/api/statistics', statisticsRoutes);
   app.use('/api/comments', commentRoutes);
+  app.use('/api/backups', backupRoutes);
 
   // Error handler for debugging test failures
   app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {

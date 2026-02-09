@@ -15,6 +15,8 @@ import statisticsRoutes from './routes/statistics';
 import commentRoutes from './routes/comments';
 import usersRoutes from './routes/users';
 import contactRoutes from './routes/contact';
+import backupRoutes from './routes/backups';
+import { startBackupScheduler } from './utils/backup-scheduler';
 
 const SqliteStore = require('better-sqlite3-session-store')(session);
 
@@ -96,6 +98,7 @@ app.use('/api/statistics', statisticsRoutes);
 app.use('/api/comments', commentRoutes);
 app.use('/api/users', usersRoutes);
 app.use('/api/contact', contactRoutes);
+app.use('/api/backups', backupRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {
@@ -114,4 +117,7 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
 app.listen(config.port, () => {
   console.log(`Server running on http://localhost:${config.port}`);
   console.log(`Environment: ${config.nodeEnv}`);
+
+  // Start backup scheduler
+  startBackupScheduler();
 });

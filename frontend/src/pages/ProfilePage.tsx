@@ -6,6 +6,7 @@ import { Footer } from '../components/Footer';
 import { getCsrfHeaders } from '../utils/csrf';
 import { PasswordStrengthIndicator } from '../components/PasswordStrengthIndicator';
 import { checkPasswordStrength } from '../utils/passwordPolicy';
+import { BackupManager } from '../components/BackupManager';
 import '../styles/ProfilePage.css';
 
 interface ProfileFormData {
@@ -491,6 +492,9 @@ export default function ProfilePage() {
                   </div>
                 </div>
               </div>
+
+              {/* Backups */}
+              <BackupManager />
 
               {/* Danger Zone */}
               <div className="profile-section mt-5" style={{ borderTop: '1px solid var(--danger, #dc3545)', paddingTop: '2rem' }}>

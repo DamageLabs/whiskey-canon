@@ -27,6 +27,8 @@ export const config = {
   resendApiKey: process.env.RESEND_API_KEY || null,
   resendFromEmail: optional('RESEND_FROM_EMAIL', 'noreply@whiskey-canon.com'),
   contactEmail: process.env.CONTACT_EMAIL || process.env.RESEND_FROM_EMAIL || 'noreply@whiskey-canon.com',
+  backupDir: optional('BACKUP_DIR', path.join(__dirname, '../../backups')),
+  backupMaxSizeMb: parseInt(optional('BACKUP_MAX_SIZE_MB', '50'), 10),
 } as const;
 
 export function validateConfig(): void {

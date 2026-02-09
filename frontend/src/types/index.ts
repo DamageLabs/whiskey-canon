@@ -208,3 +208,31 @@ export interface WhiskeyComment {
   username?: string;
   profile_photo?: string;
 }
+
+export interface BackupRecord {
+  id: number;
+  user_id: number;
+  filename: string;
+  format: string;
+  trigger_type: string;
+  size_bytes: number | null;
+  whiskey_count: number | null;
+  comment_count: number | null;
+  created_at: string;
+}
+
+export interface BackupSchedule {
+  interval: string;
+  format: string;
+  retention_days: number;
+  last_run_at?: string | null;
+  next_run_at?: string | null;
+}
+
+export interface RestorePreview {
+  whiskeyCount: number;
+  commentCount: number;
+  newWhiskeys: number;
+  duplicateWhiskeys: number;
+  newComments: number;
+}

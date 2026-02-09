@@ -1,5 +1,5 @@
-import { User, Whiskey, CreateWhiskeyData, WhiskeyType, PublicProfile } from '../types';
-import { getCsrfHeaders } from '../utils/csrf';
+import { User, Whiskey, CreateWhiskeyData, WhiskeyType, PublicProfile, BackupRecord, BackupSchedule, RestorePreview } from '../types';
+import { getCsrfHeaders, fetchCsrfToken } from '../utils/csrf';
 
 const API_BASE = '/api';
 
@@ -16,7 +16,7 @@ export class APIError extends Error {
   }
 }
 
-async function fetchAPI(url: string, options?: RequestInit) {
+async function fetchAPI(url: string, options?: RequestInit, _retried = false) {
   let headers: Record<string, string> = {
     'Content-Type': 'application/json',
     ...(options?.headers as Record<string, string>),
@@ -37,6 +37,14 @@ async function fetchAPI(url: string, options?: RequestInit) {
   const data = await response.json();
 
   if (!response.ok) {
+    // On CSRF failure, fetch a fresh token and retry once
+    const isCsrfError = response.status === 403 &&
+      (data.error?.toLowerCase().includes('csrf') || data.code === 'EBADCSRFTOKEN');
+    if (isCsrfError && !_retried) {
+      await fetchCsrfToken();
+      return fetchAPI(url, options, true);
+    }
+
     // Handle validation errors array
     if (data.errors && Array.isArray(data.errors)) {
       const errorMessages = data.errors.map((e: any) => e.msg || e.message).join(', ');
@@ -208,6 +216,60 @@ export interface PublicStats {
   averageRating: number | null;
   countriesRepresented: string[];
 }
+
+export const backupAPI = {
+  create: (format: string): Promise<{ backup: BackupRecord; message: string }> =>
+    fetchAPI('/backups', {
+      method: 'POST',
+      body: JSON.stringify({ format }),
+    }),
+
+  list: (): Promise<{ backups: BackupRecord[] }> => fetchAPI('/backups'),
+
+  download: async (id: number): Promise<void> => {
+    const csrfHeaders = await getCsrfHeaders();
+    const response = await fetch(`${API_BASE}/backups/${id}/download`, {
+      credentials: 'include',
+      headers: csrfHeaders,
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to download backup');
+    }
+
+    const blob = await response.blob();
+    const contentDisposition = response.headers.get('Content-Disposition');
+    const filenameMatch = contentDisposition?.match(/filename="(.+)"/);
+    const filename = filenameMatch ? filenameMatch[1] : `backup-${id}`;
+
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
+  },
+
+  restore: (id: number, dryRun: boolean, conflictStrategy?: string): Promise<{ preview?: RestorePreview; result?: { whiskeysRestored: number; commentsRestored: number; skipped: number }; message?: string }> =>
+    fetchAPI(`/backups/${id}/restore`, {
+      method: 'POST',
+      body: JSON.stringify({ dryRun, conflictStrategy }),
+    }),
+
+  delete: (id: number): Promise<{ message: string }> =>
+    fetchAPI(`/backups/${id}`, { method: 'DELETE' }),
+
+  getSchedule: (): Promise<{ schedule: BackupSchedule }> =>
+    fetchAPI('/backups/schedule'),
+
+  updateSchedule: (interval: string, format: string, retentionDays: number): Promise<{ schedule: BackupSchedule; message: string }> =>
+    fetchAPI('/backups/schedule', {
+      method: 'PUT',
+      body: JSON.stringify({ interval, format, retentionDays }),
+    }),
+};
 
 export const usersAPI = {
   getPublicProfile: (username: string): Promise<{ profile: PublicProfile }> =>

@@ -27,5 +27,8 @@ coverage/
 # Uploads
 backend/uploads/profiles/
 
+# Backups
+backend/backups/
+
 # Claude Code local settings
 .claude/settings.local.json

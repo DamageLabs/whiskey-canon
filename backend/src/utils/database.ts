@@ -335,6 +335,36 @@ export function initializeDatabase() {
     )
   `);
 
+  // Create backup_schedules table
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS backup_schedules (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id INTEGER NOT NULL UNIQUE,
+      interval TEXT NOT NULL DEFAULT 'weekly',
+      format TEXT NOT NULL DEFAULT 'json',
+      retention_days INTEGER DEFAULT 30,
+      last_run_at DATETIME,
+      next_run_at DATETIME,
+      FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    )
+  `);
+
+  // Create backups table
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS backups (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id INTEGER NOT NULL,
+      filename TEXT NOT NULL,
+      format TEXT NOT NULL,
+      trigger_type TEXT NOT NULL,
+      size_bytes INTEGER,
+      whiskey_count INTEGER,
+      comment_count INTEGER,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    )
+  `);
+
   // Create indexes
   db.exec(`
     CREATE INDEX IF NOT EXISTS idx_whiskeys_type ON whiskeys(type);
@@ -342,6 +372,8 @@ export function initializeDatabase() {
     CREATE INDEX IF NOT EXISTS idx_whiskeys_created_by ON whiskeys(created_by);
     CREATE INDEX IF NOT EXISTS idx_whiskey_comments_whiskey_id ON whiskey_comments(whiskey_id);
     CREATE INDEX IF NOT EXISTS idx_whiskey_comments_user_id ON whiskey_comments(user_id);
+    CREATE INDEX IF NOT EXISTS idx_backups_user_id ON backups(user_id);
+    CREATE INDEX IF NOT EXISTS idx_backup_schedules_user_id ON backup_schedules(user_id);
   `);
 
   console.log('Database initialized successfully');

@@ -1,7 +1,7 @@
 # Whiskey Canon Roadmap
 
 > Prioritized development roadmap covering all open issues.
-> Last updated: 2026-02-08
+> Last updated: 2026-02-09
 
 ## How to Read This Roadmap
 
@@ -73,10 +73,11 @@ See [docs/security-hardening.md](docs/security-hardening.md) for the full deploy
 | 26 | [#74 — Add side-by-side whiskey comparison](https://github.com/DamageLabs/whiskey-canon/issues/74) | Feature | Frontend | Leverages existing multi-select checkboxes; high-value UX with no backend changes. |
 | 27 | [#66 — Add API caching with ETags and TanStack Query](https://github.com/DamageLabs/whiskey-canon/issues/66) | Performance | Full-stack | Every page mount triggers a fresh fetch; caching reduces server load and improves perceived speed. |
 | 28 | [#37 — Add light mode theme](https://github.com/DamageLabs/whiskey-canon/issues/37) | Feature | Frontend | Currently dark-mode only; light mode with system preference detection broadens accessibility. |
-| 29 | [#35 — Add user data export (GDPR)](https://github.com/DamageLabs/whiskey-canon/issues/35) | Feature | Full-stack | GDPR data portability compliance; exports all user data (profile + collection + comments). |
-| 30 | [#77 — Add JSON import/export for backup](https://github.com/DamageLabs/whiskey-canon/issues/77) | Feature | Full-stack | Lossless backup format with versioning; complements CSV and satisfies #35 portability needs. |
+| ~~29~~ | ~~[#35 — Add user data export (GDPR)](https://github.com/DamageLabs/whiskey-canon/issues/35)~~ | ~~Feature~~ | ~~Full-stack~~ | ~~Closed — implemented as part of backup/restore system (PR #98).~~ |
+| ~~30~~ | ~~[#77 — Add JSON import/export for backup](https://github.com/DamageLabs/whiskey-canon/issues/77)~~ | ~~Feature~~ | ~~Full-stack~~ | ~~Closed — JSON/CSV backup with versioned schema, restore with conflict resolution (PR #98).~~ |
+| ~~31~~ | ~~[#89 — Add scheduled automatic backups and on-demand backup/restore](https://github.com/DamageLabs/whiskey-canon/issues/89)~~ | ~~Feature~~ | ~~Full-stack~~ | ~~Closed — per-user scheduled backups, admin full-database backup, import, and restore (PR #98).~~ |
 
-**Estimated scope:** 11 issues. Mix of quick wins (#36, #63) and medium features.
+**Estimated scope:** 11 issues (3 closed). Mix of quick wins (#36, #63) and medium features.
 
 ---
 
@@ -150,7 +151,7 @@ Key dependency chains that affect implementation order:
 | Testing | 3 | #53, #54, #55 |
 | Infrastructure / DX | 5 | #50, #56, #57, #67, #70 |
 | Performance | 3 | #59, #66, #67 |
-| Core Features | 10 | #35, #36, #37, #60, #61, #62, #63, #74, #77, #58 |
+| Core Features | 10 | ~~#35~~, #36, #37, #60, #61, #62, #63, #74, ~~#77~~, #58, ~~#89~~ |
 | Advanced Features | 6 | #65, #68, #71, #72, #73, #75 |
 | Documentation | 3 | #51, #68, #69 |
 | Platform | 2 | #64, #76 |

@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.6.0] - 2026-02-09
+
+### Added
+
+- Per-user backup system with JSON and CSV export formats ([#89](https://github.com/DamageLabs/whiskey-canon/issues/89), [#77](https://github.com/DamageLabs/whiskey-canon/issues/77))
+- Backup restore with dry-run preview and conflict resolution (skip/overwrite strategies)
+- Scheduled automatic backups with configurable intervals (daily/weekly/monthly) via node-cron
+- Admin full database backup using SQLite native `db.backup()` API
+- Admin backup import with SQLite file validation and restore via `ATTACH DATABASE`
+- BackupManager component on Profile page for per-user backup management
+- Database Backup tab on Admin panel with create, import, restore, download, and delete
+- CSRF token auto-retry on 403 to handle stale sessions after server restarts or restores
+- 74 new backend tests: Backup model (13), BackupSchedule model (10), backup routes (31), admin backup routes (20)
+- `BACKUP_DIR` and `BACKUP_MAX_SIZE_MB` environment variables
+- Rate limiter for backup endpoints (5 requests per 15 minutes)
+
 ## [1.5.0] - 2026-02-08
 
 ### Security

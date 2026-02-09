@@ -4,6 +4,12 @@ import { useNavigate } from 'react-router-dom';
 import { Footer } from '../components/Footer';
 import { getCsrfHeaders } from '../utils/csrf';
 
+interface AdminBackup {
+  filename: string;
+  size_bytes: number;
+  created_at: string;
+}
+
 interface User {
   id: number;
   username: string;
@@ -44,12 +50,16 @@ export function AdminPage() {
   const [whiskeys, setWhiskeys] = useState<WhiskeyWithOwner[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [activeTab, setActiveTab] = useState<'users' | 'whiskeys'>('users');
+  const [activeTab, setActiveTab] = useState<'users' | 'whiskeys' | 'backups'>('users');
   const [sortField, setSortField] = useState<SortField>('owner_username');
   const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
   const [selectedUserId, setSelectedUserId] = useState<number | 'all'>('all');
   const [editingUserId, setEditingUserId] = useState<number | null>(null);
   const [editForm, setEditForm] = useState<{ email: string; firstName: string; lastName: string }>({ email: '', firstName: '', lastName: '' });
+  const [adminBackups, setAdminBackups] = useState<AdminBackup[]>([]);
+  const [creatingBackup, setCreatingBackup] = useState(false);
+  const [importingBackup, setImportingBackup] = useState(false);
+  const [restoringBackup, setRestoringBackup] = useState<string | null>(null);
 
   useEffect(() => {
     if (user?.role !== 'admin') {
@@ -60,7 +70,7 @@ export function AdminPage() {
   }, [user, navigate]);
 
   async function loadData() {
-    await Promise.all([loadUsers(), loadWhiskeys()]);
+    await Promise.all([loadUsers(), loadWhiskeys(), loadAdminBackups()]);
   }
 
   async function loadUsers() {
@@ -97,6 +107,151 @@ export function AdminPage() {
       setWhiskeys(data.whiskeys);
     } catch (err: any) {
       setError(err.message);
+    }
+  }
+
+  async function loadAdminBackups() {
+    try {
+      const response = await fetch('/api/admin/backups', { credentials: 'include' });
+      if (response.ok) {
+        const data = await response.json();
+        setAdminBackups(data.backups);
+      }
+    } catch {
+      // Silent fail
+    }
+  }
+
+  async function handleCreateAdminBackup() {
+    setCreatingBackup(true);
+    setError('');
+    try {
+      const csrfHeaders = await getCsrfHeaders();
+      const response = await fetch('/api/admin/backup', {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json', ...csrfHeaders },
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || 'Failed to create backup');
+      }
+
+      await loadAdminBackups();
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setCreatingBackup(false);
+    }
+  }
+
+  async function handleDownloadAdminBackup(filename: string) {
+    try {
+      const response = await fetch(`/api/admin/backups/${encodeURIComponent(filename)}/download`, {
+        credentials: 'include',
+      });
+
+      if (!response.ok) throw new Error('Failed to download backup');
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (err: any) {
+      setError(err.message);
+    }
+  }
+
+  async function handleDeleteAdminBackup(filename: string) {
+    if (!confirm(`Delete backup "${filename}"? This cannot be undone.`)) return;
+    try {
+      const csrfHeaders = await getCsrfHeaders();
+      const response = await fetch(`/api/admin/backups/${encodeURIComponent(filename)}`, {
+        method: 'DELETE',
+        credentials: 'include',
+        headers: csrfHeaders,
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || 'Failed to delete backup');
+      }
+
+      await loadAdminBackups();
+    } catch (err: any) {
+      setError(err.message);
+    }
+  }
+
+  async function handleImportAdminBackup(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.name.endsWith('.db')) {
+      setError('Only .db files can be imported');
+      e.target.value = '';
+      return;
+    }
+
+    setImportingBackup(true);
+    setError('');
+    try {
+      const csrfHeaders = await getCsrfHeaders();
+      const formData = new FormData();
+      formData.append('backup', file);
+
+      const response = await fetch('/api/admin/backups/import', {
+        method: 'POST',
+        credentials: 'include',
+        headers: csrfHeaders,
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || 'Failed to import backup');
+      }
+
+      await loadAdminBackups();
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setImportingBackup(false);
+      e.target.value = '';
+    }
+  }
+
+  async function handleRestoreAdminBackup(filename: string) {
+    if (!confirm(`Restore database from "${filename}"?\n\nThis will REPLACE all current data (users, whiskeys, comments) with the data from this backup. This action cannot be undone.\n\nAre you sure?`)) return;
+
+    setRestoringBackup(filename);
+    setError('');
+    try {
+      const csrfHeaders = await getCsrfHeaders();
+      const response = await fetch(`/api/admin/backups/${encodeURIComponent(filename)}/restore`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json', ...csrfHeaders },
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || 'Failed to restore backup');
+      }
+
+      const data = await response.json();
+      alert(`${data.message}\n\nTables restored: ${data.tablesRestored.join(', ')}\n\nPlease reload the page to see updated data.`);
+      window.location.reload();
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setRestoringBackup(null);
     }
   }
 
@@ -356,6 +511,15 @@ export function AdminPage() {
               onClick={() => setActiveTab('whiskeys')}
             >
               All Collections ({getSortedAndFilteredWhiskeys().length} whiskeys)
+            </button>
+          </li>
+          <li className="nav-item">
+            <button
+              className={`nav-link ${activeTab === 'backups' ? 'active' : ''}`}
+              style={activeTab === 'backups' ? { backgroundColor: 'var(--amber-500)', color: 'white', borderColor: 'var(--amber-500)' } : {}}
+              onClick={() => setActiveTab('backups')}
+            >
+              Database Backup
             </button>
           </li>
         </ul>
@@ -668,6 +832,131 @@ export function AdminPage() {
                   </div>
                 </div>
               </>
+            )}
+
+            {/* Database Backup */}
+            {activeTab === 'backups' && (
+              <div className="card shadow-sm">
+                <div className="card-body">
+                  <h5 className="card-title mb-3">
+                    <i className="bi bi-database-down me-2"></i>
+                    Full Database Backup
+                  </h5>
+                  <p className="text-muted">
+                    Create a complete copy of the SQLite database including all users, whiskeys, comments, sessions, and settings.
+                  </p>
+
+                  <div className="d-flex gap-2 mb-4">
+                    <button
+                      className="btn btn-primary"
+                      onClick={handleCreateAdminBackup}
+                      disabled={creatingBackup}
+                    >
+                      {creatingBackup ? (
+                        <>
+                          <span className="spinner-border spinner-border-sm me-1"></span>
+                          Creating Backup...
+                        </>
+                      ) : (
+                        <>
+                          <i className="bi bi-download me-1"></i>
+                          Create Full Backup
+                        </>
+                      )}
+                    </button>
+                    <label className={`btn btn-outline-primary mb-0 ${importingBackup ? 'disabled' : ''}`}>
+                      {importingBackup ? (
+                        <>
+                          <span className="spinner-border spinner-border-sm me-1"></span>
+                          Importing...
+                        </>
+                      ) : (
+                        <>
+                          <i className="bi bi-upload me-1"></i>
+                          Import Backup
+                        </>
+                      )}
+                      <input
+                        type="file"
+                        accept=".db"
+                        className="d-none"
+                        onChange={handleImportAdminBackup}
+                        disabled={importingBackup}
+                      />
+                    </label>
+                  </div>
+
+                  {adminBackups.length > 0 && (
+                    <>
+                      <h6>Backup History</h6>
+                      <div className="table-responsive">
+                        <table className="table table-hover align-middle mb-0">
+                          <thead style={{ backgroundColor: 'var(--amber-500)', color: 'white' }}>
+                            <tr>
+                              <th>Filename</th>
+                              <th>Size</th>
+                              <th>Created</th>
+                              <th className="text-center">Actions</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {adminBackups.map((b) => (
+                              <tr key={b.filename}>
+                                <td className="text-break" style={{ maxWidth: '300px' }}>{b.filename}</td>
+                                <td>
+                                  {b.size_bytes < 1024 * 1024
+                                    ? `${(b.size_bytes / 1024).toFixed(1)} KB`
+                                    : `${(b.size_bytes / (1024 * 1024)).toFixed(1)} MB`}
+                                </td>
+                                <td>
+                                  {new Date(b.created_at).toLocaleDateString('en-US', {
+                                    year: 'numeric', month: 'short', day: 'numeric',
+                                    hour: '2-digit', minute: '2-digit',
+                                  })}
+                                </td>
+                                <td className="text-center">
+                                  <div className="d-flex gap-1 justify-content-center">
+                                    <button
+                                      className="btn btn-sm btn-outline-warning"
+                                      onClick={() => handleRestoreAdminBackup(b.filename)}
+                                      disabled={restoringBackup === b.filename}
+                                      title="Restore"
+                                    >
+                                      {restoringBackup === b.filename ? (
+                                        <span className="spinner-border spinner-border-sm"></span>
+                                      ) : (
+                                        <><i className="bi bi-arrow-counterclockwise"></i> Restore</>
+                                      )}
+                                    </button>
+                                    <button
+                                      className="btn btn-sm btn-outline-primary"
+                                      onClick={() => handleDownloadAdminBackup(b.filename)}
+                                      title="Download"
+                                    >
+                                      <i className="bi bi-download"></i> Download
+                                    </button>
+                                    <button
+                                      className="btn btn-sm btn-outline-danger"
+                                      onClick={() => handleDeleteAdminBackup(b.filename)}
+                                      title="Delete"
+                                    >
+                                      <i className="bi bi-trash"></i> Delete
+                                    </button>
+                                  </div>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </>
+                  )}
+
+                  {adminBackups.length === 0 && (
+                    <p className="text-muted">No backups yet. Create your first full database backup above.</p>
+                  )}
+                </div>
+              </div>
             )}
           </>
         )}

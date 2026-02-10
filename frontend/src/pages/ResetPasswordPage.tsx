@@ -49,17 +49,20 @@ export function ResetPasswordPage() {
   }
 
   return (
-    <div className="min-vh-100 d-flex align-items-center justify-content-center" style={{ background: 'var(--zinc-950)' }}>
+    <div
+      className="min-vh-100 d-flex align-items-center justify-content-center"
+      style={{ background: 'var(--zinc-950)' }}
+    >
       <div className="card shadow-lg" style={{ maxWidth: '450px', width: '100%' }}>
         <div className="card-body p-5">
           <div className="d-flex align-items-center justify-content-center gap-2 mb-3">
             <span style={{ fontSize: '2.5rem' }}>🥃</span>
-            <span className="h3 mb-0 fw-bold" style={{ color: 'var(--zinc-100)' }}>Whiskey Canon</span>
+            <span className="h3 mb-0 fw-bold" style={{ color: 'var(--zinc-100)' }}>
+              Whiskey Canon
+            </span>
           </div>
           <h2 className="text-center mb-2 fs-4">Reset Password</h2>
-          <p className="text-center text-muted mb-4">
-            Enter your new password below.
-          </p>
+          <p className="text-center text-muted mb-4">Enter your new password below.</p>
 
           {error && (
             <div className="alert alert-danger" role="alert">
@@ -83,7 +86,9 @@ export function ResetPasswordPage() {
           {token && !success && (
             <form onSubmit={handleSubmit}>
               <div className="mb-3">
-                <label htmlFor="password" className="form-label">New Password</label>
+                <label htmlFor="password" className="form-label">
+                  New Password
+                </label>
                 <input
                   id="password"
                   type="password"
@@ -99,7 +104,9 @@ export function ResetPasswordPage() {
               </div>
 
               <div className="mb-3">
-                <label htmlFor="confirmPassword" className="form-label">Confirm New Password</label>
+                <label htmlFor="confirmPassword" className="form-label">
+                  Confirm New Password
+                </label>
                 <input
                   id="confirmPassword"
                   type="password"
@@ -120,16 +127,26 @@ export function ResetPasswordPage() {
               >
                 {loading ? (
                   <>
-                    <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                    <span
+                      className="spinner-border spinner-border-sm me-2"
+                      role="status"
+                      aria-hidden="true"
+                    ></span>
                     Resetting...
                   </>
-                ) : 'Reset Password'}
+                ) : (
+                  'Reset Password'
+                )}
               </button>
             </form>
           )}
 
           <p className="text-center text-muted mb-0">
-            <Link to="/login" className="text-decoration-none fw-bold" style={{ color: 'var(--amber-500)' }}>
+            <Link
+              to="/login"
+              className="text-decoration-none fw-bold"
+              style={{ color: 'var(--amber-500)' }}
+            >
               Back to Login
             </Link>
           </p>

@@ -16,7 +16,9 @@ describe('checkPasswordComplexity', () => {
     expect(result.isValid).toBe(false);
     expect(result.meetsComplexity).toBe(false);
     expect(result.characterTypesCount).toBe(2);
-    expect(result.errors).toContain('Password must contain at least 3 of: uppercase, lowercase, digit, special character');
+    expect(result.errors).toContain(
+      'Password must contain at least 3 of: uppercase, lowercase, digit, special character'
+    );
   });
 
   it('accepts passwords with 3 of 4 character types', () => {
@@ -86,7 +88,8 @@ describe('isPasswordBreached', () => {
   it('returns false when hash suffix is not found', async () => {
     vi.spyOn(globalThis, 'fetch').mockResolvedValue({
       ok: true,
-      text: async () => 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA0:1\nBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB0:2',
+      text: async () =>
+        'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA0:1\nBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB0:2',
     } as Response);
 
     const result = await isPasswordBreached('Wh1sk3yTest!!');

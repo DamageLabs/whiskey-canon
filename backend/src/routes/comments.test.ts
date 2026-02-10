@@ -1,6 +1,12 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import request from 'supertest';
-import { createTestApp, createTestUser, createAuthenticatedAgent, createTestWhiskey, createTestComment } from '../test/helpers';
+import {
+  createTestApp,
+  createTestUser,
+  createAuthenticatedAgent,
+  createTestWhiskey,
+  createTestComment,
+} from '../test/helpers';
 import { Role } from '../types';
 import type { Application } from 'express';
 import { CommentModel } from '../models/Comment';
@@ -31,9 +37,7 @@ describe('Comment Routes', () => {
     });
 
     it('returns 401 for unauthenticated requests to PUT /api/comments/:id', async () => {
-      const response = await request(app)
-        .put('/api/comments/1')
-        .send({ content: 'Updated' });
+      const response = await request(app).put('/api/comments/1').send({ content: 'Updated' });
       expect(response.status).toBe(401);
     });
 
@@ -65,7 +69,7 @@ describe('Comment Routes', () => {
       expect(response.body.error).toBe('Whiskey not found');
     });
 
-    it('returns 403 when accessing another user\'s whiskey comments', async () => {
+    it("returns 403 when accessing another user's whiskey comments", async () => {
       const { agent } = await createAuthenticatedAgent(app, 'user1', 'user1@test.com');
       const user2 = await createTestUser('user2', 'user2@test.com');
       const whiskey = createTestWhiskey(user2.id);
@@ -76,7 +80,13 @@ describe('Comment Routes', () => {
     });
 
     it('allows admin to view any whiskey comments', async () => {
-      const { agent } = await createAuthenticatedAgent(app, 'admin', 'admin@test.com', 'password', Role.ADMIN);
+      const { agent } = await createAuthenticatedAgent(
+        app,
+        'admin',
+        'admin@test.com',
+        'password',
+        Role.ADMIN
+      );
       const user2 = await createTestUser('user2', 'user2@test.com');
       const whiskey = createTestWhiskey(user2.id);
       createTestComment(whiskey.id, user2.id, 'User comment');
@@ -148,14 +158,12 @@ describe('Comment Routes', () => {
     it('returns 404 for non-existent whiskey', async () => {
       const { agent } = await createAuthenticatedAgent(app);
 
-      const response = await agent
-        .post('/api/comments/whiskey/99999')
-        .send({ content: 'Test' });
+      const response = await agent.post('/api/comments/whiskey/99999').send({ content: 'Test' });
 
       expect(response.status).toBe(404);
     });
 
-    it('returns 403 when commenting on another user\'s whiskey', async () => {
+    it("returns 403 when commenting on another user's whiskey", async () => {
       const { agent } = await createAuthenticatedAgent(app, 'user1', 'user1@test.com');
       const user2 = await createTestUser('user2', 'user2@test.com');
       const whiskey = createTestWhiskey(user2.id);
@@ -168,7 +176,13 @@ describe('Comment Routes', () => {
     });
 
     it('allows admin to comment on any whiskey', async () => {
-      const { agent } = await createAuthenticatedAgent(app, 'admin', 'admin@test.com', 'password', Role.ADMIN);
+      const { agent } = await createAuthenticatedAgent(
+        app,
+        'admin',
+        'admin@test.com',
+        'password',
+        Role.ADMIN
+      );
       const user2 = await createTestUser('user2', 'user2@test.com');
       const whiskey = createTestWhiskey(user2.id);
 
@@ -232,29 +246,31 @@ describe('Comment Routes', () => {
     it('returns 403 for non-existent comment (authorization checked first)', async () => {
       const { agent } = await createAuthenticatedAgent(app);
 
-      const response = await agent
-        .put('/api/comments/99999')
-        .send({ content: 'Updated' });
+      const response = await agent.put('/api/comments/99999').send({ content: 'Updated' });
 
       // Authorization check happens before existence check for security
       expect(response.status).toBe(403);
     });
 
-    it('returns 403 when updating another user\'s comment', async () => {
+    it("returns 403 when updating another user's comment", async () => {
       const { agent } = await createAuthenticatedAgent(app, 'user1', 'user1@test.com');
       const user2 = await createTestUser('user2', 'user2@test.com');
       const whiskey = createTestWhiskey(user2.id);
       const comment = createTestComment(whiskey.id, user2.id, 'Not yours');
 
-      const response = await agent
-        .put(`/api/comments/${comment.id}`)
-        .send({ content: 'Hacked!' });
+      const response = await agent.put(`/api/comments/${comment.id}`).send({ content: 'Hacked!' });
 
       expect(response.status).toBe(403);
     });
 
     it('allows admin to update any comment', async () => {
-      const { agent } = await createAuthenticatedAgent(app, 'admin', 'admin@test.com', 'password', Role.ADMIN);
+      const { agent } = await createAuthenticatedAgent(
+        app,
+        'admin',
+        'admin@test.com',
+        'password',
+        Role.ADMIN
+      );
       const user2 = await createTestUser('user2', 'user2@test.com');
       const whiskey = createTestWhiskey(user2.id);
       const comment = createTestComment(whiskey.id, user2.id, 'User comment');
@@ -272,9 +288,7 @@ describe('Comment Routes', () => {
       const whiskey = createTestWhiskey(user.id);
       const comment = createTestComment(whiskey.id, user.id, 'Original');
 
-      const response = await agent
-        .put(`/api/comments/${comment.id}`)
-        .send({ content: '' });
+      const response = await agent.put(`/api/comments/${comment.id}`).send({ content: '' });
 
       expect(response.status).toBe(400);
     });
@@ -282,9 +296,7 @@ describe('Comment Routes', () => {
     it('returns 400 for invalid comment ID', async () => {
       const { agent } = await createAuthenticatedAgent(app);
 
-      const response = await agent
-        .put('/api/comments/invalid')
-        .send({ content: 'Test' });
+      const response = await agent.put('/api/comments/invalid').send({ content: 'Test' });
 
       expect(response.status).toBe(400);
     });
@@ -311,7 +323,7 @@ describe('Comment Routes', () => {
       expect(response.status).toBe(403);
     });
 
-    it('returns 403 when deleting another user\'s comment', async () => {
+    it("returns 403 when deleting another user's comment", async () => {
       const { agent } = await createAuthenticatedAgent(app, 'user1', 'user1@test.com');
       const user2 = await createTestUser('user2', 'user2@test.com');
       const whiskey = createTestWhiskey(user2.id);
@@ -323,7 +335,13 @@ describe('Comment Routes', () => {
     });
 
     it('allows admin to delete any comment', async () => {
-      const { agent } = await createAuthenticatedAgent(app, 'admin', 'admin@test.com', 'password', Role.ADMIN);
+      const { agent } = await createAuthenticatedAgent(
+        app,
+        'admin',
+        'admin@test.com',
+        'password',
+        Role.ADMIN
+      );
       const user2 = await createTestUser('user2', 'user2@test.com');
       const whiskey = createTestWhiskey(user2.id);
       const comment = createTestComment(whiskey.id, user2.id, 'User comment');
@@ -345,7 +363,11 @@ describe('Comment Routes', () => {
   describe('User Isolation', () => {
     it('users can only access comments on their own whiskeys (not admin)', async () => {
       // Create two users
-      const { agent: agent1, user: user1 } = await createAuthenticatedAgent(app, 'user1', 'user1@test.com');
+      const { agent: agent1, user: user1 } = await createAuthenticatedAgent(
+        app,
+        'user1',
+        'user1@test.com'
+      );
       const user2 = await createTestUser('user2', 'user2@test.com');
 
       // Create whiskeys for each user

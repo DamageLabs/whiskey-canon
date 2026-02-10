@@ -14,7 +14,9 @@ router.get('/', requireAuth, (req: AuthRequest, res: Response) => {
     const userId = req.user.id;
 
     // Financial & Value Statistics
-    const financialStats = db.prepare(`
+    const financialStats = db
+      .prepare(
+        `
       SELECT
         COUNT(*) as total_bottles,
         SUM(quantity) as total_units,
@@ -28,20 +30,28 @@ router.get('/', requireAuth, (req: AuthRequest, res: Response) => {
         COALESCE(SUM(current_market_value - purchase_price), 0) as total_gain_loss
       FROM whiskeys
       WHERE created_by = ?
-    `).get(userId) as any;
+    `
+      )
+      .get(userId) as any;
 
     // Most valuable bottles (by secondary price)
-    const mostValuable = db.prepare(`
+    const mostValuable = db
+      .prepare(
+        `
       SELECT id, name, distillery, secondary_price, purchase_price,
              (secondary_price - COALESCE(purchase_price, 0)) as value_gain
       FROM whiskeys
       WHERE created_by = ? AND secondary_price IS NOT NULL
       ORDER BY secondary_price DESC
       LIMIT 10
-    `).all(userId);
+    `
+      )
+      .all(userId);
 
     // Best ROI bottles (by secondary price)
-    const bestROI = db.prepare(`
+    const bestROI = db
+      .prepare(
+        `
       SELECT id, name, distillery, purchase_price, secondary_price,
              ROUND(((secondary_price - purchase_price) / NULLIF(purchase_price, 0) * 100), 2) as roi_percentage
       FROM whiskeys
@@ -51,10 +61,14 @@ router.get('/', requireAuth, (req: AuthRequest, res: Response) => {
         AND purchase_price > 0
       ORDER BY roi_percentage DESC
       LIMIT 10
-    `).all(userId);
+    `
+      )
+      .all(userId);
 
     // Inventory & Consumption Statistics
-    const inventoryStats = db.prepare(`
+    const inventoryStats = db
+      .prepare(
+        `
       SELECT
         SUM(CASE WHEN is_opened = 1 THEN 1 ELSE 0 END) as opened_count,
         SUM(CASE WHEN is_opened = 0 OR is_opened IS NULL THEN 1 ELSE 0 END) as unopened_count,
@@ -67,28 +81,40 @@ router.get('/', requireAuth, (req: AuthRequest, res: Response) => {
         SUM(CASE WHEN status = 'gifted' THEN 1 ELSE 0 END) as gifted_count
       FROM whiskeys
       WHERE created_by = ?
-    `).get(userId) as any;
+    `
+      )
+      .get(userId) as any;
 
     // Bottles running low
-    const runningLow = db.prepare(`
+    const runningLow = db
+      .prepare(
+        `
       SELECT id, name, distillery, remaining_volume, is_opened
       FROM whiskeys
       WHERE created_by = ? AND is_opened = 1 AND remaining_volume < 25
       ORDER BY remaining_volume ASC
       LIMIT 10
-    `).all(userId);
+    `
+      )
+      .all(userId);
 
     // Storage locations
-    const storageLocations = db.prepare(`
+    const storageLocations = db
+      .prepare(
+        `
       SELECT storage_location, COUNT(*) as count
       FROM whiskeys
       WHERE created_by = ? AND storage_location IS NOT NULL
       GROUP BY storage_location
       ORDER BY count DESC
-    `).all(userId);
+    `
+      )
+      .all(userId);
 
     // Collection Composition
-    const typeDistribution = db.prepare(`
+    const typeDistribution = db
+      .prepare(
+        `
       SELECT type, COUNT(*) as count,
              COALESCE(SUM(secondary_price), 0) as total_value,
              COALESCE(AVG(rating), 0) as avg_rating
@@ -96,17 +122,25 @@ router.get('/', requireAuth, (req: AuthRequest, res: Response) => {
       WHERE created_by = ?
       GROUP BY type
       ORDER BY count DESC
-    `).all(userId);
+    `
+      )
+      .all(userId);
 
-    const countryDistribution = db.prepare(`
+    const countryDistribution = db
+      .prepare(
+        `
       SELECT country, COUNT(*) as count
       FROM whiskeys
       WHERE created_by = ? AND country IS NOT NULL
       GROUP BY country
       ORDER BY count DESC
-    `).all(userId);
+    `
+      )
+      .all(userId);
 
-    const topDistilleries = db.prepare(`
+    const topDistilleries = db
+      .prepare(
+        `
       SELECT distillery, COUNT(*) as count,
              COALESCE(SUM(secondary_price), 0) as total_value
       FROM whiskeys
@@ -114,10 +148,14 @@ router.get('/', requireAuth, (req: AuthRequest, res: Response) => {
       GROUP BY distillery
       ORDER BY count DESC
       LIMIT 10
-    `).all(userId);
+    `
+      )
+      .all(userId);
 
     // Age distribution
-    const ageDistribution = db.prepare(`
+    const ageDistribution = db
+      .prepare(
+        `
       SELECT
         CASE
           WHEN age IS NULL THEN 'NAS'
@@ -140,10 +178,14 @@ router.get('/', requireAuth, (req: AuthRequest, res: Response) => {
           WHEN '20-24 years' THEN 4
           ELSE 5
         END
-    `).all(userId);
+    `
+      )
+      .all(userId);
 
     // Quality Metrics
-    const ratingStats = db.prepare(`
+    const ratingStats = db
+      .prepare(
+        `
       SELECT
         COUNT(CASE WHEN rating IS NOT NULL THEN 1 END) as rated_count,
         COALESCE(AVG(rating), 0) as avg_rating,
@@ -151,17 +193,25 @@ router.get('/', requireAuth, (req: AuthRequest, res: Response) => {
         MIN(rating) as lowest_rating
       FROM whiskeys
       WHERE created_by = ?
-    `).get(userId) as any;
+    `
+      )
+      .get(userId) as any;
 
-    const highestRated = db.prepare(`
+    const highestRated = db
+      .prepare(
+        `
       SELECT id, name, distillery, rating, type
       FROM whiskeys
       WHERE created_by = ? AND rating IS NOT NULL
       ORDER BY rating DESC
       LIMIT 10
-    `).all(userId);
+    `
+      )
+      .all(userId);
 
-    const ratingDistribution = db.prepare(`
+    const ratingDistribution = db
+      .prepare(
+        `
       SELECT
         ROUND(rating) as rating_bucket,
         COUNT(*) as count
@@ -169,18 +219,26 @@ router.get('/', requireAuth, (req: AuthRequest, res: Response) => {
       WHERE created_by = ? AND rating IS NOT NULL
       GROUP BY rating_bucket
       ORDER BY rating_bucket DESC
-    `).all(userId);
+    `
+      )
+      .all(userId);
 
     // Acquisition Patterns
-    const recentAcquisitions = db.prepare(`
+    const recentAcquisitions = db
+      .prepare(
+        `
       SELECT id, name, distillery, purchase_date, purchase_price, purchase_location
       FROM whiskeys
       WHERE created_by = ? AND purchase_date IS NOT NULL
       ORDER BY purchase_date DESC
       LIMIT 15
-    `).all(userId);
+    `
+      )
+      .all(userId);
 
-    const purchaseLocations = db.prepare(`
+    const purchaseLocations = db
+      .prepare(
+        `
       SELECT purchase_location, COUNT(*) as count,
              COALESCE(AVG(purchase_price), 0) as avg_price
       FROM whiskeys
@@ -188,9 +246,13 @@ router.get('/', requireAuth, (req: AuthRequest, res: Response) => {
       GROUP BY purchase_location
       ORDER BY count DESC
       LIMIT 10
-    `).all(userId);
+    `
+      )
+      .all(userId);
 
-    const avgPriceByType = db.prepare(`
+    const avgPriceByType = db
+      .prepare(
+        `
       SELECT type,
              COALESCE(AVG(purchase_price), 0) as avg_purchase_price,
              COALESCE(AVG(msrp), 0) as avg_msrp
@@ -198,10 +260,14 @@ router.get('/', requireAuth, (req: AuthRequest, res: Response) => {
       WHERE created_by = ?
       GROUP BY type
       ORDER BY avg_purchase_price DESC
-    `).all(userId);
+    `
+      )
+      .all(userId);
 
     // Rarity & Special Items
-    const specialItems = db.prepare(`
+    const specialItems = db
+      .prepare(
+        `
       SELECT
         SUM(CASE WHEN limited_edition = 1 THEN 1 ELSE 0 END) as limited_edition_count,
         SUM(CASE WHEN chill_filtered = 0 THEN 1 ELSE 0 END) as non_chill_filtered_count,
@@ -210,10 +276,14 @@ router.get('/', requireAuth, (req: AuthRequest, res: Response) => {
         SUM(CASE WHEN awards IS NOT NULL THEN 1 ELSE 0 END) as award_winning_count
       FROM whiskeys
       WHERE created_by = ?
-    `).get(userId) as any;
+    `
+      )
+      .get(userId) as any;
 
     // Tasting Analytics
-    const tastingStats = db.prepare(`
+    const tastingStats = db
+      .prepare(
+        `
       SELECT
         SUM(COALESCE(times_tasted, 0)) as total_tasting_sessions,
         COUNT(CASE WHEN tasting_notes IS NOT NULL THEN 1 END) as bottles_with_notes,
@@ -223,25 +293,35 @@ router.get('/', requireAuth, (req: AuthRequest, res: Response) => {
         COUNT(CASE WHEN food_pairings IS NOT NULL THEN 1 END) as bottles_with_pairings
       FROM whiskeys
       WHERE created_by = ?
-    `).get(userId) as any;
+    `
+      )
+      .get(userId) as any;
 
-    const mostTasted = db.prepare(`
+    const mostTasted = db
+      .prepare(
+        `
       SELECT id, name, distillery, times_tasted, last_tasted_date
       FROM whiskeys
       WHERE created_by = ? AND times_tasted > 0
       ORDER BY times_tasted DESC
       LIMIT 10
-    `).all(userId);
+    `
+      )
+      .all(userId);
 
     // Social & Sharing
-    const sharingStats = db.prepare(`
+    const sharingStats = db
+      .prepare(
+        `
       SELECT
         COUNT(CASE WHEN shared_with IS NOT NULL THEN 1 END) as shared_bottles_count,
         COUNT(CASE WHEN is_for_sale = 1 THEN 1 END) as for_sale_count,
         COUNT(CASE WHEN is_for_trade = 1 THEN 1 END) as for_trade_count
       FROM whiskeys
       WHERE created_by = ?
-    `).get(userId) as any;
+    `
+      )
+      .get(userId) as any;
 
     // Compile all statistics
     const statistics = {

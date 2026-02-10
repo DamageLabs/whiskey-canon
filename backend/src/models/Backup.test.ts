@@ -43,7 +43,12 @@ describe('BackupModel', () => {
     });
 
     it('does not return other user backups', async () => {
-      const user2 = await createTestUser('user2', 'user2@example.com', 'Wh1sk3yTest!!', Role.EDITOR);
+      const user2 = await createTestUser(
+        'user2',
+        'user2@example.com',
+        'Wh1sk3yTest!!',
+        Role.EDITOR
+      );
       BackupModel.create(user.id, 'backup-1.json', 'json', 'manual', 100, 5, 2);
       BackupModel.create(user2.id, 'backup-2.json', 'json', 'manual', 200, 10, 3);
 
@@ -72,7 +77,12 @@ describe('BackupModel', () => {
     });
 
     it('returns undefined for wrong user', async () => {
-      const user2 = await createTestUser('user2', 'user2@example.com', 'Wh1sk3yTest!!', Role.EDITOR);
+      const user2 = await createTestUser(
+        'user2',
+        'user2@example.com',
+        'Wh1sk3yTest!!',
+        Role.EDITOR
+      );
       const created = BackupModel.create(user.id, 'backup-1.json', 'json', 'manual', 100, 5, 2);
 
       const found = BackupModel.findById(created.id, user2.id);
@@ -95,7 +105,12 @@ describe('BackupModel', () => {
     });
 
     it('returns false for wrong user', async () => {
-      const user2 = await createTestUser('user2', 'user2@example.com', 'Wh1sk3yTest!!', Role.EDITOR);
+      const user2 = await createTestUser(
+        'user2',
+        'user2@example.com',
+        'Wh1sk3yTest!!',
+        Role.EDITOR
+      );
       const created = BackupModel.create(user.id, 'backup-1.json', 'json', 'manual', 100, 5, 2);
 
       const deleted = BackupModel.delete(created.id, user2.id);

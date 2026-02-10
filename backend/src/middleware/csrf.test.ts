@@ -107,10 +107,7 @@ describe('CSRF Middleware', () => {
     const token = tokenRes.body.token;
 
     // POST with the valid token
-    const res = await agent
-      .post('/test')
-      .set('x-csrf-token', token)
-      .send({ data: 'test' });
+    const res = await agent.post('/test').set('x-csrf-token', token).send({ data: 'test' });
     expect(res.status).toBe(200);
     expect(res.body.ok).toBe(true);
   });
@@ -125,8 +122,8 @@ describe('CSRF Middleware', () => {
     const cookies = res.headers['set-cookie'];
     expect(cookies).toBeDefined();
 
-    const csrfCookie = (Array.isArray(cookies) ? cookies : [cookies]).find(
-      (c: string) => c.startsWith('__csrf=')
+    const csrfCookie = (Array.isArray(cookies) ? cookies : [cookies]).find((c: string) =>
+      c.startsWith('__csrf=')
     );
     expect(csrfCookie).toBeDefined();
     // Verify the cookie is NOT httpOnly (so frontend JS can read it)

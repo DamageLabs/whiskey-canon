@@ -19,7 +19,7 @@ const upload = multer({
     } else {
       cb(new Error('Only CSV files are allowed'));
     }
-  }
+  },
 });
 
 // All whiskey routes require authentication
@@ -31,7 +31,7 @@ router.get(
   requirePermission(Permission.READ_WHISKEY),
   [
     query('type').optional().isIn(Object.values(WhiskeyType)),
-    query('distillery').optional().isString()
+    query('distillery').optional().isString(),
   ],
   (req: AuthRequest, res: Response) => {
     const errors = validationResult(req);
@@ -43,7 +43,7 @@ router.get(
       const filters = {
         type: req.query.type as WhiskeyType | undefined,
         distillery: req.query.distillery as string | undefined,
-        userId: req.user!.id
+        userId: req.user!.id,
       };
 
       const whiskeys = WhiskeyModel.findAll(filters);
@@ -135,7 +135,7 @@ router.get(
         'Asking Price',
         'Is For Trade',
         'Shared With',
-        'Private Notes'
+        'Private Notes',
       ];
 
       // Helper function to escape CSV fields
@@ -150,65 +150,70 @@ router.get(
       };
 
       // Convert whiskeys to CSV rows
-      const rows = whiskeys.map(whiskey => [
-        escapeCSV(whiskey.name),
-        escapeCSV(whiskey.type),
-        escapeCSV(whiskey.distillery),
-        escapeCSV(whiskey.region),
-        escapeCSV(whiskey.country),
-        escapeCSV(whiskey.age),
-        escapeCSV(whiskey.abv),
-        escapeCSV(whiskey.proof),
-        escapeCSV(whiskey.size),
-        escapeCSV(whiskey.quantity),
-        escapeCSV(whiskey.msrp),
-        escapeCSV(whiskey.secondary_price),
-        escapeCSV(whiskey.purchase_date),
-        escapeCSV(whiskey.purchase_price),
-        escapeCSV(whiskey.purchase_location),
-        escapeCSV(whiskey.bottle_code),
-        escapeCSV(whiskey.rating),
-        escapeCSV(whiskey.description),
-        escapeCSV(whiskey.tasting_notes),
-        escapeCSV(whiskey.status),
-        escapeCSV(whiskey.is_opened ? 'Yes' : 'No'),
-        escapeCSV(whiskey.date_opened),
-        escapeCSV(whiskey.remaining_volume),
-        escapeCSV(whiskey.storage_location),
-        escapeCSV(whiskey.cask_type),
-        escapeCSV(whiskey.cask_finish),
-        escapeCSV(whiskey.barrel_number),
-        escapeCSV(whiskey.bottle_number),
-        escapeCSV(whiskey.vintage_year),
-        escapeCSV(whiskey.bottled_date),
-        escapeCSV(whiskey.color),
-        escapeCSV(whiskey.nose_notes),
-        escapeCSV(whiskey.palate_notes),
-        escapeCSV(whiskey.finish_notes),
-        escapeCSV(whiskey.times_tasted),
-        escapeCSV(whiskey.last_tasted_date),
-        escapeCSV(whiskey.food_pairings),
-        escapeCSV(whiskey.current_market_value),
-        escapeCSV(whiskey.value_gain_loss),
-        escapeCSV(whiskey.is_investment_bottle ? 'Yes' : 'No'),
-        escapeCSV(whiskey.mash_bill),
-        escapeCSV(whiskey.awards),
-        escapeCSV(whiskey.limited_edition ? 'Yes' : 'No'),
-        escapeCSV(whiskey.chill_filtered ? 'Yes' : 'No'),
-        escapeCSV(whiskey.natural_color ? 'Yes' : 'No'),
-        escapeCSV(whiskey.is_for_sale ? 'Yes' : 'No'),
-        escapeCSV(whiskey.asking_price),
-        escapeCSV(whiskey.is_for_trade ? 'Yes' : 'No'),
-        escapeCSV(whiskey.shared_with),
-        escapeCSV(whiskey.private_notes)
-      ].join(','));
+      const rows = whiskeys.map((whiskey) =>
+        [
+          escapeCSV(whiskey.name),
+          escapeCSV(whiskey.type),
+          escapeCSV(whiskey.distillery),
+          escapeCSV(whiskey.region),
+          escapeCSV(whiskey.country),
+          escapeCSV(whiskey.age),
+          escapeCSV(whiskey.abv),
+          escapeCSV(whiskey.proof),
+          escapeCSV(whiskey.size),
+          escapeCSV(whiskey.quantity),
+          escapeCSV(whiskey.msrp),
+          escapeCSV(whiskey.secondary_price),
+          escapeCSV(whiskey.purchase_date),
+          escapeCSV(whiskey.purchase_price),
+          escapeCSV(whiskey.purchase_location),
+          escapeCSV(whiskey.bottle_code),
+          escapeCSV(whiskey.rating),
+          escapeCSV(whiskey.description),
+          escapeCSV(whiskey.tasting_notes),
+          escapeCSV(whiskey.status),
+          escapeCSV(whiskey.is_opened ? 'Yes' : 'No'),
+          escapeCSV(whiskey.date_opened),
+          escapeCSV(whiskey.remaining_volume),
+          escapeCSV(whiskey.storage_location),
+          escapeCSV(whiskey.cask_type),
+          escapeCSV(whiskey.cask_finish),
+          escapeCSV(whiskey.barrel_number),
+          escapeCSV(whiskey.bottle_number),
+          escapeCSV(whiskey.vintage_year),
+          escapeCSV(whiskey.bottled_date),
+          escapeCSV(whiskey.color),
+          escapeCSV(whiskey.nose_notes),
+          escapeCSV(whiskey.palate_notes),
+          escapeCSV(whiskey.finish_notes),
+          escapeCSV(whiskey.times_tasted),
+          escapeCSV(whiskey.last_tasted_date),
+          escapeCSV(whiskey.food_pairings),
+          escapeCSV(whiskey.current_market_value),
+          escapeCSV(whiskey.value_gain_loss),
+          escapeCSV(whiskey.is_investment_bottle ? 'Yes' : 'No'),
+          escapeCSV(whiskey.mash_bill),
+          escapeCSV(whiskey.awards),
+          escapeCSV(whiskey.limited_edition ? 'Yes' : 'No'),
+          escapeCSV(whiskey.chill_filtered ? 'Yes' : 'No'),
+          escapeCSV(whiskey.natural_color ? 'Yes' : 'No'),
+          escapeCSV(whiskey.is_for_sale ? 'Yes' : 'No'),
+          escapeCSV(whiskey.asking_price),
+          escapeCSV(whiskey.is_for_trade ? 'Yes' : 'No'),
+          escapeCSV(whiskey.shared_with),
+          escapeCSV(whiskey.private_notes),
+        ].join(',')
+      );
 
       // Combine headers and rows
       const csv = [headers.join(','), ...rows].join('\n');
 
       // Set response headers for CSV download
       res.setHeader('Content-Type', 'text/csv');
-      res.setHeader('Content-Disposition', `attachment; filename="whiskey-collection-${new Date().toISOString().split('T')[0]}.csv"`);
+      res.setHeader(
+        'Content-Disposition',
+        `attachment; filename="whiskey-collection-${new Date().toISOString().split('T')[0]}.csv"`
+      );
 
       res.send(csv);
     } catch (error) {
@@ -231,14 +236,14 @@ router.post(
 
       // Parse CSV data
       const csvData = req.file.buffer.toString('utf-8');
-      const lines = csvData.split('\n').filter(line => line.trim());
+      const lines = csvData.split('\n').filter((line) => line.trim());
 
       if (lines.length < 2) {
         return res.status(400).json({ error: 'CSV file is empty or invalid' });
       }
 
       // Parse header row
-      const headers = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g, ''));
+      const headers = lines[0].split(',').map((h) => h.trim().replace(/^"|"$/g, ''));
 
       // Helper function to parse CSV row with proper quote handling
       const parseCSVRow = (row: string): string[] => {
@@ -278,7 +283,8 @@ router.post(
         const sub = subcategory.toLowerCase();
         if (sub === 'bourbon') return 'bourbon';
         if (sub === 'rye') return 'rye';
-        if (sub.includes('single malt') || sub.includes('blended') || sub.includes('single grain')) return 'scotch';
+        if (sub.includes('single malt') || sub.includes('blended') || sub.includes('single grain'))
+          return 'scotch';
         if (sub.includes('tennessee')) return 'tennessee';
         if (sub.includes('canadian')) return 'canadian';
         if (sub.includes('irish')) return 'irish';
@@ -471,14 +477,18 @@ router.post(
                 break;
               case 'Rarity':
                 // OnlyDrams field - append rarity to private notes
-                whiskeyData.private_notes = (whiskeyData.private_notes || '') +
-                  (whiskeyData.private_notes ? '\n' : '') + `Rarity: ${value}`;
+                whiskeyData.private_notes =
+                  (whiskeyData.private_notes || '') +
+                  (whiskeyData.private_notes ? '\n' : '') +
+                  `Rarity: ${value}`;
                 break;
               case 'Notes':
                 // OnlyDrams field - append to private notes
                 if (value) {
-                  whiskeyData.private_notes = (whiskeyData.private_notes || '') +
-                    (whiskeyData.private_notes ? '\n' : '') + value;
+                  whiskeyData.private_notes =
+                    (whiskeyData.private_notes || '') +
+                    (whiskeyData.private_notes ? '\n' : '') +
+                    value;
                 }
                 break;
             }
@@ -520,13 +530,13 @@ router.post(
           // Create whiskey
           const whiskey = WhiskeyModel.create({
             ...whiskeyData,
-            created_by: req.user!.id
+            created_by: req.user!.id,
           });
 
           imported.push({
             name: whiskey.name,
             type: whiskey.type,
-            id: whiskey.id
+            id: whiskey.id,
           });
         } catch (error: any) {
           errors.push(`Row ${i + 1}: ${error.message}`);
@@ -539,11 +549,11 @@ router.post(
           total: lines.length - 1,
           imported: imported.length,
           skipped: skipped.length,
-          errors: errors.length
+          errors: errors.length,
         },
         imported,
         skipped,
-        errors
+        errors,
       });
     } catch (error: any) {
       console.error('Error importing CSV:', error);
@@ -584,14 +594,23 @@ router.post(
     body('distillery').trim().notEmpty().withMessage('Distillery is required'),
     body('region').optional().trim(),
     body('age').optional().isInt({ min: 0 }).withMessage('Age must be a positive number'),
-    body('abv').optional().isFloat({ min: 0, max: 100 }).withMessage('ABV must be between 0 and 100'),
+    body('abv')
+      .optional()
+      .isFloat({ min: 0, max: 100 })
+      .withMessage('ABV must be between 0 and 100'),
     body('size').optional().trim(),
     body('quantity').optional().isInt({ min: 0 }).withMessage('Quantity must be a positive number'),
     body('msrp').optional().isFloat({ min: 0 }).withMessage('MSRP must be a positive number'),
-    body('secondary_price').optional().isFloat({ min: 0 }).withMessage('Secondary price must be a positive number'),
+    body('secondary_price')
+      .optional()
+      .isFloat({ min: 0 })
+      .withMessage('Secondary price must be a positive number'),
     body('description').optional().trim(),
     body('tasting_notes').optional().trim(),
-    body('rating').optional().isFloat({ min: 0, max: 10 }).withMessage('Rating must be between 0 and 10')
+    body('rating')
+      .optional()
+      .isFloat({ min: 0, max: 10 })
+      .withMessage('Rating must be between 0 and 10'),
   ],
   (req: AuthRequest, res: Response) => {
     const errors = validationResult(req);
@@ -609,12 +628,12 @@ router.post(
 
       const whiskey = WhiskeyModel.create({
         ...whiskeyData,
-        created_by: req.user!.id
+        created_by: req.user!.id,
       });
 
       res.status(201).json({
         message: 'Whiskey created successfully',
-        whiskey
+        whiskey,
       });
     } catch (error) {
       console.error('Error creating whiskey:', error);
@@ -641,7 +660,7 @@ router.put(
     body('secondary_price').optional().isFloat({ min: 0 }),
     body('description').optional().trim(),
     body('tasting_notes').optional().trim(),
-    body('rating').optional().isFloat({ min: 0, max: 10 })
+    body('rating').optional().isFloat({ min: 0, max: 10 }),
   ],
   (req: AuthRequest, res: Response) => {
     const errors = validationResult(req);
@@ -662,13 +681,15 @@ router.put(
       const whiskey = WhiskeyModel.update(parseInt(req.params.id), whiskeyData, req.user!.id);
 
       if (!whiskey) {
-        res.status(404).json({ error: 'Whiskey not found or you do not have permission to update it' });
+        res
+          .status(404)
+          .json({ error: 'Whiskey not found or you do not have permission to update it' });
         return;
       }
 
       res.json({
         message: 'Whiskey updated successfully',
-        whiskey
+        whiskey,
       });
     } catch (error) {
       console.error('Error updating whiskey:', error);
@@ -683,7 +704,7 @@ router.delete(
   requirePermission(Permission.DELETE_WHISKEY),
   [
     body('ids').isArray({ min: 1 }).withMessage('IDs array is required and must not be empty'),
-    body('ids.*').isInt({ min: 1 }).withMessage('Each ID must be a positive integer')
+    body('ids.*').isInt({ min: 1 }).withMessage('Each ID must be a positive integer'),
   ],
   (req: AuthRequest, res: Response) => {
     const errors = validationResult(req);
@@ -697,7 +718,7 @@ router.delete(
 
       res.json({
         message: `Successfully deleted ${deleted} whiskey(s)`,
-        deleted
+        deleted,
       });
     } catch (error) {
       console.error('Error deleting whiskeys:', error);
@@ -716,7 +737,7 @@ router.delete(
 
       res.json({
         message: `Successfully deleted ${deleted} whiskey(s)`,
-        deleted
+        deleted,
       });
     } catch (error) {
       console.error('Error deleting all whiskeys:', error);
@@ -736,7 +757,9 @@ router.delete(
       const deleted = WhiskeyModel.delete(parseInt(req.params.id), req.user!.id);
 
       if (!deleted) {
-        return res.status(404).json({ error: 'Whiskey not found or you do not have permission to delete it' });
+        return res
+          .status(404)
+          .json({ error: 'Whiskey not found or you do not have permission to delete it' });
       }
 
       res.json({ message: 'Whiskey deleted successfully' });

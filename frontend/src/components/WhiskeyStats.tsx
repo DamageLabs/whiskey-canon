@@ -9,37 +9,43 @@ export function WhiskeyStats({ whiskeys }: WhiskeyStatsProps) {
   // Calculate statistics
   const totalCount = whiskeys.length;
 
-  const typeCount = whiskeys.reduce((acc, whiskey) => {
-    acc[whiskey.type] = (acc[whiskey.type] || 0) + 1;
-    return acc;
-  }, {} as Record<WhiskeyType, number>);
+  const typeCount = whiskeys.reduce(
+    (acc, whiskey) => {
+      acc[whiskey.type] = (acc[whiskey.type] || 0) + 1;
+      return acc;
+    },
+    {} as Record<WhiskeyType, number>
+  );
 
-  const averageRating = whiskeys.length > 0
-    ? whiskeys
-        .filter(w => w.rating !== null && w.rating !== undefined)
-        .reduce((sum, w) => sum + (w.rating || 0), 0) /
-      whiskeys.filter(w => w.rating !== null && w.rating !== undefined).length
-    : 0;
+  const averageRating =
+    whiskeys.length > 0
+      ? whiskeys
+          .filter((w) => w.rating !== null && w.rating !== undefined)
+          .reduce((sum, w) => sum + (w.rating || 0), 0) /
+        whiskeys.filter((w) => w.rating !== null && w.rating !== undefined).length
+      : 0;
 
-  const averageAge = whiskeys.length > 0
-    ? whiskeys
-        .filter(w => w.age !== null && w.age !== undefined)
-        .reduce((sum, w) => sum + (w.age || 0), 0) /
-      whiskeys.filter(w => w.age !== null && w.age !== undefined).length
-    : 0;
+  const averageAge =
+    whiskeys.length > 0
+      ? whiskeys
+          .filter((w) => w.age !== null && w.age !== undefined)
+          .reduce((sum, w) => sum + (w.age || 0), 0) /
+        whiskeys.filter((w) => w.age !== null && w.age !== undefined).length
+      : 0;
 
-  const averageABV = whiskeys.length > 0
-    ? whiskeys
-        .filter(w => w.abv !== null && w.abv !== undefined)
-        .reduce((sum, w) => sum + (w.abv || 0), 0) /
-      whiskeys.filter(w => w.abv !== null && w.abv !== undefined).length
-    : 0;
+  const averageABV =
+    whiskeys.length > 0
+      ? whiskeys
+          .filter((w) => w.abv !== null && w.abv !== undefined)
+          .reduce((sum, w) => sum + (w.abv || 0), 0) /
+        whiskeys.filter((w) => w.abv !== null && w.abv !== undefined).length
+      : 0;
 
   // Calculate total MSRP value (msrp * quantity, default quantity to 1)
   const totalMSRPValue = whiskeys.reduce((sum, w) => {
     if (w.msrp) {
       const qty = w.quantity || 1;
-      return sum + (w.msrp * qty);
+      return sum + w.msrp * qty;
     }
     return sum;
   }, 0);
@@ -48,7 +54,7 @@ export function WhiskeyStats({ whiskeys }: WhiskeyStatsProps) {
   const totalSecondaryValue = whiskeys.reduce((sum, w) => {
     if (w.secondary_price) {
       const qty = w.quantity || 1;
-      return sum + (w.secondary_price * qty);
+      return sum + w.secondary_price * qty;
     }
     return sum;
   }, 0);
@@ -60,7 +66,9 @@ export function WhiskeyStats({ whiskeys }: WhiskeyStatsProps) {
         <div className="card h-100" style={{ borderColor: 'var(--amber-500)' }}>
           <div className="card-body text-center">
             <h6 className="card-subtitle mb-2 text-muted">Total Whiskeys</h6>
-            <h2 className="card-title display-4 mb-0" style={{ color: 'var(--amber-500)' }}>{totalCount}</h2>
+            <h2 className="card-title display-4 mb-0" style={{ color: 'var(--amber-500)' }}>
+              {totalCount}
+            </h2>
           </div>
         </div>
       </div>
@@ -144,7 +152,12 @@ export function WhiskeyStats({ whiskeys }: WhiskeyStatsProps) {
                   <div key={type} className="col-6 col-md-4 col-lg-3 col-xl-2">
                     <div className="text-center">
                       <div className="mb-2">
-                        <span className="badge text-capitalize fs-6 text-white" style={{ backgroundColor: 'var(--amber-500)' }}>{type}</span>
+                        <span
+                          className="badge text-capitalize fs-6 text-white"
+                          style={{ backgroundColor: 'var(--amber-500)' }}
+                        >
+                          {type}
+                        </span>
                       </div>
                       <div className="d-flex flex-column align-items-center">
                         <h4 className="mb-1">{count}</h4>

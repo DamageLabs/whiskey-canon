@@ -57,7 +57,7 @@ export default function PublicProfilePage() {
     return new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'long',
-      day: 'numeric'
+      day: 'numeric',
     });
   };
 
@@ -83,10 +83,15 @@ export default function PublicProfilePage() {
   if (error || !profile) {
     return (
       <div className="profile-page">
-        <nav className="navbar shadow-sm mb-4" style={{ backgroundColor: 'var(--zinc-900)', borderBottom: '1px solid var(--zinc-800)' }}>
+        <nav
+          className="navbar shadow-sm mb-4"
+          style={{ backgroundColor: 'var(--zinc-900)', borderBottom: '1px solid var(--zinc-800)' }}
+        >
           <div className="container-fluid px-4">
             <div className="navbar-brand mb-0">
-              <span className="h4 mb-0" style={{ color: 'var(--amber-500)' }}>Profile</span>
+              <span className="h4 mb-0" style={{ color: 'var(--amber-500)' }}>
+                Profile
+              </span>
             </div>
             <button onClick={() => navigate(-1)} className="btn btn-outline-light btn-sm">
               Go Back
@@ -95,7 +100,10 @@ export default function PublicProfilePage() {
         </nav>
         <div className="profile-container">
           <div className="text-center py-5">
-            <i className="bi bi-person-x" style={{ fontSize: '4rem', color: 'var(--zinc-500)' }}></i>
+            <i
+              className="bi bi-person-x"
+              style={{ fontSize: '4rem', color: 'var(--zinc-500)' }}
+            ></i>
             <h2 className="mt-3">{error || 'Profile not found'}</h2>
             <p className="text-muted">This profile may be private or does not exist.</p>
             <button onClick={() => navigate('/')} className="btn btn-primary mt-3">
@@ -110,10 +118,15 @@ export default function PublicProfilePage() {
 
   return (
     <div className="profile-page">
-      <nav className="navbar shadow-sm mb-4" style={{ backgroundColor: 'var(--zinc-900)', borderBottom: '1px solid var(--zinc-800)' }}>
+      <nav
+        className="navbar shadow-sm mb-4"
+        style={{ backgroundColor: 'var(--zinc-900)', borderBottom: '1px solid var(--zinc-800)' }}
+      >
         <div className="container-fluid px-4">
           <div className="navbar-brand mb-0">
-            <span className="h4 mb-0" style={{ color: 'var(--amber-500)' }}>{profile.username}'s Profile</span>
+            <span className="h4 mb-0" style={{ color: 'var(--amber-500)' }}>
+              {profile.username}'s Profile
+            </span>
           </div>
           <button onClick={() => navigate(-1)} className="btn btn-outline-light btn-sm">
             Go Back
@@ -125,19 +138,13 @@ export default function PublicProfilePage() {
         <div className="profile-header">
           <div className="profile-avatar">
             {profile.profile_photo ? (
-              <img
-                src={profile.profile_photo}
-                alt={profile.username}
-                className="avatar-image"
-              />
+              <img src={profile.profile_photo} alt={profile.username} className="avatar-image" />
             ) : (
               <span className="avatar-text">{profile.username.charAt(0).toUpperCase()}</span>
             )}
           </div>
           <h1>{profile.username}</h1>
-          <span className={`role-badge ${getRoleBadgeClass(profile.role)}`}>
-            {profile.role}
-          </span>
+          <span className={`role-badge ${getRoleBadgeClass(profile.role)}`}>{profile.role}</span>
         </div>
 
         <div className="profile-content">
@@ -165,15 +172,29 @@ export default function PublicProfilePage() {
                 {/* Stats Overview Cards */}
                 <div className="row g-3 mb-4">
                   <div className="col-6 col-md-3">
-                    <div className="card h-100" style={{ backgroundColor: 'var(--zinc-800)', border: '1px solid var(--zinc-700)' }}>
+                    <div
+                      className="card h-100"
+                      style={{
+                        backgroundColor: 'var(--zinc-800)',
+                        border: '1px solid var(--zinc-700)',
+                      }}
+                    >
                       <div className="card-body text-center">
-                        <h3 className="mb-0" style={{ color: 'var(--amber-500)' }}>{stats.totalBottles}</h3>
+                        <h3 className="mb-0" style={{ color: 'var(--amber-500)' }}>
+                          {stats.totalBottles}
+                        </h3>
                         <small className="text-muted">Total Bottles</small>
                       </div>
                     </div>
                   </div>
                   <div className="col-6 col-md-3">
-                    <div className="card h-100" style={{ backgroundColor: 'var(--zinc-800)', border: '1px solid var(--zinc-700)' }}>
+                    <div
+                      className="card h-100"
+                      style={{
+                        backgroundColor: 'var(--zinc-800)',
+                        border: '1px solid var(--zinc-700)',
+                      }}
+                    >
                       <div className="card-body text-center">
                         <h3 className="mb-0" style={{ color: 'var(--amber-500)' }}>
                           {stats.averageRating !== null ? stats.averageRating.toFixed(1) : '—'}
@@ -183,17 +204,33 @@ export default function PublicProfilePage() {
                     </div>
                   </div>
                   <div className="col-6 col-md-3">
-                    <div className="card h-100" style={{ backgroundColor: 'var(--zinc-800)', border: '1px solid var(--zinc-700)' }}>
+                    <div
+                      className="card h-100"
+                      style={{
+                        backgroundColor: 'var(--zinc-800)',
+                        border: '1px solid var(--zinc-700)',
+                      }}
+                    >
                       <div className="card-body text-center">
-                        <h3 className="mb-0" style={{ color: 'var(--amber-500)' }}>{stats.totalDistilleries}</h3>
+                        <h3 className="mb-0" style={{ color: 'var(--amber-500)' }}>
+                          {stats.totalDistilleries}
+                        </h3>
                         <small className="text-muted">Distilleries</small>
                       </div>
                     </div>
                   </div>
                   <div className="col-6 col-md-3">
-                    <div className="card h-100" style={{ backgroundColor: 'var(--zinc-800)', border: '1px solid var(--zinc-700)' }}>
+                    <div
+                      className="card h-100"
+                      style={{
+                        backgroundColor: 'var(--zinc-800)',
+                        border: '1px solid var(--zinc-700)',
+                      }}
+                    >
                       <div className="card-body text-center">
-                        <h3 className="mb-0" style={{ color: 'var(--amber-500)' }}>{stats.countriesRepresented.length}</h3>
+                        <h3 className="mb-0" style={{ color: 'var(--amber-500)' }}>
+                          {stats.countriesRepresented.length}
+                        </h3>
                         <small className="text-muted">Countries</small>
                       </div>
                     </div>
@@ -216,7 +253,8 @@ export default function PublicProfilePage() {
                             padding: '0.5rem 0.75rem',
                           }}
                         >
-                          {formatWhiskeyType(type)} <span style={{ color: 'var(--amber-500)' }}>({count})</span>
+                          {formatWhiskeyType(type)}{' '}
+                          <span style={{ color: 'var(--amber-500)' }}>({count})</span>
                         </span>
                       ))}
                     </div>
@@ -232,10 +270,21 @@ export default function PublicProfilePage() {
                         <li
                           key={distillery}
                           className="d-flex justify-content-between align-items-center py-2"
-                          style={{ borderBottom: index < stats.topDistilleries.length - 1 ? '1px solid var(--zinc-700)' : 'none' }}
+                          style={{
+                            borderBottom:
+                              index < stats.topDistilleries.length - 1
+                                ? '1px solid var(--zinc-700)'
+                                : 'none',
+                          }}
                         >
                           <span>{distillery}</span>
-                          <span className="badge" style={{ backgroundColor: 'var(--amber-500)', color: 'var(--zinc-900)' }}>
+                          <span
+                            className="badge"
+                            style={{
+                              backgroundColor: 'var(--amber-500)',
+                              color: 'var(--zinc-900)',
+                            }}
+                          >
                             {count}
                           </span>
                         </li>

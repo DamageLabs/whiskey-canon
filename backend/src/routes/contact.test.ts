@@ -100,18 +100,14 @@ describe('Contact Routes', () => {
 
   describe('Successful submission', () => {
     it('returns 200 with success message when all fields valid', async () => {
-      const response = await request(app)
-        .post('/api/contact')
-        .send(validPayload);
+      const response = await request(app).post('/api/contact').send(validPayload);
 
       expect(response.status).toBe(200);
       expect(response.body.message).toBe('Message sent successfully');
     });
 
     it('calls sendContactEmail with correct arguments', async () => {
-      await request(app)
-        .post('/api/contact')
-        .send(validPayload);
+      await request(app).post('/api/contact').send(validPayload);
 
       expect(sendContactEmail).toHaveBeenCalledWith(
         validPayload.name,
@@ -126,9 +122,7 @@ describe('Contact Routes', () => {
     it('returns 500 when sendContactEmail returns false', async () => {
       vi.mocked(sendContactEmail).mockResolvedValue(false);
 
-      const response = await request(app)
-        .post('/api/contact')
-        .send(validPayload);
+      const response = await request(app).post('/api/contact').send(validPayload);
 
       expect(response.status).toBe(500);
       expect(response.body.error).toBe('Failed to send message. Please try again later.');
@@ -137,9 +131,7 @@ describe('Contact Routes', () => {
     it('returns 500 when sendContactEmail throws', async () => {
       vi.mocked(sendContactEmail).mockRejectedValue(new Error('SMTP error'));
 
-      const response = await request(app)
-        .post('/api/contact')
-        .send(validPayload);
+      const response = await request(app).post('/api/contact').send(validPayload);
 
       expect(response.status).toBe(500);
       expect(response.body.error).toBe('Failed to send message. Please try again later.');

@@ -379,7 +379,10 @@ describe('ProfilePage - Clear Collection', () => {
     it('shows loading state while deleting', async () => {
       let resolveDelete: (value: any) => void;
       vi.mocked(whiskeyAPI.deleteAll).mockImplementation(
-        () => new Promise((resolve) => { resolveDelete = resolve; })
+        () =>
+          new Promise((resolve) => {
+            resolveDelete = resolve;
+          })
       );
 
       renderWithRouter();
@@ -459,7 +462,7 @@ describe('ProfilePage - Profile Visibility', () => {
         // There are two "Private" elements - the badge and the button
         // Use getAllByText and check the badge specifically
         const privateElements = screen.getAllByText(/Private/);
-        const badge = privateElements.find(el => el.classList.contains('badge'));
+        const badge = privateElements.find((el) => el.classList.contains('badge'));
         expect(badge).toBeInTheDocument();
       });
     });
@@ -560,7 +563,7 @@ describe('ProfilePage - Profile Visibility', () => {
 
       // Find the "Make Public" button in the modal (not the toggle button)
       const makePublicButtons = screen.getAllByRole('button', { name: /Make Public/i });
-      const modalButton = makePublicButtons.find(btn => btn.classList.contains('btn-success'));
+      const modalButton = makePublicButtons.find((btn) => btn.classList.contains('btn-success'));
       fireEvent.click(modalButton!);
 
       await waitFor(() => {
@@ -583,7 +586,7 @@ describe('ProfilePage - Profile Visibility', () => {
       fireEvent.click(screen.getByRole('button', { name: /Public/i }));
 
       const makePublicButtons = screen.getAllByRole('button', { name: /Make Public/i });
-      const modalButton = makePublicButtons.find(btn => btn.classList.contains('btn-success'));
+      const modalButton = makePublicButtons.find((btn) => btn.classList.contains('btn-success'));
       fireEvent.click(modalButton!);
 
       await waitFor(() => {
@@ -606,7 +609,7 @@ describe('ProfilePage - Profile Visibility', () => {
       fireEvent.click(screen.getByRole('button', { name: /Public/i }));
 
       const makePublicButtons = screen.getAllByRole('button', { name: /Make Public/i });
-      const modalButton = makePublicButtons.find(btn => btn.classList.contains('btn-success'));
+      const modalButton = makePublicButtons.find((btn) => btn.classList.contains('btn-success'));
       fireEvent.click(modalButton!);
 
       await waitFor(() => {
@@ -626,7 +629,7 @@ describe('ProfilePage - Profile Visibility', () => {
       fireEvent.click(screen.getByRole('button', { name: /Public/i }));
 
       const makePublicButtons = screen.getAllByRole('button', { name: /Make Public/i });
-      const modalButton = makePublicButtons.find(btn => btn.classList.contains('btn-success'));
+      const modalButton = makePublicButtons.find((btn) => btn.classList.contains('btn-success'));
       fireEvent.click(modalButton!);
 
       await waitFor(() => {
@@ -663,7 +666,7 @@ describe('ProfilePage - Profile Visibility', () => {
 
       // All buttons should have accessible names (text content or aria-label)
       const buttons = screen.getAllByRole('button');
-      buttons.forEach(button => {
+      buttons.forEach((button) => {
         const hasAccessibleName = button.textContent?.trim() || button.getAttribute('aria-label');
         expect(hasAccessibleName).toBeTruthy();
       });
@@ -739,7 +742,7 @@ describe('ProfilePage - Profile Visibility', () => {
       fireEvent.click(screen.getByRole('button', { name: /Public/i }));
 
       const makePublicButtons = screen.getAllByRole('button', { name: /Make Public/i });
-      const modalButton = makePublicButtons.find(btn => btn.classList.contains('btn-success'));
+      const modalButton = makePublicButtons.find((btn) => btn.classList.contains('btn-success'));
       fireEvent.click(modalButton!);
 
       await waitFor(() => {
@@ -761,7 +764,7 @@ describe('ProfilePage - Profile Visibility', () => {
       fireEvent.click(screen.getByRole('button', { name: /Public/i }));
 
       const makePublicButtons = screen.getAllByRole('button', { name: /Make Public/i });
-      const modalButton = makePublicButtons.find(btn => btn.classList.contains('btn-success'));
+      const modalButton = makePublicButtons.find((btn) => btn.classList.contains('btn-success'));
       fireEvent.click(modalButton!);
 
       await waitFor(() => {

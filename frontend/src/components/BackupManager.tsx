@@ -123,7 +123,9 @@ export function BackupManager() {
       </h2>
 
       {message && (
-        <div className={`alert alert-${message.type === 'success' ? 'success' : 'danger'} alert-dismissible`}>
+        <div
+          className={`alert alert-${message.type === 'success' ? 'success' : 'danger'} alert-dismissible`}
+        >
           {message.text}
           <button type="button" className="btn-close" onClick={() => setMessage(null)}></button>
         </div>
@@ -132,9 +134,7 @@ export function BackupManager() {
       {/* Create Backup */}
       <div className="info-group">
         <label>Create Backup</label>
-        <p className="text-muted mb-2">
-          Export your profile, whiskeys, and comments.
-        </p>
+        <p className="text-muted mb-2">Export your profile, whiskeys, and comments.</p>
         <div className="d-flex align-items-center gap-2">
           <select
             className="form-select"
@@ -145,11 +145,7 @@ export function BackupManager() {
             <option value="json">JSON (full backup)</option>
             <option value="csv">CSV (whiskeys only)</option>
           </select>
-          <button
-            className="btn btn-primary"
-            onClick={handleCreate}
-            disabled={creating}
-          >
+          <button className="btn btn-primary" onClick={handleCreate} disabled={creating}>
             {creating ? (
               <>
                 <span className="spinner-border spinner-border-sm me-1"></span>
@@ -186,14 +182,18 @@ export function BackupManager() {
                   <tr key={backup.id}>
                     <td>{formatDate(backup.created_at)}</td>
                     <td>
-                      <span className={`badge bg-${backup.format === 'json' ? 'info' : 'secondary'}`}>
+                      <span
+                        className={`badge bg-${backup.format === 'json' ? 'info' : 'secondary'}`}
+                      >
                         {backup.format.toUpperCase()}
                       </span>
                     </td>
                     <td>{formatBytes(backup.size_bytes)}</td>
                     <td>{backup.whiskey_count ?? '—'}</td>
                     <td>
-                      <span className={`badge bg-${backup.trigger_type === 'manual' ? 'primary' : 'success'}`}>
+                      <span
+                        className={`badge bg-${backup.trigger_type === 'manual' ? 'primary' : 'success'}`}
+                      >
                         {backup.trigger_type}
                       </span>
                     </td>
@@ -235,9 +235,7 @@ export function BackupManager() {
       {/* Schedule Configuration */}
       <div className="info-group mt-4">
         <label>Automatic Backups</label>
-        <p className="text-muted mb-2">
-          Schedule automatic backups of your collection.
-        </p>
+        <p className="text-muted mb-2">Schedule automatic backups of your collection.</p>
         <div className="row g-3 align-items-end">
           <div className="col-auto">
             <label className="form-label small">Frequency</label>

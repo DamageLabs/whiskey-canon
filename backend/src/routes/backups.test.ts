@@ -45,9 +45,7 @@ describe('Backup Routes', () => {
 
   describe('Authentication', () => {
     it('returns 401 for unauthenticated POST /api/backups', async () => {
-      const response = await request(app)
-        .post('/api/backups')
-        .send({ format: 'json' });
+      const response = await request(app).post('/api/backups').send({ format: 'json' });
       expect(response.status).toBe(401);
     });
 
@@ -77,11 +75,9 @@ describe('Backup Routes', () => {
   describe('POST /api/backups', () => {
     it('creates a JSON backup', async () => {
       const { agent, user } = await createAuthenticatedAgent(app);
-      createTestWhiskey(user.id, { name: 'Maker\'s Mark' });
+      createTestWhiskey(user.id, { name: "Maker's Mark" });
 
-      const response = await agent
-        .post('/api/backups')
-        .send({ format: 'json' });
+      const response = await agent.post('/api/backups').send({ format: 'json' });
 
       expect(response.status).toBe(201);
       expect(response.body.backup).toBeDefined();
@@ -95,9 +91,7 @@ describe('Backup Routes', () => {
       const { agent, user } = await createAuthenticatedAgent(app);
       createTestWhiskey(user.id);
 
-      const response = await agent
-        .post('/api/backups')
-        .send({ format: 'csv' });
+      const response = await agent.post('/api/backups').send({ format: 'csv' });
 
       expect(response.status).toBe(201);
       expect(response.body.backup.format).toBe('csv');
@@ -106,9 +100,7 @@ describe('Backup Routes', () => {
     it('validates format field', async () => {
       const { agent } = await createAuthenticatedAgent(app);
 
-      const response = await agent
-        .post('/api/backups')
-        .send({ format: 'xml' });
+      const response = await agent.post('/api/backups').send({ format: 'xml' });
 
       expect(response.status).toBe(400);
     });
@@ -116,9 +108,7 @@ describe('Backup Routes', () => {
     it('returns 400 when format is missing', async () => {
       const { agent } = await createAuthenticatedAgent(app);
 
-      const response = await agent
-        .post('/api/backups')
-        .send({});
+      const response = await agent.post('/api/backups').send({});
 
       expect(response.status).toBe(400);
     });
@@ -312,9 +302,7 @@ describe('Backup Routes', () => {
       const createResponse = await agent.post('/api/backups').send({ format: 'json' });
       const backupId = createResponse.body.backup.id;
 
-      const response = await agent
-        .post(`/api/backups/${backupId}/restore`)
-        .send({ dryRun: true });
+      const response = await agent.post(`/api/backups/${backupId}/restore`).send({ dryRun: true });
 
       expect(response.status).toBe(200);
       expect(response.body.preview).toBeDefined();
@@ -340,9 +328,7 @@ describe('Backup Routes', () => {
     it('returns 404 for non-existent backup', async () => {
       const { agent } = await createAuthenticatedAgent(app);
 
-      const response = await agent
-        .post('/api/backups/99999/restore')
-        .send({ dryRun: true });
+      const response = await agent.post('/api/backups/99999/restore').send({ dryRun: true });
 
       expect(response.status).toBe(404);
     });
@@ -353,9 +339,7 @@ describe('Backup Routes', () => {
       const createResponse = await agent.post('/api/backups').send({ format: 'csv' });
       const backupId = createResponse.body.backup.id;
 
-      const response = await agent
-        .post(`/api/backups/${backupId}/restore`)
-        .send({ dryRun: true });
+      const response = await agent.post(`/api/backups/${backupId}/restore`).send({ dryRun: true });
 
       expect(response.status).toBe(400);
       expect(response.body.error).toBe('Only JSON backups can be restored');
@@ -364,9 +348,7 @@ describe('Backup Routes', () => {
     it('returns 400 for invalid backup ID', async () => {
       const { agent } = await createAuthenticatedAgent(app);
 
-      const response = await agent
-        .post('/api/backups/abc/restore')
-        .send({ dryRun: true });
+      const response = await agent.post('/api/backups/abc/restore').send({ dryRun: true });
 
       expect(response.status).toBe(400);
     });
@@ -382,7 +364,9 @@ describe('Backup Routes', () => {
 
       expect((await agent2.get(`/api/backups/${backupId}/download`)).status).toBe(404);
       expect((await agent2.delete(`/api/backups/${backupId}`)).status).toBe(404);
-      expect((await agent2.post(`/api/backups/${backupId}/restore`).send({ dryRun: true })).status).toBe(404);
+      expect(
+        (await agent2.post(`/api/backups/${backupId}/restore`).send({ dryRun: true })).status
+      ).toBe(404);
     });
   });
 });

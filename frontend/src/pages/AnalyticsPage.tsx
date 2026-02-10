@@ -10,11 +10,20 @@ export default function AnalyticsPage() {
   return (
     <div className="min-vh-100" style={{ backgroundColor: 'var(--zinc-950)' }}>
       {/* Header */}
-      <nav className="navbar shadow-sm" style={{ backgroundColor: 'var(--zinc-900)', borderBottom: '1px solid var(--zinc-800)' }}>
+      <nav
+        className="navbar shadow-sm"
+        style={{ backgroundColor: 'var(--zinc-900)', borderBottom: '1px solid var(--zinc-800)' }}
+      >
         <div className="container-fluid px-4">
-          <div className="navbar-brand mb-0 d-flex align-items-center gap-2" onClick={() => navigate('/dashboard')} style={{ cursor: 'pointer' }}>
+          <div
+            className="navbar-brand mb-0 d-flex align-items-center gap-2"
+            onClick={() => navigate('/dashboard')}
+            style={{ cursor: 'pointer' }}
+          >
             <span style={{ fontSize: '2rem' }}>🥃</span>
-            <span className="fw-bold" style={{ color: 'var(--zinc-100)' }}>Whiskey Canon</span>
+            <span className="fw-bold" style={{ color: 'var(--zinc-100)' }}>
+              Whiskey Canon
+            </span>
           </div>
           <div className="d-flex align-items-center gap-3">
             <button onClick={() => navigate('/dashboard')} className="btn btn-outline-light btn-sm">
@@ -26,7 +35,13 @@ export default function AnalyticsPage() {
               </button>
             )}
             <span style={{ color: 'var(--zinc-300)' }}>
-              {user?.username} <span className="badge" style={{ backgroundColor: 'var(--amber-600)', color: 'white' }}>{user?.role}</span>
+              {user?.username}{' '}
+              <span
+                className="badge"
+                style={{ backgroundColor: 'var(--amber-600)', color: 'white' }}
+              >
+                {user?.role}
+              </span>
             </span>
             <button onClick={() => navigate('/profile')} className="btn btn-outline-light btn-sm">
               Profile

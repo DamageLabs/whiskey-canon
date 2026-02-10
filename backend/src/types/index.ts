@@ -1,7 +1,7 @@
 export enum Role {
   ADMIN = 'admin',
   EDITOR = 'editor',
-  VIEWER = 'viewer'
+  VIEWER = 'viewer',
 }
 
 export enum Permission {
@@ -9,7 +9,7 @@ export enum Permission {
   READ_WHISKEY = 'read:whiskey',
   UPDATE_WHISKEY = 'update:whiskey',
   DELETE_WHISKEY = 'delete:whiskey',
-  MANAGE_USERS = 'manage:users'
+  MANAGE_USERS = 'manage:users',
 }
 
 export interface User {
@@ -118,7 +118,7 @@ export enum WhiskeyType {
   RYE = 'rye',
   TENNESSEE = 'tennessee',
   CANADIAN = 'canadian',
-  OTHER = 'other'
+  OTHER = 'other',
 }
 
 export enum WhiskeyStatus {
@@ -126,7 +126,7 @@ export enum WhiskeyStatus {
   CONSUMED = 'consumed',
   SOLD = 'sold',
   GIFTED = 'gifted',
-  TRADED = 'traded'
+  TRADED = 'traded',
 }
 
 export const RolePermissions: Record<Role, Permission[]> = {
@@ -135,16 +135,10 @@ export const RolePermissions: Record<Role, Permission[]> = {
     Permission.READ_WHISKEY,
     Permission.UPDATE_WHISKEY,
     Permission.DELETE_WHISKEY,
-    Permission.MANAGE_USERS
+    Permission.MANAGE_USERS,
   ],
-  [Role.EDITOR]: [
-    Permission.CREATE_WHISKEY,
-    Permission.READ_WHISKEY,
-    Permission.UPDATE_WHISKEY
-  ],
-  [Role.VIEWER]: [
-    Permission.READ_WHISKEY
-  ]
+  [Role.EDITOR]: [Permission.CREATE_WHISKEY, Permission.READ_WHISKEY, Permission.UPDATE_WHISKEY],
+  [Role.VIEWER]: [Permission.READ_WHISKEY],
 };
 
 export interface WhiskeyComment {

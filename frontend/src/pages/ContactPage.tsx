@@ -10,7 +10,9 @@ export function ContactPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+  ) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
@@ -49,11 +51,20 @@ export function ContactPage() {
   return (
     <div className="min-vh-100" style={{ backgroundColor: 'var(--zinc-950)' }}>
       {/* Header */}
-      <nav className="navbar shadow-sm" style={{ backgroundColor: 'var(--zinc-900)', borderBottom: '1px solid var(--zinc-800)' }}>
+      <nav
+        className="navbar shadow-sm"
+        style={{ backgroundColor: 'var(--zinc-900)', borderBottom: '1px solid var(--zinc-800)' }}
+      >
         <div className="container-fluid px-4">
-          <div className="navbar-brand mb-0 d-flex align-items-center gap-2" onClick={() => navigate('/dashboard')} style={{ cursor: 'pointer' }}>
+          <div
+            className="navbar-brand mb-0 d-flex align-items-center gap-2"
+            onClick={() => navigate('/dashboard')}
+            style={{ cursor: 'pointer' }}
+          >
             <span style={{ fontSize: '2rem' }}>🥃</span>
-            <span className="fw-bold" style={{ color: 'var(--zinc-100)' }}>Whiskey Canon</span>
+            <span className="fw-bold" style={{ color: 'var(--zinc-100)' }}>
+              Whiskey Canon
+            </span>
           </div>
           <div className="d-flex align-items-center gap-3">
             <button onClick={() => navigate(-1)} className="btn btn-outline-light btn-sm">
@@ -69,19 +80,33 @@ export function ContactPage() {
           <div className="col-lg-8">
             <div className="card shadow-sm">
               <div className="card-body p-5">
-                <h1 className="mb-4" style={{ color: 'var(--amber-500)' }}>Contact Us</h1>
+                <h1 className="mb-4" style={{ color: 'var(--amber-500)' }}>
+                  Contact Us
+                </h1>
                 <p className="text-muted mb-4">
-                  Have a question, suggestion, or just want to talk whiskey? We'd love to hear from you.
+                  Have a question, suggestion, or just want to talk whiskey? We'd love to hear from
+                  you.
                 </p>
 
                 <hr className="my-4" />
 
                 {submitted ? (
                   <div className="text-center py-5">
-                    <i className="bi bi-check-circle" style={{ fontSize: '3rem', color: 'var(--amber-500)' }}></i>
-                    <h3 className="mt-3" style={{ color: 'var(--zinc-100)' }}>Message Sent!</h3>
-                    <p className="text-muted">Thank you for reaching out. We'll get back to you as soon as possible.</p>
-                    <button onClick={() => setSubmitted(false)} className="btn mt-3" style={{ backgroundColor: 'var(--amber-500)', color: '#000' }}>
+                    <i
+                      className="bi bi-check-circle"
+                      style={{ fontSize: '3rem', color: 'var(--amber-500)' }}
+                    ></i>
+                    <h3 className="mt-3" style={{ color: 'var(--zinc-100)' }}>
+                      Message Sent!
+                    </h3>
+                    <p className="text-muted">
+                      Thank you for reaching out. We'll get back to you as soon as possible.
+                    </p>
+                    <button
+                      onClick={() => setSubmitted(false)}
+                      className="btn mt-3"
+                      style={{ backgroundColor: 'var(--amber-500)', color: '#000' }}
+                    >
                       Send Another Message
                     </button>
                   </div>
@@ -94,7 +119,13 @@ export function ContactPage() {
                     )}
                     <div className="row mb-3">
                       <div className="col-md-6 mb-3 mb-md-0">
-                        <label htmlFor="name" className="form-label" style={{ color: 'var(--zinc-300)' }}>Name</label>
+                        <label
+                          htmlFor="name"
+                          className="form-label"
+                          style={{ color: 'var(--zinc-300)' }}
+                        >
+                          Name
+                        </label>
                         <input
                           type="text"
                           className="form-control"
@@ -106,7 +137,13 @@ export function ContactPage() {
                         />
                       </div>
                       <div className="col-md-6">
-                        <label htmlFor="email" className="form-label" style={{ color: 'var(--zinc-300)' }}>Email</label>
+                        <label
+                          htmlFor="email"
+                          className="form-label"
+                          style={{ color: 'var(--zinc-300)' }}
+                        >
+                          Email
+                        </label>
                         <input
                           type="email"
                           className="form-control"
@@ -120,7 +157,13 @@ export function ContactPage() {
                     </div>
 
                     <div className="mb-3">
-                      <label htmlFor="subject" className="form-label" style={{ color: 'var(--zinc-300)' }}>Subject</label>
+                      <label
+                        htmlFor="subject"
+                        className="form-label"
+                        style={{ color: 'var(--zinc-300)' }}
+                      >
+                        Subject
+                      </label>
                       <select
                         className="form-select"
                         id="subject"
@@ -139,7 +182,13 @@ export function ContactPage() {
                     </div>
 
                     <div className="mb-4">
-                      <label htmlFor="message" className="form-label" style={{ color: 'var(--zinc-300)' }}>Message</label>
+                      <label
+                        htmlFor="message"
+                        className="form-label"
+                        style={{ color: 'var(--zinc-300)' }}
+                      >
+                        Message
+                      </label>
                       <textarea
                         className="form-control"
                         id="message"
@@ -151,10 +200,19 @@ export function ContactPage() {
                       ></textarea>
                     </div>
 
-                    <button type="submit" className="btn" style={{ backgroundColor: 'var(--amber-500)', color: '#000' }} disabled={loading}>
+                    <button
+                      type="submit"
+                      className="btn"
+                      style={{ backgroundColor: 'var(--amber-500)', color: '#000' }}
+                      disabled={loading}
+                    >
                       {loading ? (
                         <>
-                          <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                          <span
+                            className="spinner-border spinner-border-sm me-2"
+                            role="status"
+                            aria-hidden="true"
+                          ></span>
                           Sending...
                         </>
                       ) : (
@@ -167,10 +225,25 @@ export function ContactPage() {
                 <hr className="my-4" />
 
                 <section>
-                  <h2 className="h5 mb-3" style={{ color: 'var(--amber-500)' }}>Other Ways to Reach Us</h2>
+                  <h2 className="h5 mb-3" style={{ color: 'var(--amber-500)' }}>
+                    Other Ways to Reach Us
+                  </h2>
                   <ul className="list-unstyled">
-                    <li className="mb-2"><i className="bi bi-envelope me-2" style={{ color: 'var(--amber-500)' }}></i> support@whiskey-canon.com</li>
-                    <li><i className="bi bi-github me-2" style={{ color: 'var(--amber-500)' }}></i> <a href="https://github.com/DamageLabs/whiskey-canon" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--zinc-300)' }}>DamageLabs/whiskey-canon</a></li>
+                    <li className="mb-2">
+                      <i className="bi bi-envelope me-2" style={{ color: 'var(--amber-500)' }}></i>{' '}
+                      support@whiskey-canon.com
+                    </li>
+                    <li>
+                      <i className="bi bi-github me-2" style={{ color: 'var(--amber-500)' }}></i>{' '}
+                      <a
+                        href="https://github.com/DamageLabs/whiskey-canon"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{ color: 'var(--zinc-300)' }}
+                      >
+                        DamageLabs/whiskey-canon
+                      </a>
+                    </li>
                   </ul>
                 </section>
               </div>

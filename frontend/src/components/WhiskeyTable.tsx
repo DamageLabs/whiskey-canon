@@ -12,7 +12,19 @@ interface WhiskeyTableProps {
   selectionEnabled?: boolean;
 }
 
-type SortColumn = 'name' | 'type' | 'distillery' | 'region' | 'age' | 'abv' | 'proof' | 'size' | 'quantity' | 'msrp' | 'secondary_price' | 'rating';
+type SortColumn =
+  | 'name'
+  | 'type'
+  | 'distillery'
+  | 'region'
+  | 'age'
+  | 'abv'
+  | 'proof'
+  | 'size'
+  | 'quantity'
+  | 'msrp'
+  | 'secondary_price'
+  | 'rating';
 type SortDirection = 'asc' | 'desc';
 
 export function WhiskeyTable({
@@ -22,20 +34,20 @@ export function WhiskeyTable({
   onDelete,
   selectedIds = new Set(),
   onSelectionChange,
-  selectionEnabled = false
+  selectionEnabled = false,
 }: WhiskeyTableProps) {
   const [sortColumn, setSortColumn] = useState<SortColumn>('name');
   const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
 
-  const allSelected = whiskeys.length > 0 && whiskeys.every(w => selectedIds.has(w.id));
-  const someSelected = whiskeys.some(w => selectedIds.has(w.id)) && !allSelected;
+  const allSelected = whiskeys.length > 0 && whiskeys.every((w) => selectedIds.has(w.id));
+  const someSelected = whiskeys.some((w) => selectedIds.has(w.id)) && !allSelected;
 
   function handleSelectAll() {
     if (!onSelectionChange) return;
     if (allSelected) {
       onSelectionChange(new Set());
     } else {
-      onSelectionChange(new Set(whiskeys.map(w => w.id)));
+      onSelectionChange(new Set(whiskeys.map((w) => w.id)));
     }
   }
 
@@ -63,8 +75,8 @@ export function WhiskeyTable({
 
   const sortedWhiskeys = useMemo(() => {
     const sorted = [...whiskeys].sort((a, b) => {
-      let aValue: any = a[sortColumn];
-      let bValue: any = b[sortColumn];
+      const aValue: any = a[sortColumn];
+      const bValue: any = b[sortColumn];
 
       // Handle null/undefined values - put them at the end
       if (aValue == null && bValue == null) return 0;
@@ -107,22 +119,36 @@ export function WhiskeyTable({
                   type="checkbox"
                   className="form-check-input"
                   checked={allSelected}
-                  ref={(el) => { if (el) el.indeterminate = someSelected; }}
+                  ref={(el) => {
+                    if (el) el.indeterminate = someSelected;
+                  }}
                   onChange={handleSelectAll}
                   style={{ cursor: 'pointer' }}
                 />
               </th>
             )}
-            <th onClick={() => handleSort('name')} style={{ cursor: 'pointer', userSelect: 'none' }}>
+            <th
+              onClick={() => handleSort('name')}
+              style={{ cursor: 'pointer', userSelect: 'none' }}
+            >
               Name {renderSortIcon('name')}
             </th>
-            <th onClick={() => handleSort('type')} style={{ cursor: 'pointer', userSelect: 'none' }}>
+            <th
+              onClick={() => handleSort('type')}
+              style={{ cursor: 'pointer', userSelect: 'none' }}
+            >
               Type {renderSortIcon('type')}
             </th>
-            <th onClick={() => handleSort('distillery')} style={{ cursor: 'pointer', userSelect: 'none' }}>
+            <th
+              onClick={() => handleSort('distillery')}
+              style={{ cursor: 'pointer', userSelect: 'none' }}
+            >
               Distillery {renderSortIcon('distillery')}
             </th>
-            <th onClick={() => handleSort('region')} style={{ cursor: 'pointer', userSelect: 'none' }}>
+            <th
+              onClick={() => handleSort('region')}
+              style={{ cursor: 'pointer', userSelect: 'none' }}
+            >
               Region {renderSortIcon('region')}
             </th>
             <th onClick={() => handleSort('age')} style={{ cursor: 'pointer', userSelect: 'none' }}>
@@ -131,22 +157,40 @@ export function WhiskeyTable({
             <th onClick={() => handleSort('abv')} style={{ cursor: 'pointer', userSelect: 'none' }}>
               ABV {renderSortIcon('abv')}
             </th>
-            <th onClick={() => handleSort('proof')} style={{ cursor: 'pointer', userSelect: 'none' }}>
+            <th
+              onClick={() => handleSort('proof')}
+              style={{ cursor: 'pointer', userSelect: 'none' }}
+            >
               Proof {renderSortIcon('proof')}
             </th>
-            <th onClick={() => handleSort('size')} style={{ cursor: 'pointer', userSelect: 'none' }}>
+            <th
+              onClick={() => handleSort('size')}
+              style={{ cursor: 'pointer', userSelect: 'none' }}
+            >
               Size {renderSortIcon('size')}
             </th>
-            <th onClick={() => handleSort('quantity')} style={{ cursor: 'pointer', userSelect: 'none' }}>
+            <th
+              onClick={() => handleSort('quantity')}
+              style={{ cursor: 'pointer', userSelect: 'none' }}
+            >
               Qty {renderSortIcon('quantity')}
             </th>
-            <th onClick={() => handleSort('msrp')} style={{ cursor: 'pointer', userSelect: 'none' }}>
+            <th
+              onClick={() => handleSort('msrp')}
+              style={{ cursor: 'pointer', userSelect: 'none' }}
+            >
               MSRP {renderSortIcon('msrp')}
             </th>
-            <th onClick={() => handleSort('secondary_price')} style={{ cursor: 'pointer', userSelect: 'none' }}>
+            <th
+              onClick={() => handleSort('secondary_price')}
+              style={{ cursor: 'pointer', userSelect: 'none' }}
+            >
               Secondary {renderSortIcon('secondary_price')}
             </th>
-            <th onClick={() => handleSort('rating')} style={{ cursor: 'pointer', userSelect: 'none' }}>
+            <th
+              onClick={() => handleSort('rating')}
+              style={{ cursor: 'pointer', userSelect: 'none' }}
+            >
               Rating {renderSortIcon('rating')}
             </th>
             {(onEdit || onDelete) && <th className="text-center">Actions</th>}
@@ -159,7 +203,9 @@ export function WhiskeyTable({
               onClick={() => onRowClick(whiskey)}
               style={{
                 cursor: 'pointer',
-                backgroundColor: selectedIds.has(whiskey.id) ? 'rgba(91, 155, 213, 0.1)' : undefined
+                backgroundColor: selectedIds.has(whiskey.id)
+                  ? 'rgba(91, 155, 213, 0.1)'
+                  : undefined,
               }}
             >
               {selectionEnabled && (
@@ -173,9 +219,16 @@ export function WhiskeyTable({
                   />
                 </td>
               )}
-              <td className="fw-bold" style={{ color: 'var(--amber-500)' }}>{whiskey.name}</td>
+              <td className="fw-bold" style={{ color: 'var(--amber-500)' }}>
+                {whiskey.name}
+              </td>
               <td>
-                <span className="badge text-capitalize text-white" style={{ backgroundColor: 'var(--amber-500)' }}>{whiskey.type}</span>
+                <span
+                  className="badge text-capitalize text-white"
+                  style={{ backgroundColor: 'var(--amber-500)' }}
+                >
+                  {whiskey.type}
+                </span>
               </td>
               <td>{whiskey.distillery}</td>
               <td>{whiskey.region || '-'}</td>

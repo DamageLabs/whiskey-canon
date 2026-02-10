@@ -19,7 +19,7 @@ const storage = multer.diskStorage({
     const timestamp = Date.now();
     const ext = path.extname(file.originalname);
     cb(null, `user-${userId}-${timestamp}${ext}`);
-  }
+  },
 });
 
 // File filter to only accept images
@@ -39,5 +39,5 @@ export const uploadProfilePhoto = multer({
   fileFilter,
   limits: {
     fileSize: 5 * 1024 * 1024, // 5MB max file size
-  }
+  },
 });

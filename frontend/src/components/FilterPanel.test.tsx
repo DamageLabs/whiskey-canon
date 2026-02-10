@@ -120,7 +120,7 @@ describe('applyFilters', () => {
       const filters: FilterState = { ...defaultFilters, type: WhiskeyType.BOURBON };
       const result = applyFilters(mockWhiskeys, filters);
       expect(result).toHaveLength(2);
-      expect(result.every(w => w.type === WhiskeyType.BOURBON)).toBe(true);
+      expect(result.every((w) => w.type === WhiskeyType.BOURBON)).toBe(true);
     });
 
     it('filters by scotch type', () => {
@@ -149,7 +149,7 @@ describe('applyFilters', () => {
       const filters: FilterState = { ...defaultFilters, distillery: 'Buffalo Trace Distillery' };
       const result = applyFilters(mockWhiskeys, filters);
       expect(result).toHaveLength(2);
-      expect(result.every(w => w.distillery === 'Buffalo Trace Distillery')).toBe(true);
+      expect(result.every((w) => w.distillery === 'Buffalo Trace Distillery')).toBe(true);
     });
 
     it('returns empty when distillery has no matches', () => {
@@ -193,14 +193,14 @@ describe('applyFilters', () => {
       const filters: FilterState = { ...defaultFilters, limitedEdition: true };
       const result = applyFilters(mockWhiskeys, filters);
       expect(result).toHaveLength(2);
-      expect(result.every(w => w.limited_edition === true)).toBe(true);
+      expect(result.every((w) => w.limited_edition === true)).toBe(true);
     });
 
     it('filters for non-limited edition only (false)', () => {
       const filters: FilterState = { ...defaultFilters, limitedEdition: false };
       const result = applyFilters(mockWhiskeys, filters);
       expect(result).toHaveLength(3);
-      expect(result.every(w => w.limited_edition === false)).toBe(true);
+      expect(result.every((w) => w.limited_edition === false)).toBe(true);
     });
 
     it('returns all when limitedEdition is null', () => {
@@ -215,14 +215,14 @@ describe('applyFilters', () => {
       const filters: FilterState = { ...defaultFilters, chillFiltered: true };
       const result = applyFilters(mockWhiskeys, filters);
       expect(result).toHaveLength(3);
-      expect(result.every(w => w.chill_filtered === true)).toBe(true);
+      expect(result.every((w) => w.chill_filtered === true)).toBe(true);
     });
 
     it('filters for non-chill filtered only (false)', () => {
       const filters: FilterState = { ...defaultFilters, chillFiltered: false };
       const result = applyFilters(mockWhiskeys, filters);
       expect(result).toHaveLength(2);
-      expect(result.every(w => w.chill_filtered === false)).toBe(true);
+      expect(result.every((w) => w.chill_filtered === false)).toBe(true);
     });
 
     it('excludes whiskeys with null/undefined chill_filtered when filter is active', () => {
@@ -235,7 +235,7 @@ describe('applyFilters', () => {
 
       const filters: FilterState = { ...defaultFilters, chillFiltered: true };
       const result = applyFilters(whiskeysWithNull, filters);
-      expect(result.find(w => w.id === 99)).toBeUndefined();
+      expect(result.find((w) => w.id === 99)).toBeUndefined();
     });
   });
 
@@ -244,7 +244,7 @@ describe('applyFilters', () => {
       const filters: FilterState = { ...defaultFilters, naturalColor: true };
       const result = applyFilters(mockWhiskeys, filters);
       expect(result).toHaveLength(4);
-      expect(result.every(w => w.natural_color === true)).toBe(true);
+      expect(result.every((w) => w.natural_color === true)).toBe(true);
     });
 
     it('filters for non-natural color only', () => {
@@ -260,14 +260,14 @@ describe('applyFilters', () => {
       const filters: FilterState = { ...defaultFilters, isOpened: true };
       const result = applyFilters(mockWhiskeys, filters);
       expect(result).toHaveLength(2);
-      expect(result.every(w => w.is_opened === true)).toBe(true);
+      expect(result.every((w) => w.is_opened === true)).toBe(true);
     });
 
     it('filters for unopened bottles only', () => {
       const filters: FilterState = { ...defaultFilters, isOpened: false };
       const result = applyFilters(mockWhiskeys, filters);
       expect(result).toHaveLength(3);
-      expect(result.every(w => w.is_opened === false)).toBe(true);
+      expect(result.every((w) => w.is_opened === false)).toBe(true);
     });
   });
 
@@ -276,21 +276,21 @@ describe('applyFilters', () => {
       const filters: FilterState = { ...defaultFilters, ageMin: 16 };
       const result = applyFilters(mockWhiskeys, filters);
       expect(result).toHaveLength(3);
-      expect(result.every(w => w.age! >= 16)).toBe(true);
+      expect(result.every((w) => w.age! >= 16)).toBe(true);
     });
 
     it('filters by maximum age', () => {
       const filters: FilterState = { ...defaultFilters, ageMax: 12 };
       const result = applyFilters(mockWhiskeys, filters);
       expect(result).toHaveLength(2);
-      expect(result.every(w => w.age! <= 12)).toBe(true);
+      expect(result.every((w) => w.age! <= 12)).toBe(true);
     });
 
     it('filters by age range', () => {
       const filters: FilterState = { ...defaultFilters, ageMin: 10, ageMax: 18 };
       const result = applyFilters(mockWhiskeys, filters);
       expect(result).toHaveLength(3);
-      expect(result.every(w => w.age! >= 10 && w.age! <= 18)).toBe(true);
+      expect(result.every((w) => w.age! >= 10 && w.age! <= 18)).toBe(true);
     });
 
     it('excludes whiskeys without age when age filter is active', () => {
@@ -303,7 +303,7 @@ describe('applyFilters', () => {
 
       const filters: FilterState = { ...defaultFilters, ageMin: 5 };
       const result = applyFilters(whiskeysWithMissing, filters);
-      expect(result.find(w => w.id === 99)).toBeUndefined();
+      expect(result.find((w) => w.id === 99)).toBeUndefined();
     });
   });
 
@@ -312,14 +312,14 @@ describe('applyFilters', () => {
       const filters: FilterState = { ...defaultFilters, abvMin: 45 };
       const result = applyFilters(mockWhiskeys, filters);
       expect(result).toHaveLength(2);
-      expect(result.every(w => w.abv! >= 45)).toBe(true);
+      expect(result.every((w) => w.abv! >= 45)).toBe(true);
     });
 
     it('filters by maximum ABV', () => {
       const filters: FilterState = { ...defaultFilters, abvMax: 43 };
       const result = applyFilters(mockWhiskeys, filters);
       expect(result).toHaveLength(3);
-      expect(result.every(w => w.abv! <= 43)).toBe(true);
+      expect(result.every((w) => w.abv! <= 43)).toBe(true);
     });
 
     it('filters by ABV range', () => {
@@ -334,14 +334,14 @@ describe('applyFilters', () => {
       const filters: FilterState = { ...defaultFilters, ratingMin: 9 };
       const result = applyFilters(mockWhiskeys, filters);
       expect(result).toHaveLength(3);
-      expect(result.every(w => w.rating! >= 9)).toBe(true);
+      expect(result.every((w) => w.rating! >= 9)).toBe(true);
     });
 
     it('filters by maximum rating', () => {
       const filters: FilterState = { ...defaultFilters, ratingMax: 8.5 };
       const result = applyFilters(mockWhiskeys, filters);
       expect(result).toHaveLength(2);
-      expect(result.every(w => w.rating! <= 8.5)).toBe(true);
+      expect(result.every((w) => w.rating! <= 8.5)).toBe(true);
     });
 
     it('filters by exact rating range', () => {
@@ -474,7 +474,7 @@ describe('FilterPanel component', () => {
 
     // Check that options include distilleries from mock data
     const options = distillerySelect.querySelectorAll('option');
-    const optionValues = Array.from(options).map(o => o.textContent);
+    const optionValues = Array.from(options).map((o) => o.textContent);
     expect(optionValues).toContain('Buffalo Trace Distillery');
     expect(optionValues).toContain('Lagavulin Distillery');
   });
@@ -486,9 +486,7 @@ describe('FilterPanel component', () => {
     const typeSelect = screen.getAllByRole('combobox')[0];
     fireEvent.change(typeSelect, { target: { value: 'bourbon' } });
 
-    expect(onFiltersChange).toHaveBeenCalledWith(
-      expect.objectContaining({ type: 'bourbon' })
-    );
+    expect(onFiltersChange).toHaveBeenCalledWith(expect.objectContaining({ type: 'bourbon' }));
   });
 
   it('shows Clear All Filters button when filters are active', () => {
@@ -505,7 +503,14 @@ describe('FilterPanel component', () => {
   it('calls onFiltersChange with default filters when Clear All is clicked', () => {
     const onFiltersChange = vi.fn();
     const activeFilters: FilterState = { ...defaultFilters, type: WhiskeyType.BOURBON };
-    render(<FilterPanel {...defaultProps} filters={activeFilters} isOpen={true} onFiltersChange={onFiltersChange} />);
+    render(
+      <FilterPanel
+        {...defaultProps}
+        filters={activeFilters}
+        isOpen={true}
+        onFiltersChange={onFiltersChange}
+      />
+    );
 
     fireEvent.click(screen.getByText('Clear All Filters'));
     expect(onFiltersChange).toHaveBeenCalledWith(defaultFilters);
@@ -534,9 +539,7 @@ describe('FilterPanel component', () => {
     const ageInputs = screen.getAllByPlaceholderText('Min');
     fireEvent.change(ageInputs[0], { target: { value: '10' } });
 
-    expect(onFiltersChange).toHaveBeenCalledWith(
-      expect.objectContaining({ ageMin: 10 })
-    );
+    expect(onFiltersChange).toHaveBeenCalledWith(expect.objectContaining({ ageMin: 10 }));
   });
 
   it('handles empty whiskeys array gracefully', () => {

@@ -153,7 +153,9 @@ beforeEach(() => {
   testDb.exec('DELETE FROM whiskeys');
   testDb.exec('DELETE FROM users');
   // Reset auto-increment counters
-  testDb.exec("DELETE FROM sqlite_sequence WHERE name='users' OR name='whiskeys' OR name='whiskey_comments' OR name='backups' OR name='backup_schedules'");
+  testDb.exec(
+    "DELETE FROM sqlite_sequence WHERE name='users' OR name='whiskeys' OR name='whiskey_comments' OR name='backups' OR name='backup_schedules'"
+  );
 });
 
 // Close database after all tests
@@ -183,7 +185,7 @@ vi.mock('../utils/database', async () => {
   return {
     db: testDb,
     initializeDatabase: vi.fn(),
-    closeDatabase: vi.fn()
+    closeDatabase: vi.fn(),
   };
 });
 

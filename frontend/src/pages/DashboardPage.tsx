@@ -127,7 +127,7 @@ export function DashboardPage() {
     try {
       setBulkDeleting(true);
       const result = await whiskeyAPI.deleteMany(Array.from(selectedIds));
-      setWhiskeys(whiskeys.filter(w => !selectedIds.has(w.id)));
+      setWhiskeys(whiskeys.filter((w) => !selectedIds.has(w.id)));
       setSelectedIds(new Set());
       alert(result.message);
     } catch (err: any) {
@@ -155,11 +155,20 @@ export function DashboardPage() {
   return (
     <div className="min-vh-100" style={{ backgroundColor: 'var(--zinc-950)' }}>
       {/* Header */}
-      <nav className="navbar shadow-sm" style={{ backgroundColor: 'var(--zinc-900)', borderBottom: '1px solid var(--zinc-800)' }}>
+      <nav
+        className="navbar shadow-sm"
+        style={{ backgroundColor: 'var(--zinc-900)', borderBottom: '1px solid var(--zinc-800)' }}
+      >
         <div className="container-fluid px-4">
-          <div className="navbar-brand mb-0 d-flex align-items-center gap-2" onClick={() => navigate('/dashboard')} style={{ cursor: 'pointer' }}>
+          <div
+            className="navbar-brand mb-0 d-flex align-items-center gap-2"
+            onClick={() => navigate('/dashboard')}
+            style={{ cursor: 'pointer' }}
+          >
             <span style={{ fontSize: '2rem' }}>🥃</span>
-            <span className="fw-bold" style={{ color: 'var(--zinc-100)' }}>Whiskey Canon</span>
+            <span className="fw-bold" style={{ color: 'var(--zinc-100)' }}>
+              Whiskey Canon
+            </span>
           </div>
           <div className="d-flex align-items-center gap-3">
             <button onClick={() => navigate('/analytics')} className="btn btn-outline-light btn-sm">
@@ -171,7 +180,13 @@ export function DashboardPage() {
               </button>
             )}
             <span style={{ color: 'var(--zinc-300)' }}>
-              {user?.username} <span className="badge" style={{ backgroundColor: 'var(--amber-600)', color: 'white' }}>{user?.role}</span>
+              {user?.username}{' '}
+              <span
+                className="badge"
+                style={{ backgroundColor: 'var(--amber-600)', color: 'white' }}
+              >
+                {user?.role}
+              </span>
             </span>
             <button onClick={() => navigate('/profile')} className="btn btn-outline-light btn-sm">
               Profile
@@ -198,7 +213,11 @@ export function DashboardPage() {
                 onChange={(e) => setSearchTerm(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
               />
-              <button onClick={handleSearch} className="btn text-white" style={{ backgroundColor: 'var(--amber-600)' }}>
+              <button
+                onClick={handleSearch}
+                className="btn text-white"
+                style={{ backgroundColor: 'var(--amber-600)' }}
+              >
                 Search
               </button>
             </div>
@@ -211,7 +230,11 @@ export function DashboardPage() {
                 <button
                   type="button"
                   className={`btn ${viewMode === 'cards' ? 'text-white' : ''}`}
-                  style={viewMode === 'cards' ? { backgroundColor: 'var(--amber-600)' } : { borderColor: 'var(--amber-500)', color: 'var(--amber-500)' }}
+                  style={
+                    viewMode === 'cards'
+                      ? { backgroundColor: 'var(--amber-600)' }
+                      : { borderColor: 'var(--amber-500)', color: 'var(--amber-500)' }
+                  }
                   onClick={() => setViewMode('cards')}
                 >
                   Cards
@@ -219,7 +242,11 @@ export function DashboardPage() {
                 <button
                   type="button"
                   className={`btn ${viewMode === 'table' ? 'text-white' : ''}`}
-                  style={viewMode === 'table' ? { backgroundColor: 'var(--amber-600)' } : { borderColor: 'var(--amber-500)', color: 'var(--amber-500)' }}
+                  style={
+                    viewMode === 'table'
+                      ? { backgroundColor: 'var(--amber-600)' }
+                      : { borderColor: 'var(--amber-500)', color: 'var(--amber-500)' }
+                  }
                   onClick={() => setViewMode('table')}
                 >
                   Table
@@ -265,7 +292,9 @@ export function DashboardPage() {
         {!loading && whiskeys.length > 0 && filteredWhiskeys.length !== whiskeys.length && (
           <div className="mb-3">
             <span className="text-muted">
-              Showing <strong style={{ color: 'var(--amber-500)' }}>{filteredWhiskeys.length}</strong> of {whiskeys.length} whiskeys
+              Showing{' '}
+              <strong style={{ color: 'var(--amber-500)' }}>{filteredWhiskeys.length}</strong> of{' '}
+              {whiskeys.length} whiskeys
             </span>
           </div>
         )}
@@ -273,11 +302,7 @@ export function DashboardPage() {
         {/* Bulk Actions */}
         {canDelete && selectedIds.size > 0 && viewMode === 'table' && (
           <div className="d-flex gap-2 mb-3 align-items-center">
-            <button
-              onClick={handleBulkDelete}
-              className="btn btn-danger"
-              disabled={bulkDeleting}
-            >
+            <button onClick={handleBulkDelete} className="btn btn-danger" disabled={bulkDeleting}>
               <i className="bi bi-trash"></i> Delete Selected ({selectedIds.size})
             </button>
             <button
@@ -312,12 +337,18 @@ export function DashboardPage() {
               <strong>Summary:</strong> {importResult.summary.total} rows processed
             </p>
             <ul className="mb-2">
-              <li><strong>{importResult.summary.imported}</strong> whiskeys imported successfully</li>
+              <li>
+                <strong>{importResult.summary.imported}</strong> whiskeys imported successfully
+              </li>
               {importResult.summary.skipped > 0 && (
-                <li className="text-warning"><strong>{importResult.summary.skipped}</strong> rows skipped</li>
+                <li className="text-warning">
+                  <strong>{importResult.summary.skipped}</strong> rows skipped
+                </li>
               )}
               {importResult.summary.errors > 0 && (
-                <li className="text-danger"><strong>{importResult.summary.errors}</strong> rows had errors</li>
+                <li className="text-danger">
+                  <strong>{importResult.summary.errors}</strong> rows had errors
+                </li>
               )}
             </ul>
 
@@ -329,7 +360,9 @@ export function DashboardPage() {
                 </summary>
                 <ul className="mt-2 mb-0">
                   {importResult.skipped.map((msg: string, i: number) => (
-                    <li key={i} className="small">{msg}</li>
+                    <li key={i} className="small">
+                      {msg}
+                    </li>
                   ))}
                 </ul>
               </details>
@@ -343,7 +376,9 @@ export function DashboardPage() {
                 </summary>
                 <ul className="mt-2 mb-0">
                   {importResult.errors.map((msg: string, i: number) => (
-                    <li key={i} className="small">{msg}</li>
+                    <li key={i} className="small">
+                      {msg}
+                    </li>
                   ))}
                 </ul>
               </details>
@@ -366,7 +401,7 @@ export function DashboardPage() {
               style={{
                 backgroundColor: showEnhancedStats ? 'var(--amber-600)' : 'var(--zinc-800)',
                 color: showEnhancedStats ? 'white' : 'var(--amber-500)',
-                border: '2px solid var(--amber-500)'
+                border: '2px solid var(--amber-500)',
               }}
               onClick={() => setShowEnhancedStats(!showEnhancedStats)}
             >
@@ -377,7 +412,9 @@ export function DashboardPage() {
         )}
 
         {/* Statistics */}
-        {!loading && filteredWhiskeys.length > 0 && !showEnhancedStats && <WhiskeyStats whiskeys={filteredWhiskeys} />}
+        {!loading && filteredWhiskeys.length > 0 && !showEnhancedStats && (
+          <WhiskeyStats whiskeys={filteredWhiskeys} />
+        )}
         {!loading && filteredWhiskeys.length > 0 && showEnhancedStats && <EnhancedStats />}
 
         {/* Content */}
@@ -391,7 +428,11 @@ export function DashboardPage() {
           <div className="text-center py-5">
             <h3 className="text-muted">No whiskeys found</h3>
             {canCreate && (
-              <button onClick={() => setShowForm(true)} className="btn text-white mt-3" style={{ backgroundColor: 'var(--amber-600)' }}>
+              <button
+                onClick={() => setShowForm(true)}
+                className="btn text-white mt-3"
+                style={{ backgroundColor: 'var(--amber-600)' }}
+              >
                 Add your first whiskey
               </button>
             )}

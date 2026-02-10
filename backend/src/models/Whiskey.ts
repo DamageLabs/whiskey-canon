@@ -198,7 +198,7 @@ export class WhiskeyModel {
       data.current_market_value || null,
       data.is_investment_bottle ? 1 : 0,
       data.limited_edition ? 1 : 0,
-      data.chill_filtered === false ? 0 : (data.chill_filtered ? 1 : null),
+      data.chill_filtered === false ? 0 : data.chill_filtered ? 1 : null,
       data.natural_color ? 1 : 0,
       data.nose_notes || null,
       data.palate_notes || null,
@@ -222,7 +222,11 @@ export class WhiskeyModel {
     return stmt.get(...params) as Whiskey | undefined;
   }
 
-  static findAll(filters?: { type?: WhiskeyType; distillery?: string; userId?: number }): Whiskey[] {
+  static findAll(filters?: {
+    type?: WhiskeyType;
+    distillery?: string;
+    userId?: number;
+  }): Whiskey[] {
     let query = 'SELECT * FROM whiskeys WHERE 1=1';
     const params: any[] = [];
 
@@ -347,7 +351,9 @@ export class WhiskeyModel {
   static deleteMany(ids: number[], userId: number): number {
     if (ids.length === 0) return 0;
     const placeholders = ids.map(() => '?').join(',');
-    const stmt = db.prepare(`DELETE FROM whiskeys WHERE id IN (${placeholders}) AND created_by = ?`);
+    const stmt = db.prepare(
+      `DELETE FROM whiskeys WHERE id IN (${placeholders}) AND created_by = ?`
+    );
     const result = stmt.run(...ids, userId);
     return result.changes;
   }
@@ -381,7 +387,9 @@ export class WhiskeyModel {
     const typeBreakdown = typeStmt.all(userId) as { type: string; count: number }[];
 
     // Total unique distilleries
-    const totalDistilleriesStmt = db.prepare('SELECT COUNT(DISTINCT distillery) as count FROM whiskeys WHERE created_by = ?');
+    const totalDistilleriesStmt = db.prepare(
+      'SELECT COUNT(DISTINCT distillery) as count FROM whiskeys WHERE created_by = ?'
+    );
     const totalDistilleriesResult = totalDistilleriesStmt.get(userId) as { count: number };
 
     // Top 5 distilleries
@@ -414,7 +422,7 @@ export class WhiskeyModel {
       ORDER BY country
     `);
     const countryResults = countryStmt.all(userId) as { country: string }[];
-    const countriesRepresented = countryResults.map(r => r.country);
+    const countriesRepresented = countryResults.map((r) => r.country);
 
     return {
       totalBottles: totalResult.count,

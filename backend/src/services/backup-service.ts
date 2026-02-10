@@ -10,7 +10,15 @@ const SCHEMA_VERSION = 1;
 export interface BackupData {
   schemaVersion: number;
   exportedAt: string;
-  user: Omit<User, 'password' | 'verification_code' | 'verification_code_expires_at' | 'verification_code_attempts' | 'password_reset_token' | 'password_reset_expires_at'>;
+  user: Omit<
+    User,
+    | 'password'
+    | 'verification_code'
+    | 'verification_code_expires_at'
+    | 'verification_code_attempts'
+    | 'password_reset_token'
+    | 'password_reset_expires_at'
+  >;
   whiskeys: Whiskey[];
   comments: Array<Omit<WhiskeyComment, 'username' | 'profile_photo'>>;
 }
@@ -57,11 +65,7 @@ function getUserComments(userId: number) {
   return stmt.all(userId);
 }
 
-export function generateBackup(
-  userId: number,
-  format: string,
-  triggerType: string
-) {
+export function generateBackup(userId: number, format: string, triggerType: string) {
   const userProfile = getUserProfile(userId);
   if (!userProfile) {
     throw new Error('User not found');
@@ -108,16 +112,56 @@ export function generateBackup(
 
 function generateCSVBackup(whiskeys: Whiskey[]): string {
   const headers = [
-    'Name', 'Type', 'Distillery', 'Region', 'Country', 'Age', 'ABV', 'Proof',
-    'Size', 'Quantity', 'MSRP', 'Secondary Price', 'Purchase Date', 'Purchase Price',
-    'Purchase Location', 'Bottle Code', 'Rating', 'Description', 'Tasting Notes',
-    'Status', 'Is Opened', 'Date Opened', 'Remaining Volume', 'Storage Location',
-    'Cask Type', 'Cask Finish', 'Barrel Number', 'Bottle Number', 'Vintage Year',
-    'Bottled Date', 'Color', 'Nose Notes', 'Palate Notes', 'Finish Notes',
-    'Times Tasted', 'Last Tasted Date', 'Food Pairings', 'Current Market Value',
-    'Value Gain/Loss', 'Is Investment Bottle', 'Mash Bill', 'Awards',
-    'Limited Edition', 'Chill Filtered', 'Natural Color', 'Is For Sale',
-    'Asking Price', 'Is For Trade', 'Shared With', 'Private Notes'
+    'Name',
+    'Type',
+    'Distillery',
+    'Region',
+    'Country',
+    'Age',
+    'ABV',
+    'Proof',
+    'Size',
+    'Quantity',
+    'MSRP',
+    'Secondary Price',
+    'Purchase Date',
+    'Purchase Price',
+    'Purchase Location',
+    'Bottle Code',
+    'Rating',
+    'Description',
+    'Tasting Notes',
+    'Status',
+    'Is Opened',
+    'Date Opened',
+    'Remaining Volume',
+    'Storage Location',
+    'Cask Type',
+    'Cask Finish',
+    'Barrel Number',
+    'Bottle Number',
+    'Vintage Year',
+    'Bottled Date',
+    'Color',
+    'Nose Notes',
+    'Palate Notes',
+    'Finish Notes',
+    'Times Tasted',
+    'Last Tasted Date',
+    'Food Pairings',
+    'Current Market Value',
+    'Value Gain/Loss',
+    'Is Investment Bottle',
+    'Mash Bill',
+    'Awards',
+    'Limited Edition',
+    'Chill Filtered',
+    'Natural Color',
+    'Is For Sale',
+    'Asking Price',
+    'Is For Trade',
+    'Shared With',
+    'Private Notes',
   ];
 
   const escapeCSV = (value: any): string => {
@@ -129,20 +173,62 @@ function generateCSVBackup(whiskeys: Whiskey[]): string {
     return str;
   };
 
-  const rows = whiskeys.map(w => [
-    w.name, w.type, w.distillery, w.region, w.country, w.age, w.abv, w.proof,
-    w.size, w.quantity, w.msrp, w.secondary_price, w.purchase_date, w.purchase_price,
-    w.purchase_location, w.bottle_code, w.rating, w.description, w.tasting_notes,
-    w.status, w.is_opened ? 'Yes' : 'No', w.date_opened, w.remaining_volume,
-    w.storage_location, w.cask_type, w.cask_finish, w.barrel_number, w.bottle_number,
-    w.vintage_year, w.bottled_date, w.color, w.nose_notes, w.palate_notes,
-    w.finish_notes, w.times_tasted, w.last_tasted_date, w.food_pairings,
-    w.current_market_value, w.value_gain_loss, w.is_investment_bottle ? 'Yes' : 'No',
-    w.mash_bill, w.awards, w.limited_edition ? 'Yes' : 'No',
-    w.chill_filtered ? 'Yes' : 'No', w.natural_color ? 'Yes' : 'No',
-    w.is_for_sale ? 'Yes' : 'No', w.asking_price, w.is_for_trade ? 'Yes' : 'No',
-    w.shared_with, w.private_notes
-  ].map(escapeCSV).join(','));
+  const rows = whiskeys.map((w) =>
+    [
+      w.name,
+      w.type,
+      w.distillery,
+      w.region,
+      w.country,
+      w.age,
+      w.abv,
+      w.proof,
+      w.size,
+      w.quantity,
+      w.msrp,
+      w.secondary_price,
+      w.purchase_date,
+      w.purchase_price,
+      w.purchase_location,
+      w.bottle_code,
+      w.rating,
+      w.description,
+      w.tasting_notes,
+      w.status,
+      w.is_opened ? 'Yes' : 'No',
+      w.date_opened,
+      w.remaining_volume,
+      w.storage_location,
+      w.cask_type,
+      w.cask_finish,
+      w.barrel_number,
+      w.bottle_number,
+      w.vintage_year,
+      w.bottled_date,
+      w.color,
+      w.nose_notes,
+      w.palate_notes,
+      w.finish_notes,
+      w.times_tasted,
+      w.last_tasted_date,
+      w.food_pairings,
+      w.current_market_value,
+      w.value_gain_loss,
+      w.is_investment_bottle ? 'Yes' : 'No',
+      w.mash_bill,
+      w.awards,
+      w.limited_edition ? 'Yes' : 'No',
+      w.chill_filtered ? 'Yes' : 'No',
+      w.natural_color ? 'Yes' : 'No',
+      w.is_for_sale ? 'Yes' : 'No',
+      w.asking_price,
+      w.is_for_trade ? 'Yes' : 'No',
+      w.shared_with,
+      w.private_notes,
+    ]
+      .map(escapeCSV)
+      .join(',')
+  );
 
   return [headers.join(','), ...rows].join('\n');
 }
@@ -189,7 +275,7 @@ export function restorePreview(userId: number, backupId: number): RestorePreview
   const data = JSON.parse(content) as BackupData;
 
   const existingWhiskeys = getUserWhiskeys(userId);
-  const existingNames = new Set(existingWhiskeys.map(w => `${w.name}|${w.distillery}`));
+  const existingNames = new Set(existingWhiskeys.map((w) => `${w.name}|${w.distillery}`));
 
   let newWhiskeys = 0;
   let duplicateWhiskeys = 0;
@@ -238,9 +324,7 @@ export function restoreFromBackup(
   }
 
   const existingWhiskeys = getUserWhiskeys(userId);
-  const existingMap = new Map(
-    existingWhiskeys.map(w => [`${w.name}|${w.distillery}`, w])
-  );
+  const existingMap = new Map(existingWhiskeys.map((w) => [`${w.name}|${w.distillery}`, w]));
 
   let whiskeysRestored = 0;
   let skipped = 0;
@@ -263,8 +347,10 @@ export function restoreFromBackup(
       if (existing && conflictStrategy === 'overwrite') {
         // Update existing whiskey
         const { id, created_by, created_at, updated_at, ...fields } = w;
-        const setClauses = Object.keys(fields).map(k => `${k} = ?`).join(', ');
-        const values = Object.values(fields).map(v =>
+        const setClauses = Object.keys(fields)
+          .map((k) => `${k} = ?`)
+          .join(', ');
+        const values = Object.values(fields).map((v) =>
           typeof v === 'boolean' ? (v ? 1 : 0) : (v ?? null)
         );
         if (setClauses) {
@@ -282,7 +368,7 @@ export function restoreFromBackup(
       const { id, created_by, created_at, updated_at, ...fields } = w;
       const columns = Object.keys(fields);
       const placeholders = columns.map(() => '?').join(', ');
-      const values = Object.values(fields).map(v =>
+      const values = Object.values(fields).map((v) =>
         typeof v === 'boolean' ? (v ? 1 : 0) : (v ?? null)
       );
 

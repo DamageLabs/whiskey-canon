@@ -9,10 +9,19 @@ router.post(
   '/',
   contactLimiter,
   [
-    body('name').trim().isLength({ min: 1, max: 200 }).withMessage('Name is required (max 200 characters)'),
+    body('name')
+      .trim()
+      .isLength({ min: 1, max: 200 })
+      .withMessage('Name is required (max 200 characters)'),
     body('email').isEmail().withMessage('Valid email is required'),
-    body('subject').trim().isLength({ min: 1, max: 200 }).withMessage('Subject is required (max 200 characters)'),
-    body('message').trim().isLength({ min: 1, max: 5000 }).withMessage('Message is required (max 5000 characters)'),
+    body('subject')
+      .trim()
+      .isLength({ min: 1, max: 200 })
+      .withMessage('Subject is required (max 200 characters)'),
+    body('message')
+      .trim()
+      .isLength({ min: 1, max: 5000 })
+      .withMessage('Message is required (max 5000 characters)'),
   ],
   async (req: Request, res: Response) => {
     const errors = validationResult(req);

@@ -27,7 +27,15 @@ export class BackupModel {
       VALUES (?, ?, ?, ?, ?, ?, ?)
     `);
 
-    const result = stmt.run(userId, filename, format, triggerType, sizeBytes, whiskeyCount, commentCount);
+    const result = stmt.run(
+      userId,
+      filename,
+      format,
+      triggerType,
+      sizeBytes,
+      whiskeyCount,
+      commentCount
+    );
     return this.findById(result.lastInsertRowid as number, userId)!;
   }
 

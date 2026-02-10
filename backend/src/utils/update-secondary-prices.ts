@@ -5,11 +5,15 @@ function updateSecondaryPrices() {
   console.log('🔄 Updating secondary prices and market values for whiskeys...\n');
 
   // Get whiskeys without secondary prices but with MSRP
-  const whiskeysWithoutSecondary = db.prepare(`
+  const whiskeysWithoutSecondary = db
+    .prepare(
+      `
     SELECT id, name, type, msrp, rating, limited_edition, is_investment_bottle, age
     FROM whiskeys
     WHERE secondary_price IS NULL AND msrp IS NOT NULL
-  `).all() as any[];
+  `
+    )
+    .all() as any[];
 
   console.log(`Found ${whiskeysWithoutSecondary.length} whiskeys without secondary prices\n`);
 
@@ -38,12 +42,14 @@ function updateSecondaryPrices() {
     const secondaryPrice = parseFloat((whiskey.msrp * multiplier).toFixed(2));
 
     // Update both secondary_price and current_market_value
-    db.prepare(`
+    db.prepare(
+      `
       UPDATE whiskeys
       SET secondary_price = ?,
           current_market_value = ?
       WHERE id = ?
-    `).run(secondaryPrice, secondaryPrice, whiskey.id);
+    `
+    ).run(secondaryPrice, secondaryPrice, whiskey.id);
 
     updated++;
   }
@@ -51,23 +57,31 @@ function updateSecondaryPrices() {
   console.log(`✅ Updated ${updated} whiskeys with secondary prices\n`);
 
   // Now update current_market_value for whiskeys that have secondary_price but no current_market_value
-  const whiskeysWithoutMarketValue = db.prepare(`
+  const whiskeysWithoutMarketValue = db
+    .prepare(
+      `
     SELECT id, name, secondary_price
     FROM whiskeys
     WHERE current_market_value IS NULL AND secondary_price IS NOT NULL
-  `).all() as any[];
+  `
+    )
+    .all() as any[];
 
-  console.log(`Found ${whiskeysWithoutMarketValue.length} whiskeys without current market values\n`);
+  console.log(
+    `Found ${whiskeysWithoutMarketValue.length} whiskeys without current market values\n`
+  );
 
   let marketValueUpdated = 0;
 
   for (const whiskey of whiskeysWithoutMarketValue) {
     // Use secondary_price as current_market_value
-    db.prepare(`
+    db.prepare(
+      `
       UPDATE whiskeys
       SET current_market_value = ?
       WHERE id = ?
-    `).run(whiskey.secondary_price, whiskey.id);
+    `
+    ).run(whiskey.secondary_price, whiskey.id);
 
     marketValueUpdated++;
   }
@@ -75,7 +89,9 @@ function updateSecondaryPrices() {
   console.log(`✅ Updated ${marketValueUpdated} whiskeys with current market values\n`);
 
   // Show summary
-  const summary = db.prepare(`
+  const summary = db
+    .prepare(
+      `
     SELECT
       COUNT(*) as total,
       COUNT(secondary_price) as with_secondary,
@@ -83,7 +99,9 @@ function updateSecondaryPrices() {
       ROUND(MIN(secondary_price), 2) as min_secondary,
       ROUND(MAX(secondary_price), 2) as max_secondary
     FROM whiskeys
-  `).get() as any;
+  `
+    )
+    .get() as any;
 
   console.log('📊 Summary:');
   console.log('===========');

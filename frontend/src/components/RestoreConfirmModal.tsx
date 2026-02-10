@@ -8,7 +8,11 @@ interface RestoreConfirmModalProps {
   onRestoreComplete: () => void;
 }
 
-export function RestoreConfirmModal({ backupId, onClose, onRestoreComplete }: RestoreConfirmModalProps) {
+export function RestoreConfirmModal({
+  backupId,
+  onClose,
+  onRestoreComplete,
+}: RestoreConfirmModalProps) {
   const [preview, setPreview] = useState<RestorePreview | null>(null);
   const [loading, setLoading] = useState(true);
   const [restoring, setRestoring] = useState(false);
@@ -60,9 +64,7 @@ export function RestoreConfirmModal({ backupId, onClose, onRestoreComplete }: Re
               </div>
             )}
 
-            {error && (
-              <div className="alert alert-danger">{error}</div>
-            )}
+            {error && <div className="alert alert-danger">{error}</div>}
 
             {preview && (
               <>
@@ -80,7 +82,8 @@ export function RestoreConfirmModal({ backupId, onClose, onRestoreComplete }: Re
 
                 {preview.duplicateWhiskeys > 0 && (
                   <div className="alert alert-warning">
-                    <strong>{preview.duplicateWhiskeys}</strong> whiskey(s) already exist in your collection.
+                    <strong>{preview.duplicateWhiskeys}</strong> whiskey(s) already exist in your
+                    collection.
                     <div className="mt-2">
                       <div className="form-check">
                         <input
@@ -113,7 +116,8 @@ export function RestoreConfirmModal({ backupId, onClose, onRestoreComplete }: Re
                 )}
 
                 <p className="text-muted small">
-                  {preview.newWhiskeys} new whiskey(s) and {preview.newComments} comment(s) will be added.
+                  {preview.newWhiskeys} new whiskey(s) and {preview.newComments} comment(s) will be
+                  added.
                 </p>
               </>
             )}

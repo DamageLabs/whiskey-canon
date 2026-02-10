@@ -104,7 +104,7 @@ describe('CommentModel', () => {
 
       expect(comments).toHaveLength(2);
       // Verify joined user data is present
-      const usernames = comments.map(c => c.username);
+      const usernames = comments.map((c) => c.username);
       expect(usernames).toContain('user1');
       expect(usernames).toContain('user2');
     });

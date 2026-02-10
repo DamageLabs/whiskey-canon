@@ -103,8 +103,8 @@ export function WhiskeyForm({ whiskey, onClose, onSuccess }: WhiskeyFormProps) {
     try {
       // Remove undefined, null values, and empty strings
       const cleanData = Object.fromEntries(
-        Object.entries(formData).filter(([_, value]) =>
-          value !== undefined && value !== null && value !== ''
+        Object.entries(formData).filter(
+          ([_, value]) => value !== undefined && value !== null && value !== ''
         )
       );
 
@@ -242,7 +242,9 @@ export function WhiskeyForm({ whiskey, onClose, onSuccess }: WhiskeyFormProps) {
                 {activeTab === 'basic' && (
                   <div className="row g-3">
                     <div className="col-md-6">
-                      <label htmlFor="name" className="form-label">Name *</label>
+                      <label htmlFor="name" className="form-label">
+                        Name *
+                      </label>
                       <input
                         id="name"
                         name="name"
@@ -255,7 +257,9 @@ export function WhiskeyForm({ whiskey, onClose, onSuccess }: WhiskeyFormProps) {
                     </div>
 
                     <div className="col-md-6">
-                      <label htmlFor="type" className="form-label">Type *</label>
+                      <label htmlFor="type" className="form-label">
+                        Type *
+                      </label>
                       <select
                         id="type"
                         name="type"
@@ -273,7 +277,9 @@ export function WhiskeyForm({ whiskey, onClose, onSuccess }: WhiskeyFormProps) {
                     </div>
 
                     <div className="col-md-6">
-                      <label htmlFor="distillery" className="form-label">Distillery *</label>
+                      <label htmlFor="distillery" className="form-label">
+                        Distillery *
+                      </label>
                       <input
                         id="distillery"
                         name="distillery"
@@ -286,7 +292,9 @@ export function WhiskeyForm({ whiskey, onClose, onSuccess }: WhiskeyFormProps) {
                     </div>
 
                     <div className="col-md-6">
-                      <label htmlFor="region" className="form-label">Region</label>
+                      <label htmlFor="region" className="form-label">
+                        Region
+                      </label>
                       <input
                         id="region"
                         name="region"
@@ -298,7 +306,9 @@ export function WhiskeyForm({ whiskey, onClose, onSuccess }: WhiskeyFormProps) {
                     </div>
 
                     <div className="col-md-4">
-                      <label htmlFor="country" className="form-label">Country</label>
+                      <label htmlFor="country" className="form-label">
+                        Country
+                      </label>
                       <input
                         id="country"
                         name="country"
@@ -310,7 +320,9 @@ export function WhiskeyForm({ whiskey, onClose, onSuccess }: WhiskeyFormProps) {
                     </div>
 
                     <div className="col-md-4">
-                      <label htmlFor="age" className="form-label">Age (years)</label>
+                      <label htmlFor="age" className="form-label">
+                        Age (years)
+                      </label>
                       <input
                         id="age"
                         name="age"
@@ -323,7 +335,9 @@ export function WhiskeyForm({ whiskey, onClose, onSuccess }: WhiskeyFormProps) {
                     </div>
 
                     <div className="col-md-4">
-                      <label htmlFor="abv" className="form-label">ABV (%)</label>
+                      <label htmlFor="abv" className="form-label">
+                        ABV (%)
+                      </label>
                       <input
                         id="abv"
                         name="abv"
@@ -338,7 +352,9 @@ export function WhiskeyForm({ whiskey, onClose, onSuccess }: WhiskeyFormProps) {
                     </div>
 
                     <div className="col-md-4">
-                      <label htmlFor="proof" className="form-label">Proof</label>
+                      <label htmlFor="proof" className="form-label">
+                        Proof
+                      </label>
                       <input
                         id="proof"
                         name="proof"
@@ -352,7 +368,9 @@ export function WhiskeyForm({ whiskey, onClose, onSuccess }: WhiskeyFormProps) {
                     </div>
 
                     <div className="col-md-4">
-                      <label htmlFor="size" className="form-label">Size</label>
+                      <label htmlFor="size" className="form-label">
+                        Size
+                      </label>
                       <input
                         id="size"
                         name="size"
@@ -365,7 +383,9 @@ export function WhiskeyForm({ whiskey, onClose, onSuccess }: WhiskeyFormProps) {
                     </div>
 
                     <div className="col-md-4">
-                      <label htmlFor="rating" className="form-label">Rating (0-10)</label>
+                      <label htmlFor="rating" className="form-label">
+                        Rating (0-10)
+                      </label>
                       <input
                         id="rating"
                         name="rating"
@@ -380,7 +400,9 @@ export function WhiskeyForm({ whiskey, onClose, onSuccess }: WhiskeyFormProps) {
                     </div>
 
                     <div className="col-md-6">
-                      <label htmlFor="mash_bill" className="form-label">Mash Bill</label>
+                      <label htmlFor="mash_bill" className="form-label">
+                        Mash Bill
+                      </label>
                       <input
                         id="mash_bill"
                         name="mash_bill"
@@ -393,7 +415,9 @@ export function WhiskeyForm({ whiskey, onClose, onSuccess }: WhiskeyFormProps) {
                     </div>
 
                     <div className="col-md-6">
-                      <label htmlFor="awards" className="form-label">Awards</label>
+                      <label htmlFor="awards" className="form-label">
+                        Awards
+                      </label>
                       <input
                         id="awards"
                         name="awards"
@@ -454,7 +478,9 @@ export function WhiskeyForm({ whiskey, onClose, onSuccess }: WhiskeyFormProps) {
                     </div>
 
                     <div className="col-12">
-                      <label htmlFor="description" className="form-label">Description</label>
+                      <label htmlFor="description" className="form-label">
+                        Description
+                      </label>
                       <textarea
                         id="description"
                         name="description"
@@ -475,7 +501,9 @@ export function WhiskeyForm({ whiskey, onClose, onSuccess }: WhiskeyFormProps) {
                     </div>
 
                     <div className="col-md-4">
-                      <label htmlFor="purchase_date" className="form-label">Purchase Date</label>
+                      <label htmlFor="purchase_date" className="form-label">
+                        Purchase Date
+                      </label>
                       <input
                         id="purchase_date"
                         name="purchase_date"
@@ -487,7 +515,9 @@ export function WhiskeyForm({ whiskey, onClose, onSuccess }: WhiskeyFormProps) {
                     </div>
 
                     <div className="col-md-4">
-                      <label htmlFor="purchase_price" className="form-label">Purchase Price ($)</label>
+                      <label htmlFor="purchase_price" className="form-label">
+                        Purchase Price ($)
+                      </label>
                       <input
                         id="purchase_price"
                         name="purchase_price"
@@ -501,7 +531,9 @@ export function WhiskeyForm({ whiskey, onClose, onSuccess }: WhiskeyFormProps) {
                     </div>
 
                     <div className="col-md-4">
-                      <label htmlFor="purchase_location" className="form-label">Purchase Location</label>
+                      <label htmlFor="purchase_location" className="form-label">
+                        Purchase Location
+                      </label>
                       <input
                         id="purchase_location"
                         name="purchase_location"
@@ -514,7 +546,9 @@ export function WhiskeyForm({ whiskey, onClose, onSuccess }: WhiskeyFormProps) {
                     </div>
 
                     <div className="col-md-4">
-                      <label htmlFor="obtained_from" className="form-label">Obtained From</label>
+                      <label htmlFor="obtained_from" className="form-label">
+                        Obtained From
+                      </label>
                       <input
                         id="obtained_from"
                         name="obtained_from"
@@ -527,7 +561,9 @@ export function WhiskeyForm({ whiskey, onClose, onSuccess }: WhiskeyFormProps) {
                     </div>
 
                     <div className="col-md-4">
-                      <label htmlFor="quantity" className="form-label">Quantity</label>
+                      <label htmlFor="quantity" className="form-label">
+                        Quantity
+                      </label>
                       <input
                         id="quantity"
                         name="quantity"
@@ -540,7 +576,9 @@ export function WhiskeyForm({ whiskey, onClose, onSuccess }: WhiskeyFormProps) {
                     </div>
 
                     <div className="col-md-4">
-                      <label htmlFor="msrp" className="form-label">MSRP ($)</label>
+                      <label htmlFor="msrp" className="form-label">
+                        MSRP ($)
+                      </label>
                       <input
                         id="msrp"
                         name="msrp"
@@ -554,7 +592,9 @@ export function WhiskeyForm({ whiskey, onClose, onSuccess }: WhiskeyFormProps) {
                     </div>
 
                     <div className="col-md-4">
-                      <label htmlFor="secondary_price" className="form-label">Secondary Price ($)</label>
+                      <label htmlFor="secondary_price" className="form-label">
+                        Secondary Price ($)
+                      </label>
                       <input
                         id="secondary_price"
                         name="secondary_price"
@@ -572,7 +612,9 @@ export function WhiskeyForm({ whiskey, onClose, onSuccess }: WhiskeyFormProps) {
                     </div>
 
                     <div className="col-md-3">
-                      <label htmlFor="status" className="form-label">Status</label>
+                      <label htmlFor="status" className="form-label">
+                        Status
+                      </label>
                       <select
                         id="status"
                         name="status"
@@ -582,14 +624,19 @@ export function WhiskeyForm({ whiskey, onClose, onSuccess }: WhiskeyFormProps) {
                       >
                         {Object.values(WhiskeyStatus).map((status) => (
                           <option key={status} value={status}>
-                            {status.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
+                            {status
+                              .split('_')
+                              .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+                              .join(' ')}
                           </option>
                         ))}
                       </select>
                     </div>
 
                     <div className="col-md-3">
-                      <label htmlFor="storage_location" className="form-label">Storage Location</label>
+                      <label htmlFor="storage_location" className="form-label">
+                        Storage Location
+                      </label>
                       <input
                         id="storage_location"
                         name="storage_location"
@@ -602,7 +649,9 @@ export function WhiskeyForm({ whiskey, onClose, onSuccess }: WhiskeyFormProps) {
                     </div>
 
                     <div className="col-md-3">
-                      <label htmlFor="date_opened" className="form-label">Date Opened</label>
+                      <label htmlFor="date_opened" className="form-label">
+                        Date Opened
+                      </label>
                       <input
                         id="date_opened"
                         name="date_opened"
@@ -614,7 +663,9 @@ export function WhiskeyForm({ whiskey, onClose, onSuccess }: WhiskeyFormProps) {
                     </div>
 
                     <div className="col-md-3">
-                      <label htmlFor="remaining_volume" className="form-label">Remaining Volume (%)</label>
+                      <label htmlFor="remaining_volume" className="form-label">
+                        Remaining Volume (%)
+                      </label>
                       <input
                         id="remaining_volume"
                         name="remaining_volume"
@@ -650,7 +701,9 @@ export function WhiskeyForm({ whiskey, onClose, onSuccess }: WhiskeyFormProps) {
                 {activeTab === 'production' && (
                   <div className="row g-3">
                     <div className="col-md-6">
-                      <label htmlFor="cask_type" className="form-label">Cask Type</label>
+                      <label htmlFor="cask_type" className="form-label">
+                        Cask Type
+                      </label>
                       <input
                         id="cask_type"
                         name="cask_type"
@@ -663,7 +716,9 @@ export function WhiskeyForm({ whiskey, onClose, onSuccess }: WhiskeyFormProps) {
                     </div>
 
                     <div className="col-md-6">
-                      <label htmlFor="cask_finish" className="form-label">Cask Finish</label>
+                      <label htmlFor="cask_finish" className="form-label">
+                        Cask Finish
+                      </label>
                       <input
                         id="cask_finish"
                         name="cask_finish"
@@ -676,7 +731,9 @@ export function WhiskeyForm({ whiskey, onClose, onSuccess }: WhiskeyFormProps) {
                     </div>
 
                     <div className="col-md-6">
-                      <label htmlFor="barrel_number" className="form-label">Barrel Number</label>
+                      <label htmlFor="barrel_number" className="form-label">
+                        Barrel Number
+                      </label>
                       <input
                         id="barrel_number"
                         name="barrel_number"
@@ -689,7 +746,9 @@ export function WhiskeyForm({ whiskey, onClose, onSuccess }: WhiskeyFormProps) {
                     </div>
 
                     <div className="col-md-6">
-                      <label htmlFor="bottle_number" className="form-label">Bottle Number</label>
+                      <label htmlFor="bottle_number" className="form-label">
+                        Bottle Number
+                      </label>
                       <input
                         id="bottle_number"
                         name="bottle_number"
@@ -702,7 +761,9 @@ export function WhiskeyForm({ whiskey, onClose, onSuccess }: WhiskeyFormProps) {
                     </div>
 
                     <div className="col-md-6">
-                      <label htmlFor="vintage_year" className="form-label">Vintage Year</label>
+                      <label htmlFor="vintage_year" className="form-label">
+                        Vintage Year
+                      </label>
                       <input
                         id="vintage_year"
                         name="vintage_year"
@@ -715,7 +776,9 @@ export function WhiskeyForm({ whiskey, onClose, onSuccess }: WhiskeyFormProps) {
                     </div>
 
                     <div className="col-md-6">
-                      <label htmlFor="bottled_date" className="form-label">Bottled Date</label>
+                      <label htmlFor="bottled_date" className="form-label">
+                        Bottled Date
+                      </label>
                       <input
                         id="bottled_date"
                         name="bottled_date"
@@ -727,7 +790,9 @@ export function WhiskeyForm({ whiskey, onClose, onSuccess }: WhiskeyFormProps) {
                     </div>
 
                     <div className="col-md-12">
-                      <label htmlFor="bottle_code" className="form-label">Bottle Code</label>
+                      <label htmlFor="bottle_code" className="form-label">
+                        Bottle Code
+                      </label>
                       <input
                         id="bottle_code"
                         name="bottle_code"
@@ -745,7 +810,9 @@ export function WhiskeyForm({ whiskey, onClose, onSuccess }: WhiskeyFormProps) {
                 {activeTab === 'tasting' && (
                   <div className="row g-3">
                     <div className="col-md-6">
-                      <label htmlFor="color" className="form-label">Color</label>
+                      <label htmlFor="color" className="form-label">
+                        Color
+                      </label>
                       <input
                         id="color"
                         name="color"
@@ -758,7 +825,9 @@ export function WhiskeyForm({ whiskey, onClose, onSuccess }: WhiskeyFormProps) {
                     </div>
 
                     <div className="col-md-3">
-                      <label htmlFor="times_tasted" className="form-label">Times Tasted</label>
+                      <label htmlFor="times_tasted" className="form-label">
+                        Times Tasted
+                      </label>
                       <input
                         id="times_tasted"
                         name="times_tasted"
@@ -771,7 +840,9 @@ export function WhiskeyForm({ whiskey, onClose, onSuccess }: WhiskeyFormProps) {
                     </div>
 
                     <div className="col-md-3">
-                      <label htmlFor="last_tasted_date" className="form-label">Last Tasted</label>
+                      <label htmlFor="last_tasted_date" className="form-label">
+                        Last Tasted
+                      </label>
                       <input
                         id="last_tasted_date"
                         name="last_tasted_date"
@@ -783,7 +854,9 @@ export function WhiskeyForm({ whiskey, onClose, onSuccess }: WhiskeyFormProps) {
                     </div>
 
                     <div className="col-12">
-                      <label htmlFor="nose_notes" className="form-label">Nose / Aroma</label>
+                      <label htmlFor="nose_notes" className="form-label">
+                        Nose / Aroma
+                      </label>
                       <textarea
                         id="nose_notes"
                         name="nose_notes"
@@ -796,7 +869,9 @@ export function WhiskeyForm({ whiskey, onClose, onSuccess }: WhiskeyFormProps) {
                     </div>
 
                     <div className="col-12">
-                      <label htmlFor="palate_notes" className="form-label">Palate / Taste</label>
+                      <label htmlFor="palate_notes" className="form-label">
+                        Palate / Taste
+                      </label>
                       <textarea
                         id="palate_notes"
                         name="palate_notes"
@@ -809,7 +884,9 @@ export function WhiskeyForm({ whiskey, onClose, onSuccess }: WhiskeyFormProps) {
                     </div>
 
                     <div className="col-12">
-                      <label htmlFor="finish_notes" className="form-label">Finish</label>
+                      <label htmlFor="finish_notes" className="form-label">
+                        Finish
+                      </label>
                       <textarea
                         id="finish_notes"
                         name="finish_notes"
@@ -822,7 +899,9 @@ export function WhiskeyForm({ whiskey, onClose, onSuccess }: WhiskeyFormProps) {
                     </div>
 
                     <div className="col-12">
-                      <label htmlFor="tasting_notes" className="form-label">General Tasting Notes</label>
+                      <label htmlFor="tasting_notes" className="form-label">
+                        General Tasting Notes
+                      </label>
                       <textarea
                         id="tasting_notes"
                         name="tasting_notes"
@@ -835,7 +914,9 @@ export function WhiskeyForm({ whiskey, onClose, onSuccess }: WhiskeyFormProps) {
                     </div>
 
                     <div className="col-12">
-                      <label htmlFor="food_pairings" className="form-label">Food Pairings</label>
+                      <label htmlFor="food_pairings" className="form-label">
+                        Food Pairings
+                      </label>
                       <textarea
                         id="food_pairings"
                         name="food_pairings"
@@ -853,7 +934,9 @@ export function WhiskeyForm({ whiskey, onClose, onSuccess }: WhiskeyFormProps) {
                 {activeTab === 'investment' && (
                   <div className="row g-3">
                     <div className="col-md-4">
-                      <label htmlFor="current_market_value" className="form-label">Current Market Value ($)</label>
+                      <label htmlFor="current_market_value" className="form-label">
+                        Current Market Value ($)
+                      </label>
                       <input
                         id="current_market_value"
                         name="current_market_value"
@@ -867,7 +950,9 @@ export function WhiskeyForm({ whiskey, onClose, onSuccess }: WhiskeyFormProps) {
                     </div>
 
                     <div className="col-md-4">
-                      <label htmlFor="value_gain_loss" className="form-label">Value Gain/Loss ($)</label>
+                      <label htmlFor="value_gain_loss" className="form-label">
+                        Value Gain/Loss ($)
+                      </label>
                       <input
                         id="value_gain_loss"
                         name="value_gain_loss"
@@ -899,8 +984,9 @@ export function WhiskeyForm({ whiskey, onClose, onSuccess }: WhiskeyFormProps) {
 
                     <div className="col-12">
                       <div className="alert alert-info">
-                        <strong>Investment Tracking:</strong> Use this section to track the investment value of your bottles.
-                        Current market value can be updated manually as market prices change.
+                        <strong>Investment Tracking:</strong> Use this section to track the
+                        investment value of your bottles. Current market value can be updated
+                        manually as market prices change.
                       </div>
                     </div>
                   </div>
@@ -910,7 +996,9 @@ export function WhiskeyForm({ whiskey, onClose, onSuccess }: WhiskeyFormProps) {
                 {activeTab === 'media' && (
                   <div className="row g-3">
                     <div className="col-12">
-                      <label htmlFor="image_url" className="form-label">Bottle Image URL</label>
+                      <label htmlFor="image_url" className="form-label">
+                        Bottle Image URL
+                      </label>
                       <input
                         id="image_url"
                         name="image_url"
@@ -923,7 +1011,9 @@ export function WhiskeyForm({ whiskey, onClose, onSuccess }: WhiskeyFormProps) {
                     </div>
 
                     <div className="col-12">
-                      <label htmlFor="label_image_url" className="form-label">Label Image URL</label>
+                      <label htmlFor="label_image_url" className="form-label">
+                        Label Image URL
+                      </label>
                       <input
                         id="label_image_url"
                         name="label_image_url"
@@ -936,7 +1026,9 @@ export function WhiskeyForm({ whiskey, onClose, onSuccess }: WhiskeyFormProps) {
                     </div>
 
                     <div className="col-12">
-                      <label htmlFor="receipt_image_url" className="form-label">Receipt Image URL</label>
+                      <label htmlFor="receipt_image_url" className="form-label">
+                        Receipt Image URL
+                      </label>
                       <input
                         id="receipt_image_url"
                         name="receipt_image_url"
@@ -950,7 +1042,8 @@ export function WhiskeyForm({ whiskey, onClose, onSuccess }: WhiskeyFormProps) {
 
                     <div className="col-12">
                       <div className="alert alert-info">
-                        <strong>Photo URLs:</strong> Enter the URL of images hosted online. Future updates may include direct file uploads.
+                        <strong>Photo URLs:</strong> Enter the URL of images hosted online. Future
+                        updates may include direct file uploads.
                       </div>
                     </div>
                   </div>
@@ -996,7 +1089,9 @@ export function WhiskeyForm({ whiskey, onClose, onSuccess }: WhiskeyFormProps) {
                     </div>
 
                     <div className="col-md-4">
-                      <label htmlFor="asking_price" className="form-label">Asking Price ($)</label>
+                      <label htmlFor="asking_price" className="form-label">
+                        Asking Price ($)
+                      </label>
                       <input
                         id="asking_price"
                         name="asking_price"
@@ -1014,7 +1109,9 @@ export function WhiskeyForm({ whiskey, onClose, onSuccess }: WhiskeyFormProps) {
                     </div>
 
                     <div className="col-12">
-                      <label htmlFor="shared_with" className="form-label">Shared With</label>
+                      <label htmlFor="shared_with" className="form-label">
+                        Shared With
+                      </label>
                       <textarea
                         id="shared_with"
                         name="shared_with"
@@ -1027,7 +1124,9 @@ export function WhiskeyForm({ whiskey, onClose, onSuccess }: WhiskeyFormProps) {
                     </div>
 
                     <div className="col-12">
-                      <label htmlFor="private_notes" className="form-label">Private Notes</label>
+                      <label htmlFor="private_notes" className="form-label">
+                        Private Notes
+                      </label>
                       <textarea
                         id="private_notes"
                         name="private_notes"
@@ -1057,10 +1156,18 @@ export function WhiskeyForm({ whiskey, onClose, onSuccess }: WhiskeyFormProps) {
             >
               {loading ? (
                 <>
-                  <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                  <span
+                    className="spinner-border spinner-border-sm me-2"
+                    role="status"
+                    aria-hidden="true"
+                  ></span>
                   Saving...
                 </>
-              ) : whiskey ? 'Update' : 'Create'}
+              ) : whiskey ? (
+                'Update'
+              ) : (
+                'Create'
+              )}
             </button>
           </div>
         </div>

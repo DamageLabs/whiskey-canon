@@ -47,7 +47,13 @@ interface FilterPanelProps {
   onToggle: () => void;
 }
 
-export function FilterPanel({ filters, onFiltersChange, whiskeys, isOpen, onToggle }: FilterPanelProps) {
+export function FilterPanel({
+  filters,
+  onFiltersChange,
+  whiskeys,
+  isOpen,
+  onToggle,
+}: FilterPanelProps) {
   // Extract unique values for dropdowns
   const uniqueValues = useMemo(() => {
     const distilleries = new Set<string>();
@@ -69,10 +75,14 @@ export function FilterPanel({ filters, onFiltersChange, whiskeys, isOpen, onTogg
 
   // Calculate ranges for numeric filters
   const ranges = useMemo(() => {
-    let ageMin = Infinity, ageMax = -Infinity;
-    let abvMin = Infinity, abvMax = -Infinity;
-    let ratingMin = Infinity, ratingMax = -Infinity;
-    let priceMin = Infinity, priceMax = -Infinity;
+    let ageMin = Infinity,
+      ageMax = -Infinity;
+    let abvMin = Infinity,
+      abvMax = -Infinity;
+    let ratingMin = Infinity,
+      ratingMax = -Infinity;
+    let priceMin = Infinity,
+      priceMax = -Infinity;
 
     whiskeys.forEach((w) => {
       if (w.age != null) {
@@ -96,9 +106,18 @@ export function FilterPanel({ filters, onFiltersChange, whiskeys, isOpen, onTogg
 
     return {
       age: { min: ageMin === Infinity ? 0 : ageMin, max: ageMax === -Infinity ? 30 : ageMax },
-      abv: { min: abvMin === Infinity ? 40 : Math.floor(abvMin), max: abvMax === -Infinity ? 70 : Math.ceil(abvMax) },
-      rating: { min: ratingMin === Infinity ? 0 : ratingMin, max: ratingMax === -Infinity ? 10 : ratingMax },
-      price: { min: priceMin === Infinity ? 0 : Math.floor(priceMin), max: priceMax === -Infinity ? 500 : Math.ceil(priceMax) },
+      abv: {
+        min: abvMin === Infinity ? 40 : Math.floor(abvMin),
+        max: abvMax === -Infinity ? 70 : Math.ceil(abvMax),
+      },
+      rating: {
+        min: ratingMin === Infinity ? 0 : ratingMin,
+        max: ratingMax === -Infinity ? 10 : ratingMax,
+      },
+      price: {
+        min: priceMin === Infinity ? 0 : Math.floor(priceMin),
+        max: priceMax === -Infinity ? 500 : Math.ceil(priceMax),
+      },
     };
   }, [whiskeys]);
 
@@ -111,7 +130,12 @@ export function FilterPanel({ filters, onFiltersChange, whiskeys, isOpen, onTogg
   };
 
   const hasActiveFilters = Object.entries(filters).some(([key, value]) => {
-    if (key === 'limitedEdition' || key === 'chillFiltered' || key === 'naturalColor' || key === 'isOpened') {
+    if (
+      key === 'limitedEdition' ||
+      key === 'chillFiltered' ||
+      key === 'naturalColor' ||
+      key === 'isOpened'
+    ) {
       return value !== null;
     }
     if (typeof value === 'string') return value !== '';
@@ -119,7 +143,12 @@ export function FilterPanel({ filters, onFiltersChange, whiskeys, isOpen, onTogg
   });
 
   const activeFilterCount = Object.entries(filters).filter(([key, value]) => {
-    if (key === 'limitedEdition' || key === 'chillFiltered' || key === 'naturalColor' || key === 'isOpened') {
+    if (
+      key === 'limitedEdition' ||
+      key === 'chillFiltered' ||
+      key === 'naturalColor' ||
+      key === 'isOpened'
+    ) {
       return value !== null;
     }
     if (typeof value === 'string') return value !== '';
@@ -183,7 +212,9 @@ export function FilterPanel({ filters, onFiltersChange, whiskeys, isOpen, onTogg
               >
                 <option value="">All Distilleries</option>
                 {uniqueValues.distilleries.map((d) => (
-                  <option key={d} value={d}>{d}</option>
+                  <option key={d} value={d}>
+                    {d}
+                  </option>
                 ))}
               </select>
             </div>
@@ -199,7 +230,9 @@ export function FilterPanel({ filters, onFiltersChange, whiskeys, isOpen, onTogg
               >
                 <option value="">All Regions</option>
                 {uniqueValues.regions.map((r) => (
-                  <option key={r} value={r}>{r}</option>
+                  <option key={r} value={r}>
+                    {r}
+                  </option>
                 ))}
               </select>
             </div>
@@ -215,7 +248,9 @@ export function FilterPanel({ filters, onFiltersChange, whiskeys, isOpen, onTogg
               >
                 <option value="">All Countries</option>
                 {uniqueValues.countries.map((c) => (
-                  <option key={c} value={c}>{c}</option>
+                  <option key={c} value={c}>
+                    {c}
+                  </option>
                 ))}
               </select>
             </div>
@@ -250,7 +285,10 @@ export function FilterPanel({ filters, onFiltersChange, whiskeys, isOpen, onTogg
             {/* Range Filters */}
             <div className="col-12 col-md-6 col-lg-3">
               <label className="form-label small text-muted">
-                Age {filters.ageMin !== null || filters.ageMax !== null ? `(${filters.ageMin ?? ranges.age.min}-${filters.ageMax ?? ranges.age.max} yrs)` : ''}
+                Age{' '}
+                {filters.ageMin !== null || filters.ageMax !== null
+                  ? `(${filters.ageMin ?? ranges.age.min}-${filters.ageMax ?? ranges.age.max} yrs)`
+                  : ''}
               </label>
               <div className="d-flex gap-2 align-items-center">
                 <input
@@ -258,7 +296,9 @@ export function FilterPanel({ filters, onFiltersChange, whiskeys, isOpen, onTogg
                   className="form-control form-control-sm"
                   placeholder="Min"
                   value={filters.ageMin ?? ''}
-                  onChange={(e) => updateFilter('ageMin', e.target.value ? Number(e.target.value) : null)}
+                  onChange={(e) =>
+                    updateFilter('ageMin', e.target.value ? Number(e.target.value) : null)
+                  }
                   min={0}
                   style={{ width: '80px' }}
                 />
@@ -268,7 +308,9 @@ export function FilterPanel({ filters, onFiltersChange, whiskeys, isOpen, onTogg
                   className="form-control form-control-sm"
                   placeholder="Max"
                   value={filters.ageMax ?? ''}
-                  onChange={(e) => updateFilter('ageMax', e.target.value ? Number(e.target.value) : null)}
+                  onChange={(e) =>
+                    updateFilter('ageMax', e.target.value ? Number(e.target.value) : null)
+                  }
                   min={0}
                   style={{ width: '80px' }}
                 />
@@ -277,7 +319,10 @@ export function FilterPanel({ filters, onFiltersChange, whiskeys, isOpen, onTogg
 
             <div className="col-12 col-md-6 col-lg-3">
               <label className="form-label small text-muted">
-                ABV {filters.abvMin !== null || filters.abvMax !== null ? `(${filters.abvMin ?? ranges.abv.min}-${filters.abvMax ?? ranges.abv.max}%)` : ''}
+                ABV{' '}
+                {filters.abvMin !== null || filters.abvMax !== null
+                  ? `(${filters.abvMin ?? ranges.abv.min}-${filters.abvMax ?? ranges.abv.max}%)`
+                  : ''}
               </label>
               <div className="d-flex gap-2 align-items-center">
                 <input
@@ -285,7 +330,9 @@ export function FilterPanel({ filters, onFiltersChange, whiskeys, isOpen, onTogg
                   className="form-control form-control-sm"
                   placeholder="Min"
                   value={filters.abvMin ?? ''}
-                  onChange={(e) => updateFilter('abvMin', e.target.value ? Number(e.target.value) : null)}
+                  onChange={(e) =>
+                    updateFilter('abvMin', e.target.value ? Number(e.target.value) : null)
+                  }
                   min={0}
                   max={100}
                   step={0.1}
@@ -297,7 +344,9 @@ export function FilterPanel({ filters, onFiltersChange, whiskeys, isOpen, onTogg
                   className="form-control form-control-sm"
                   placeholder="Max"
                   value={filters.abvMax ?? ''}
-                  onChange={(e) => updateFilter('abvMax', e.target.value ? Number(e.target.value) : null)}
+                  onChange={(e) =>
+                    updateFilter('abvMax', e.target.value ? Number(e.target.value) : null)
+                  }
                   min={0}
                   max={100}
                   step={0.1}
@@ -308,7 +357,10 @@ export function FilterPanel({ filters, onFiltersChange, whiskeys, isOpen, onTogg
 
             <div className="col-12 col-md-6 col-lg-3">
               <label className="form-label small text-muted">
-                Rating {filters.ratingMin !== null || filters.ratingMax !== null ? `(${filters.ratingMin ?? 0}-${filters.ratingMax ?? 10})` : ''}
+                Rating{' '}
+                {filters.ratingMin !== null || filters.ratingMax !== null
+                  ? `(${filters.ratingMin ?? 0}-${filters.ratingMax ?? 10})`
+                  : ''}
               </label>
               <div className="d-flex gap-2 align-items-center">
                 <input
@@ -316,7 +368,9 @@ export function FilterPanel({ filters, onFiltersChange, whiskeys, isOpen, onTogg
                   className="form-control form-control-sm"
                   placeholder="Min"
                   value={filters.ratingMin ?? ''}
-                  onChange={(e) => updateFilter('ratingMin', e.target.value ? Number(e.target.value) : null)}
+                  onChange={(e) =>
+                    updateFilter('ratingMin', e.target.value ? Number(e.target.value) : null)
+                  }
                   min={0}
                   max={10}
                   step={0.1}
@@ -328,7 +382,9 @@ export function FilterPanel({ filters, onFiltersChange, whiskeys, isOpen, onTogg
                   className="form-control form-control-sm"
                   placeholder="Max"
                   value={filters.ratingMax ?? ''}
-                  onChange={(e) => updateFilter('ratingMax', e.target.value ? Number(e.target.value) : null)}
+                  onChange={(e) =>
+                    updateFilter('ratingMax', e.target.value ? Number(e.target.value) : null)
+                  }
                   min={0}
                   max={10}
                   step={0.1}
@@ -339,7 +395,10 @@ export function FilterPanel({ filters, onFiltersChange, whiskeys, isOpen, onTogg
 
             <div className="col-12 col-md-6 col-lg-3">
               <label className="form-label small text-muted">
-                Price {filters.priceMin !== null || filters.priceMax !== null ? `($${filters.priceMin ?? 0}-$${filters.priceMax ?? ranges.price.max})` : ''}
+                Price{' '}
+                {filters.priceMin !== null || filters.priceMax !== null
+                  ? `($${filters.priceMin ?? 0}-$${filters.priceMax ?? ranges.price.max})`
+                  : ''}
               </label>
               <div className="d-flex gap-2 align-items-center">
                 <input
@@ -347,7 +406,9 @@ export function FilterPanel({ filters, onFiltersChange, whiskeys, isOpen, onTogg
                   className="form-control form-control-sm"
                   placeholder="Min"
                   value={filters.priceMin ?? ''}
-                  onChange={(e) => updateFilter('priceMin', e.target.value ? Number(e.target.value) : null)}
+                  onChange={(e) =>
+                    updateFilter('priceMin', e.target.value ? Number(e.target.value) : null)
+                  }
                   min={0}
                   style={{ width: '80px' }}
                 />
@@ -357,7 +418,9 @@ export function FilterPanel({ filters, onFiltersChange, whiskeys, isOpen, onTogg
                   className="form-control form-control-sm"
                   placeholder="Max"
                   value={filters.priceMax ?? ''}
-                  onChange={(e) => updateFilter('priceMax', e.target.value ? Number(e.target.value) : null)}
+                  onChange={(e) =>
+                    updateFilter('priceMax', e.target.value ? Number(e.target.value) : null)
+                  }
                   min={0}
                   style={{ width: '80px' }}
                 />
@@ -367,10 +430,7 @@ export function FilterPanel({ filters, onFiltersChange, whiskeys, isOpen, onTogg
             {/* Clear Filters */}
             {hasActiveFilters && (
               <div className="col-12">
-                <button
-                  className="btn btn-outline-secondary btn-sm"
-                  onClick={clearFilters}
-                >
+                <button className="btn btn-outline-secondary btn-sm" onClick={clearFilters}>
                   <i className="bi bi-x-circle me-1"></i>
                   Clear All Filters
                 </button>
@@ -489,8 +549,10 @@ export function applyFilters(whiskeys: Whiskey[], filters: FilterState): Whiskey
     if (filters.abvMax !== null && (w.abv == null || w.abv > filters.abvMax)) return false;
 
     // Rating range filter
-    if (filters.ratingMin !== null && (w.rating == null || w.rating < filters.ratingMin)) return false;
-    if (filters.ratingMax !== null && (w.rating == null || w.rating > filters.ratingMax)) return false;
+    if (filters.ratingMin !== null && (w.rating == null || w.rating < filters.ratingMin))
+      return false;
+    if (filters.ratingMax !== null && (w.rating == null || w.rating > filters.ratingMax))
+      return false;
 
     // Price range filter (use purchase_price or msrp)
     const price = w.purchase_price ?? w.msrp;

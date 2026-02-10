@@ -30,7 +30,9 @@ const fillAndSubmitForm = () => {
   fireEvent.change(screen.getByLabelText('Name'), { target: { value: 'John Doe' } });
   fireEvent.change(screen.getByLabelText('Email'), { target: { value: 'john@example.com' } });
   fireEvent.change(screen.getByLabelText('Subject'), { target: { value: 'general' } });
-  fireEvent.change(screen.getByLabelText('Message'), { target: { value: 'Hello, I have a question.' } });
+  fireEvent.change(screen.getByLabelText('Message'), {
+    target: { value: 'Hello, I have a question.' },
+  });
   fireEvent.click(screen.getByRole('button', { name: 'Send Message' }));
 };
 
@@ -56,7 +58,10 @@ describe('ContactPage', () => {
     it('shows loading spinner during submission', async () => {
       let resolveResponse!: (value: any) => void;
       vi.mocked(global.fetch).mockImplementation(
-        () => new Promise((resolve) => { resolveResponse = resolve; })
+        () =>
+          new Promise((resolve) => {
+            resolveResponse = resolve;
+          })
       );
 
       renderContactPage();

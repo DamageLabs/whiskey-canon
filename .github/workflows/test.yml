@@ -63,6 +63,12 @@ jobs:
       - name: Check TypeScript compilation
         run: npm run build --workspace=backend
 
+      - name: Run ESLint
+        run: npm run lint
+
+      - name: Check formatting
+        run: npm run format
+
   test-summary:
     runs-on: ubuntu-latest
     needs: [test, lint]

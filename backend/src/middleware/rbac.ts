@@ -14,7 +14,7 @@ export function requirePermission(permission: Permission) {
       return res.status(403).json({
         error: 'Insufficient permissions',
         required: permission,
-        role: req.user.role
+        role: req.user.role,
       });
     }
 
@@ -32,7 +32,7 @@ export function requireRole(...roles: string[]) {
       return res.status(403).json({
         error: 'Insufficient role',
         required: roles,
-        current: req.user.role
+        current: req.user.role,
       });
     }
 

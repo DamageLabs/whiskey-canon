@@ -16,7 +16,9 @@ export function ForgotPasswordPage() {
 
     try {
       await authAPI.forgotPassword(email);
-      setSuccess('If an account exists with this email, a password reset link has been sent. Please check your inbox.');
+      setSuccess(
+        'If an account exists with this email, a password reset link has been sent. Please check your inbox.'
+      );
       setEmail('');
     } catch (err: any) {
       setError(err.message || 'Failed to send reset email');
@@ -26,12 +28,17 @@ export function ForgotPasswordPage() {
   }
 
   return (
-    <div className="min-vh-100 d-flex align-items-center justify-content-center" style={{ background: 'var(--zinc-950)' }}>
+    <div
+      className="min-vh-100 d-flex align-items-center justify-content-center"
+      style={{ background: 'var(--zinc-950)' }}
+    >
       <div className="card shadow-lg" style={{ maxWidth: '450px', width: '100%' }}>
         <div className="card-body p-5">
           <div className="d-flex align-items-center justify-content-center gap-2 mb-3">
             <span style={{ fontSize: '2.5rem' }}>🥃</span>
-            <span className="h3 mb-0 fw-bold" style={{ color: 'var(--zinc-100)' }}>Whiskey Canon</span>
+            <span className="h3 mb-0 fw-bold" style={{ color: 'var(--zinc-100)' }}>
+              Whiskey Canon
+            </span>
           </div>
           <h2 className="text-center mb-2 fs-4">Forgot Password</h2>
           <p className="text-center text-muted mb-4">
@@ -52,7 +59,9 @@ export function ForgotPasswordPage() {
 
           <form onSubmit={handleSubmit}>
             <div className="mb-3">
-              <label htmlFor="email" className="form-label">Email</label>
+              <label htmlFor="email" className="form-label">
+                Email
+              </label>
               <input
                 id="email"
                 type="email"
@@ -73,16 +82,26 @@ export function ForgotPasswordPage() {
             >
               {loading ? (
                 <>
-                  <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                  <span
+                    className="spinner-border spinner-border-sm me-2"
+                    role="status"
+                    aria-hidden="true"
+                  ></span>
                   Sending...
                 </>
-              ) : 'Send Reset Link'}
+              ) : (
+                'Send Reset Link'
+              )}
             </button>
           </form>
 
           <p className="text-center text-muted mb-0">
             Remember your password?{' '}
-            <Link to="/login" className="text-decoration-none fw-bold" style={{ color: 'var(--amber-500)' }}>
+            <Link
+              to="/login"
+              className="text-decoration-none fw-bold"
+              style={{ color: 'var(--amber-500)' }}
+            >
               Back to Login
             </Link>
           </p>

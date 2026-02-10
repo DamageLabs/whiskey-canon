@@ -63,7 +63,10 @@ router.post(
   requireAuth,
   [
     param('whiskeyId').isInt({ min: 1 }).withMessage('Whiskey ID must be a positive integer'),
-    body('content').trim().isLength({ min: 1, max: 2000 }).withMessage('Comment must be between 1 and 2000 characters')
+    body('content')
+      .trim()
+      .isLength({ min: 1, max: 2000 })
+      .withMessage('Comment must be between 1 and 2000 characters'),
   ],
   async (req: AuthRequest, res: Response) => {
     const errors = validationResult(req);
@@ -101,7 +104,10 @@ router.put(
   requireAuth,
   [
     param('id').isInt({ min: 1 }).withMessage('Comment ID must be a positive integer'),
-    body('content').trim().isLength({ min: 1, max: 2000 }).withMessage('Comment must be between 1 and 2000 characters')
+    body('content')
+      .trim()
+      .isLength({ min: 1, max: 2000 })
+      .withMessage('Comment must be between 1 and 2000 characters'),
   ],
   async (req: AuthRequest, res: Response) => {
     const errors = validationResult(req);

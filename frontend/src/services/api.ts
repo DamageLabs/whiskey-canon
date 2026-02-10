@@ -43,17 +43,25 @@ async function fetchAPI(url: string, options?: RequestInit, _retried = false) {
     headers,
   });
 
-  const data = await response.json();
-
   if (!response.ok) {
     // On CSRF failure, fetch a fresh token and retry once
-    const isCsrfError =
-      response.status === 403 &&
-      (data.error?.toLowerCase().includes('csrf') || data.code === 'EBADCSRFTOKEN');
-    if (isCsrfError && !_retried) {
-      await fetchCsrfToken();
-      return fetchAPI(url, options, true);
+    if (response.status === 403 && !_retried) {
+      const text = await response.text();
+      if (text.toLowerCase().includes('csrf') || text.toLowerCase().includes('blocked')) {
+        await fetchCsrfToken();
+        return fetchAPI(url, options, true);
+      }
+      // Try to parse as JSON for other 403 errors
+      try {
+        const data = JSON.parse(text);
+        throw new APIError(data.error || 'Forbidden', 403, data);
+      } catch (e) {
+        if (e instanceof APIError) throw e;
+        throw new APIError(text || 'Forbidden', 403);
+      }
     }
+
+    const data = await response.json();
 
     // Handle validation errors array
     if (data.errors && Array.isArray(data.errors)) {
@@ -63,7 +71,7 @@ async function fetchAPI(url: string, options?: RequestInit, _retried = false) {
     throw new APIError(data.error || 'Request failed', response.status, data);
   }
 
-  return data;
+  return response.json();
 }
 
 export const authAPI = {

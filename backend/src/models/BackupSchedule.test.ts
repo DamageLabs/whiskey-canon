@@ -55,7 +55,12 @@ describe('BackupScheduleModel', () => {
 
   describe('findAllActive', () => {
     it('returns active schedules', async () => {
-      const user2 = await createTestUser('user2', 'user2@example.com', 'Wh1sk3yTest!!', Role.EDITOR);
+      const user2 = await createTestUser(
+        'user2',
+        'user2@example.com',
+        'Wh1sk3yTest!!',
+        Role.EDITOR
+      );
       BackupScheduleModel.upsert(user.id, 'weekly', 'json', 30);
       BackupScheduleModel.upsert(user2.id, 'daily', 'json', 7);
 
@@ -64,7 +69,12 @@ describe('BackupScheduleModel', () => {
     });
 
     it('excludes disabled schedules', async () => {
-      const user2 = await createTestUser('user2', 'user2@example.com', 'Wh1sk3yTest!!', Role.EDITOR);
+      const user2 = await createTestUser(
+        'user2',
+        'user2@example.com',
+        'Wh1sk3yTest!!',
+        Role.EDITOR
+      );
       BackupScheduleModel.upsert(user.id, 'weekly', 'json', 30);
       BackupScheduleModel.upsert(user2.id, 'disabled', 'json', 30);
 

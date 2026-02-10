@@ -17,13 +17,25 @@ describe('UserModel', () => {
     });
 
     it('creates a user with specified role', async () => {
-      const user = await UserModel.create('adminuser', 'admin@example.com', 'Wh1sk3yTest!!', Role.ADMIN);
+      const user = await UserModel.create(
+        'adminuser',
+        'admin@example.com',
+        'Wh1sk3yTest!!',
+        Role.ADMIN
+      );
 
       expect(user.role).toBe(Role.ADMIN);
     });
 
     it('creates a user with firstName and lastName', async () => {
-      const user = await UserModel.create('fullname', 'full@example.com', 'Wh1sk3yTest!!', Role.EDITOR, 'John', 'Doe');
+      const user = await UserModel.create(
+        'fullname',
+        'full@example.com',
+        'Wh1sk3yTest!!',
+        Role.EDITOR,
+        'John',
+        'Doe'
+      );
 
       expect(user.first_name).toBe('John');
       expect(user.last_name).toBe('Doe');
@@ -116,7 +128,7 @@ describe('UserModel', () => {
 
       // Verify both users exist (order may vary due to timestamp granularity)
       expect(users).toHaveLength(2);
-      expect(users.map(u => u.username).sort()).toEqual(['first', 'second']);
+      expect(users.map((u) => u.username).sort()).toEqual(['first', 'second']);
     });
   });
 
@@ -138,7 +150,12 @@ describe('UserModel', () => {
 
   describe('updateRole', () => {
     it('updates user role', async () => {
-      const user = await UserModel.create('roleuser', 'role@example.com', 'Wh1sk3yTest!!', Role.EDITOR);
+      const user = await UserModel.create(
+        'roleuser',
+        'role@example.com',
+        'Wh1sk3yTest!!',
+        Role.EDITOR
+      );
 
       const updated = UserModel.updateRole(user.id, Role.ADMIN);
 
@@ -206,7 +223,7 @@ describe('UserModel', () => {
 
       const updated = UserModel.updateProfile(user.id, {
         firstName: 'Jane',
-        lastName: 'Smith'
+        lastName: 'Smith',
       });
 
       expect(updated?.first_name).toBe('Jane');
@@ -219,7 +236,7 @@ describe('UserModel', () => {
       const updated = UserModel.updateProfile(user.id, {
         email: 'multi@example.com',
         firstName: 'Multi',
-        lastName: 'Update'
+        lastName: 'Update',
       });
 
       expect(updated?.email).toBe('multi@example.com');
@@ -242,11 +259,18 @@ describe('UserModel', () => {
     });
 
     it('clears firstName/lastName when set to empty string', async () => {
-      const user = await UserModel.create('profile5', 'profile5@example.com', 'Wh1sk3yTest!!', Role.EDITOR, 'First', 'Last');
+      const user = await UserModel.create(
+        'profile5',
+        'profile5@example.com',
+        'Wh1sk3yTest!!',
+        Role.EDITOR,
+        'First',
+        'Last'
+      );
 
       const updated = UserModel.updateProfile(user.id, {
         firstName: '',
-        lastName: ''
+        lastName: '',
       });
 
       expect(updated?.first_name).toBeNull();
@@ -299,20 +323,28 @@ describe('UserModel', () => {
       const user = await UserModel.create('cascade', 'cascade@example.com', 'Wh1sk3yTest!!');
 
       // Create a whiskey for this user
-      testDb.prepare(`
+      testDb
+        .prepare(
+          `
         INSERT INTO whiskeys (name, type, distillery, created_by)
         VALUES (?, ?, ?, ?)
-      `).run('Test Whiskey', 'bourbon', 'Test Distillery', user.id);
+      `
+        )
+        .run('Test Whiskey', 'bourbon', 'Test Distillery', user.id);
 
       // Verify whiskey exists
-      const whiskeyBefore = testDb.prepare('SELECT * FROM whiskeys WHERE created_by = ?').get(user.id);
+      const whiskeyBefore = testDb
+        .prepare('SELECT * FROM whiskeys WHERE created_by = ?')
+        .get(user.id);
       expect(whiskeyBefore).toBeDefined();
 
       // Delete user
       UserModel.delete(user.id);
 
       // Verify whiskey is also deleted (cascade)
-      const whiskeyAfter = testDb.prepare('SELECT * FROM whiskeys WHERE created_by = ?').get(user.id);
+      const whiskeyAfter = testDb
+        .prepare('SELECT * FROM whiskeys WHERE created_by = ?')
+        .get(user.id);
       expect(whiskeyAfter).toBeUndefined();
     });
   });
@@ -349,13 +381,17 @@ describe('UserModel', () => {
       const user = await UserModel.create('unverified', 'unverified@example.com', 'Wh1sk3yTest!!');
 
       // Set verification code first
-      testDb.prepare(`
+      testDb
+        .prepare(
+          `
         UPDATE users
         SET verification_code = '123456',
             verification_code_expires_at = datetime('now', '+1 hour'),
             email_verified = 0
         WHERE id = ?
-      `).run(user.id);
+      `
+        )
+        .run(user.id);
 
       const updated = UserModel.markEmailVerified(user.id);
 
@@ -397,12 +433,16 @@ describe('UserModel', () => {
       const token = 'valid-reset-token-123';
 
       // Set the password reset token directly in the database
-      testDb.prepare(`
+      testDb
+        .prepare(
+          `
         UPDATE users
         SET password_reset_token = ?,
             password_reset_expires_at = datetime('now', '+1 hour')
         WHERE id = ?
-      `).run(token, user.id);
+      `
+        )
+        .run(token, user.id);
 
       const found = UserModel.findByPasswordResetToken(token);
 
@@ -428,12 +468,16 @@ describe('UserModel', () => {
       const token = 'token-to-clear';
 
       // Set the password reset token
-      testDb.prepare(`
+      testDb
+        .prepare(
+          `
         UPDATE users
         SET password_reset_token = ?,
             password_reset_expires_at = datetime('now', '+1 hour')
         WHERE id = ?
-      `).run(token, user.id);
+      `
+        )
+        .run(token, user.id);
 
       // Verify token is set
       const beforeClear = UserModel.findByPasswordResetToken(token);
@@ -509,7 +553,14 @@ describe('UserModel', () => {
 
   describe('getPublicProfile', () => {
     it('returns public profile for existing user', async () => {
-      const user = await UserModel.create('pubuser', 'pub@example.com', 'Wh1sk3yTest!!', Role.EDITOR, 'Public', 'User');
+      const user = await UserModel.create(
+        'pubuser',
+        'pub@example.com',
+        'Wh1sk3yTest!!',
+        Role.EDITOR,
+        'Public',
+        'User'
+      );
       UserModel.updateVisibility(user.id, true);
 
       const profile = UserModel.getPublicProfile('pubuser');
@@ -540,7 +591,11 @@ describe('UserModel', () => {
     });
 
     it('does not include sensitive fields in public profile', async () => {
-      const user = await UserModel.create('sensitiveuser', 'sensitive@example.com', 'Wh1sk3yTest!!');
+      const user = await UserModel.create(
+        'sensitiveuser',
+        'sensitive@example.com',
+        'Wh1sk3yTest!!'
+      );
 
       const profile = UserModel.getPublicProfile('sensitiveuser');
 
@@ -597,7 +652,7 @@ describe('UserModel', () => {
       const publicProfiles = UserModel.findPublicProfiles();
 
       expect(publicProfiles).toHaveLength(2);
-      expect(publicProfiles.map(p => p.username).sort()).toEqual(['public1', 'public2']);
+      expect(publicProfiles.map((p) => p.username).sort()).toEqual(['public1', 'public2']);
     });
 
     it('returns empty array when no public profiles exist', async () => {
@@ -631,7 +686,7 @@ describe('UserModel', () => {
 
       // Verify both profiles are returned (order may vary due to timestamp granularity)
       expect(publicProfiles).toHaveLength(2);
-      expect(publicProfiles.map(p => p.username).sort()).toEqual(['first_pub', 'second_pub']);
+      expect(publicProfiles.map((p) => p.username).sort()).toEqual(['first_pub', 'second_pub']);
     });
 
     it('updates list when profile visibility changes', async () => {
@@ -639,17 +694,17 @@ describe('UserModel', () => {
 
       // Initially private
       let publicProfiles = UserModel.findPublicProfiles();
-      expect(publicProfiles.find(p => p.username === 'togglelist')).toBeUndefined();
+      expect(publicProfiles.find((p) => p.username === 'togglelist')).toBeUndefined();
 
       // Make public
       UserModel.updateVisibility(user.id, true);
       publicProfiles = UserModel.findPublicProfiles();
-      expect(publicProfiles.find(p => p.username === 'togglelist')).toBeDefined();
+      expect(publicProfiles.find((p) => p.username === 'togglelist')).toBeDefined();
 
       // Make private again
       UserModel.updateVisibility(user.id, false);
       publicProfiles = UserModel.findPublicProfiles();
-      expect(publicProfiles.find(p => p.username === 'togglelist')).toBeUndefined();
+      expect(publicProfiles.find((p) => p.username === 'togglelist')).toBeUndefined();
     });
   });
 
@@ -659,14 +714,14 @@ describe('UserModel', () => {
 
       // Not in directory initially
       let directory = UserModel.findPublicProfiles();
-      expect(directory.find(p => p.username === 'newpublic')).toBeUndefined();
+      expect(directory.find((p) => p.username === 'newpublic')).toBeUndefined();
 
       // Make public
       UserModel.updateVisibility(user.id, true);
 
       // Now should be in directory
       directory = UserModel.findPublicProfiles();
-      const found = directory.find(p => p.username === 'newpublic');
+      const found = directory.find((p) => p.username === 'newpublic');
       expect(found).toBeDefined();
       expect(found?.is_profile_public).toBe(1);
     });
@@ -679,14 +734,14 @@ describe('UserModel', () => {
 
       // Verify in directory
       let directory = UserModel.findPublicProfiles();
-      expect(directory.find(p => p.username === 'waspublic')).toBeDefined();
+      expect(directory.find((p) => p.username === 'waspublic')).toBeDefined();
 
       // Make private
       UserModel.updateVisibility(user.id, false);
 
       // No longer in directory
       directory = UserModel.findPublicProfiles();
-      expect(directory.find(p => p.username === 'waspublic')).toBeUndefined();
+      expect(directory.find((p) => p.username === 'waspublic')).toBeUndefined();
     });
 
     it('public profile visible via getPublicProfile after visibility change', async () => {
@@ -707,8 +762,16 @@ describe('UserModel', () => {
     it('multiple users with different visibility states', async () => {
       const public1 = await UserModel.create('multi_public1', 'mp1@example.com', 'Wh1sk3yTest!!');
       const public2 = await UserModel.create('multi_public2', 'mp2@example.com', 'Wh1sk3yTest!!');
-      const private1 = await UserModel.create('multi_private1', 'mpv1@example.com', 'Wh1sk3yTest!!');
-      const private2 = await UserModel.create('multi_private2', 'mpv2@example.com', 'Wh1sk3yTest!!');
+      const private1 = await UserModel.create(
+        'multi_private1',
+        'mpv1@example.com',
+        'Wh1sk3yTest!!'
+      );
+      const private2 = await UserModel.create(
+        'multi_private2',
+        'mpv2@example.com',
+        'Wh1sk3yTest!!'
+      );
 
       // Make some public
       UserModel.updateVisibility(public1.id, true);
@@ -716,11 +779,11 @@ describe('UserModel', () => {
 
       // Check directory
       const directory = UserModel.findPublicProfiles();
-      expect(directory.filter(p => p.username.startsWith('multi_'))).toHaveLength(2);
-      expect(directory.find(p => p.username === 'multi_public1')).toBeDefined();
-      expect(directory.find(p => p.username === 'multi_public2')).toBeDefined();
-      expect(directory.find(p => p.username === 'multi_private1')).toBeUndefined();
-      expect(directory.find(p => p.username === 'multi_private2')).toBeUndefined();
+      expect(directory.filter((p) => p.username.startsWith('multi_'))).toHaveLength(2);
+      expect(directory.find((p) => p.username === 'multi_public1')).toBeDefined();
+      expect(directory.find((p) => p.username === 'multi_public2')).toBeDefined();
+      expect(directory.find((p) => p.username === 'multi_private1')).toBeUndefined();
+      expect(directory.find((p) => p.username === 'multi_private2')).toBeUndefined();
     });
 
     it('visibility change persists through findById', async () => {

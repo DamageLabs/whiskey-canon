@@ -8,7 +8,14 @@ import { uploadProfilePhoto } from '../middleware/upload';
 import { authLimiter, passwordResetLimiter } from '../middleware/rateLimiter';
 import { generateToken } from '../middleware/csrf';
 import { validatePassword } from '../utils/password-policy';
-import { generateVerificationCode, getVerificationCodeExpiry, isVerificationCodeExpired, generatePasswordResetToken, getPasswordResetTokenExpiry, isPasswordResetTokenExpired } from '../utils/verification';
+import {
+  generateVerificationCode,
+  getVerificationCodeExpiry,
+  isVerificationCodeExpired,
+  generatePasswordResetToken,
+  getPasswordResetTokenExpiry,
+  isPasswordResetTokenExpired,
+} from '../utils/verification';
 import { sendVerificationEmail, sendPasswordResetEmail } from '../utils/email';
 import fs from 'fs';
 import path from 'path';
@@ -29,12 +36,15 @@ router.post(
   '/register',
   authLimiter,
   [
-    body('username').trim().isLength({ min: 3 }).withMessage('Username must be at least 3 characters'),
+    body('username')
+      .trim()
+      .isLength({ min: 3 })
+      .withMessage('Username must be at least 3 characters'),
     body('email').isEmail().withMessage('Invalid email'),
     body('password').custom(validatePassword),
     body('role').optional().isIn(['admin', 'editor']).withMessage('Invalid role'),
     body('firstName').optional().trim(),
-    body('lastName').optional().trim()
+    body('lastName').optional().trim(),
   ],
   async (req: Request, res: Response) => {
     const errors = validationResult(req);
@@ -54,7 +64,14 @@ router.post(
         return res.status(400).json({ error: 'Email already exists' });
       }
 
-      const user = await UserModel.create(username, email, password, role || Role.EDITOR, firstName, lastName);
+      const user = await UserModel.create(
+        username,
+        email,
+        password,
+        role || Role.EDITOR,
+        firstName,
+        lastName
+      );
 
       // Generate and store verification code
       const verificationCode = generateVerificationCode();
@@ -71,7 +88,7 @@ router.post(
       res.status(201).json({
         message: 'User created successfully. Please check your email to verify your account.',
         requiresVerification: true,
-        email: email
+        email: email,
       });
     } catch (error) {
       console.error('Registration error:', error);
@@ -86,7 +103,7 @@ router.post(
   authLimiter,
   [
     body('username').trim().notEmpty().withMessage('Username is required'),
-    body('password').notEmpty().withMessage('Password is required')
+    body('password').notEmpty().withMessage('Password is required'),
   ],
   async (req: Request, res: Response) => {
     const errors = validationResult(req);
@@ -114,7 +131,7 @@ router.post(
         return res.status(403).json({
           error: 'Please verify your email before logging in',
           requiresVerification: true,
-          email: user.email
+          email: user.email,
         });
       }
 
@@ -126,7 +143,7 @@ router.post(
 
       res.json({
         message: 'Login successful',
-        user: userWithoutPassword
+        user: userWithoutPassword,
       });
     } catch (error) {
       console.error('Login error:', error);
@@ -151,7 +168,7 @@ router.post(
   '/verify-email',
   [
     body('email').isEmail().withMessage('Invalid email'),
-    body('code').trim().isLength({ min: 8, max: 8 }).withMessage('Invalid verification code')
+    body('code').trim().isLength({ min: 8, max: 8 }).withMessage('Invalid verification code'),
   ],
   async (req: Request, res: Response) => {
     const errors = validationResult(req);
@@ -175,7 +192,7 @@ router.post(
       // Check attempts (rate limiting)
       if (user.verification_code_attempts >= 5) {
         return res.status(429).json({
-          error: 'Too many verification attempts. Please request a new code.'
+          error: 'Too many verification attempts. Please request a new code.',
         });
       }
 
@@ -183,9 +200,12 @@ router.post(
       UserModel.incrementVerificationAttempts(user.id);
 
       // Check if code is expired
-      if (!user.verification_code_expires_at || isVerificationCodeExpired(user.verification_code_expires_at)) {
+      if (
+        !user.verification_code_expires_at ||
+        isVerificationCodeExpired(user.verification_code_expires_at)
+      ) {
         return res.status(400).json({
-          error: 'Verification code has expired. Please request a new code.'
+          error: 'Verification code has expired. Please request a new code.',
         });
       }
 
@@ -212,9 +232,7 @@ router.post(
 // Resend verification email
 router.post(
   '/resend-verification',
-  [
-    body('email').isEmail().withMessage('Invalid email')
-  ],
+  [body('email').isEmail().withMessage('Invalid email')],
   async (req: Request, res: Response) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -228,7 +246,9 @@ router.post(
 
       if (!user) {
         // Return success even if user not found (security: don't reveal if email exists)
-        return res.json({ message: 'If an account exists with this email, a verification code has been sent.' });
+        return res.json({
+          message: 'If an account exists with this email, a verification code has been sent.',
+        });
       }
 
       if (user.email_verified) {
@@ -241,7 +261,7 @@ router.post(
       if (lastResend && now - lastResend < 60000) {
         const remainingSeconds = Math.ceil((60000 - (now - lastResend)) / 1000);
         return res.status(429).json({
-          error: `Please wait ${remainingSeconds} seconds before requesting a new code`
+          error: `Please wait ${remainingSeconds} seconds before requesting a new code`,
         });
       }
 
@@ -272,9 +292,7 @@ router.post(
 router.post(
   '/forgot-password',
   passwordResetLimiter,
-  [
-    body('email').isEmail().withMessage('Invalid email')
-  ],
+  [body('email').isEmail().withMessage('Invalid email')],
   async (req: Request, res: Response) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -288,7 +306,9 @@ router.post(
 
       // Always return success even if user not found (security: don't reveal if email exists)
       if (!user) {
-        return res.json({ message: 'If an account exists with this email, a password reset link has been sent.' });
+        return res.json({
+          message: 'If an account exists with this email, a password reset link has been sent.',
+        });
       }
 
       // Generate password reset token
@@ -303,7 +323,9 @@ router.post(
         console.error('Failed to send password reset email to:', email);
       }
 
-      res.json({ message: 'If an account exists with this email, a password reset link has been sent.' });
+      res.json({
+        message: 'If an account exists with this email, a password reset link has been sent.',
+      });
     } catch (error) {
       console.error('Forgot password error:', error);
       res.status(500).json({ error: 'Failed to process password reset request' });
@@ -317,7 +339,7 @@ router.post(
   passwordResetLimiter,
   [
     body('token').trim().notEmpty().withMessage('Reset token is required'),
-    body('password').custom(validatePassword)
+    body('password').custom(validatePassword),
   ],
   async (req: Request, res: Response) => {
     const errors = validationResult(req);
@@ -335,9 +357,14 @@ router.post(
       }
 
       // Check if token is expired
-      if (!user.password_reset_expires_at || isPasswordResetTokenExpired(user.password_reset_expires_at)) {
+      if (
+        !user.password_reset_expires_at ||
+        isPasswordResetTokenExpired(user.password_reset_expires_at)
+      ) {
         UserModel.clearPasswordResetToken(user.id);
-        return res.status(400).json({ error: 'Reset token has expired. Please request a new one.' });
+        return res
+          .status(400)
+          .json({ error: 'Reset token has expired. Please request a new one.' });
       }
 
       // Update password
@@ -373,7 +400,7 @@ router.put(
     body('firstName').optional().trim(),
     body('lastName').optional().trim(),
     body('currentPassword').optional().notEmpty().withMessage('Current password is required'),
-    body('newPassword').optional().custom(validatePassword)
+    body('newPassword').optional().custom(validatePassword),
   ],
   async (req: AuthRequest, res: Response) => {
     const errors = validationResult(req);
@@ -436,7 +463,7 @@ router.put(
 
       res.json({
         message: 'Profile updated successfully',
-        user: userWithoutPassword
+        user: userWithoutPassword,
       });
     } catch (error) {
       console.error('Profile update error:', error);
@@ -462,7 +489,11 @@ router.post(
 
       // Delete old profile photo if it exists
       if (req.user.profile_photo) {
-        const oldPhotoPath = path.join(__dirname, '../../uploads/profiles', path.basename(req.user.profile_photo));
+        const oldPhotoPath = path.join(
+          __dirname,
+          '../../uploads/profiles',
+          path.basename(req.user.profile_photo)
+        );
         if (fs.existsSync(oldPhotoPath)) {
           fs.unlinkSync(oldPhotoPath);
         }
@@ -481,7 +512,7 @@ router.post(
 
       res.json({
         message: 'Profile photo updated successfully',
-        user: userWithoutPassword
+        user: userWithoutPassword,
       });
     } catch (error: any) {
       console.error('Profile photo upload error:', error);
@@ -528,7 +559,7 @@ router.patch(
 
       res.json({
         message: `Profile is now ${isPublic ? 'public' : 'private'}`,
-        user: userWithoutPassword
+        user: userWithoutPassword,
       });
     } catch (error) {
       console.error('Visibility update error:', error);
@@ -549,7 +580,11 @@ router.delete('/profile/photo', requireAuth, async (req: AuthRequest, res) => {
     }
 
     // Delete the photo file
-    const photoPath = path.join(__dirname, '../../uploads/profiles', path.basename(req.user.profile_photo));
+    const photoPath = path.join(
+      __dirname,
+      '../../uploads/profiles',
+      path.basename(req.user.profile_photo)
+    );
     if (fs.existsSync(photoPath)) {
       fs.unlinkSync(photoPath);
     }
@@ -566,7 +601,7 @@ router.delete('/profile/photo', requireAuth, async (req: AuthRequest, res) => {
 
     res.json({
       message: 'Profile photo deleted successfully',
-      user: userWithoutPassword
+      user: userWithoutPassword,
     });
   } catch (error) {
     console.error('Profile photo delete error:', error);

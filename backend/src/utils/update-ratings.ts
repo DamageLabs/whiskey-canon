@@ -5,11 +5,15 @@ function updateRatings() {
   console.log('🔄 Updating ratings to 2 decimal places...\n');
 
   // Get all whiskeys with ratings
-  const whiskeys = db.prepare(`
+  const whiskeys = db
+    .prepare(
+      `
     SELECT id, name, rating
     FROM whiskeys
     WHERE rating IS NOT NULL
-  `).all() as any[];
+  `
+    )
+    .all() as any[];
 
   console.log(`Found ${whiskeys.length} whiskeys with ratings\n`);
 
@@ -20,11 +24,13 @@ function updateRatings() {
     const roundedRating = parseFloat(whiskey.rating.toFixed(2));
 
     // Update the rating
-    db.prepare(`
+    db.prepare(
+      `
       UPDATE whiskeys
       SET rating = ?
       WHERE id = ?
-    `).run(roundedRating, whiskey.id);
+    `
+    ).run(roundedRating, whiskey.id);
 
     updated++;
   }
@@ -35,13 +41,17 @@ function updateRatings() {
   console.log('📊 Sample Updated Ratings:');
   console.log('=========================');
 
-  const samples = db.prepare(`
+  const samples = db
+    .prepare(
+      `
     SELECT name, rating
     FROM whiskeys
     WHERE rating IS NOT NULL
     ORDER BY rating DESC
     LIMIT 10
-  `).all() as any[];
+  `
+    )
+    .all() as any[];
 
   for (const sample of samples) {
     console.log(`${sample.name}: ${sample.rating}`);

@@ -55,8 +55,8 @@ export function initializeDatabase() {
 
   // Add new columns to users table if they don't exist (for existing databases)
   try {
-    const userTableInfo = db.prepare("PRAGMA table_info(users)").all() as Array<{ name: string }>;
-    const userColumnNames = userTableInfo.map(col => col.name);
+    const userTableInfo = db.prepare('PRAGMA table_info(users)').all() as Array<{ name: string }>;
+    const userColumnNames = userTableInfo.map((col) => col.name);
 
     if (!userColumnNames.includes('first_name')) {
       db.exec('ALTER TABLE users ADD COLUMN first_name TEXT');
@@ -113,8 +113,8 @@ export function initializeDatabase() {
 
   // Add new columns to whiskeys table if they don't exist (for existing databases)
   try {
-    const tableInfo = db.prepare("PRAGMA table_info(whiskeys)").all() as Array<{ name: string }>;
-    const columnNames = tableInfo.map(col => col.name);
+    const tableInfo = db.prepare('PRAGMA table_info(whiskeys)').all() as Array<{ name: string }>;
+    const columnNames = tableInfo.map((col) => col.name);
 
     if (!columnNames.includes('size')) {
       db.exec('ALTER TABLE whiskeys ADD COLUMN size TEXT');
@@ -172,7 +172,7 @@ export function initializeDatabase() {
       console.log('Added storage_location column to whiskeys table');
     }
     if (!columnNames.includes('status')) {
-      db.exec('ALTER TABLE whiskeys ADD COLUMN status TEXT DEFAULT \'in_collection\'');
+      db.exec("ALTER TABLE whiskeys ADD COLUMN status TEXT DEFAULT 'in_collection'");
       console.log('Added status column to whiskeys table');
     }
 

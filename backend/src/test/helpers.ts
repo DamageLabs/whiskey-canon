@@ -28,8 +28,8 @@ export function createTestApp(): express.Application {
       saveUninitialized: false,
       cookie: {
         secure: false,
-        httpOnly: true
-      }
+        httpOnly: true,
+      },
     })
   );
 
@@ -68,13 +68,20 @@ export async function createTestUser(
     VALUES (?, ?, ?, ?, ?, ?, 1)
   `);
 
-  const result = stmt.run(username, email, hashedPassword, role, firstName || null, lastName || null);
+  const result = stmt.run(
+    username,
+    email,
+    hashedPassword,
+    role,
+    firstName || null,
+    lastName || null
+  );
 
   return {
     id: result.lastInsertRowid as number,
     username,
     email,
-    role
+    role,
   };
 }
 
@@ -86,9 +93,7 @@ export async function loginUser(
   username: string,
   password: string
 ): Promise<string[]> {
-  const response = await request(app)
-    .post('/api/auth/login')
-    .send({ username, password });
+  const response = await request(app).post('/api/auth/login').send({ username, password });
 
   const cookies = response.headers['set-cookie'];
   return Array.isArray(cookies) ? cookies : cookies ? [cookies] : [];
@@ -103,13 +108,14 @@ export async function createAuthenticatedAgent(
   email: string = 'test@example.com',
   password: string = 'Wh1sk3yTest!!',
   role: Role = Role.EDITOR
-): Promise<{ agent: request.Agent; user: { id: number; username: string; email: string; role: Role } }> {
+): Promise<{
+  agent: request.Agent;
+  user: { id: number; username: string; email: string; role: Role };
+}> {
   const user = await createTestUser(username, email, password, role);
 
   const agent = request.agent(app);
-  await agent
-    .post('/api/auth/login')
-    .send({ username, password });
+  await agent.post('/api/auth/login').send({ username, password });
 
   return { agent, user };
 }
@@ -142,7 +148,7 @@ export function createTestWhiskey(
     rating: overrides.rating || null,
     description: overrides.description || null,
     obtained_from: overrides.obtained_from || null,
-    purchase_location: overrides.purchase_location || null
+    purchase_location: overrides.purchase_location || null,
   };
 
   const stmt = testDb.prepare(`
@@ -169,7 +175,7 @@ export function createTestWhiskey(
     name: data.name,
     type: data.type as WhiskeyType,
     distillery: data.distillery,
-    created_by: userId
+    created_by: userId,
   };
 }
 
@@ -192,6 +198,6 @@ export function createTestComment(
     id: result.lastInsertRowid as number,
     whiskey_id: whiskeyId,
     user_id: userId,
-    content
+    content,
   };
 }

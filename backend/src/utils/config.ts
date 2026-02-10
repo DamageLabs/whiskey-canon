@@ -21,19 +21,23 @@ export const config = {
   port: parseInt(optional('PORT', '3000'), 10),
   nodeEnv: optional('NODE_ENV', 'development'),
   isProduction,
-  sessionSecret: isProduction ? required('SESSION_SECRET') : optional('SESSION_SECRET', 'whiskey-bible-secret'),
-  frontendUrl: isProduction ? required('FRONTEND_URL') : optional('FRONTEND_URL', 'http://localhost:5173'),
+  sessionSecret: isProduction
+    ? required('SESSION_SECRET')
+    : optional('SESSION_SECRET', 'whiskey-bible-secret'),
+  frontendUrl: isProduction
+    ? required('FRONTEND_URL')
+    : optional('FRONTEND_URL', 'http://localhost:5173'),
   databasePath: optional('DATABASE_PATH', path.join(__dirname, '../../whiskey.db')),
   resendApiKey: process.env.RESEND_API_KEY || null,
   resendFromEmail: optional('RESEND_FROM_EMAIL', 'noreply@whiskey-canon.com'),
-  contactEmail: process.env.CONTACT_EMAIL || process.env.RESEND_FROM_EMAIL || 'noreply@whiskey-canon.com',
+  contactEmail:
+    process.env.CONTACT_EMAIL || process.env.RESEND_FROM_EMAIL || 'noreply@whiskey-canon.com',
   backupDir: optional('BACKUP_DIR', path.join(__dirname, '../../backups')),
   backupMaxSizeMb: parseInt(optional('BACKUP_MAX_SIZE_MB', '50'), 10),
 } as const;
 
 export function validateConfig(): void {
-  const redacted = (val: string | null): string =>
-    val ? '[set]' : '[not set]';
+  const redacted = (val: string | null): string => (val ? '[set]' : '[not set]');
 
   console.log('Configuration loaded:');
   console.log(`  port: ${config.port}`);
@@ -41,7 +45,9 @@ export function validateConfig(): void {
   console.log(`  sessionSecret: ${redacted(config.sessionSecret)}`);
   console.log(`  frontendUrl: ${config.frontendUrl}`);
   console.log(`  databasePath: ${config.databasePath}`);
-  console.log(`  resendApiKey: ${redacted(config.resendApiKey)}${config.resendApiKey ? '' : ' — email features disabled'}`);
+  console.log(
+    `  resendApiKey: ${redacted(config.resendApiKey)}${config.resendApiKey ? '' : ' — email features disabled'}`
+  );
   console.log(`  resendFromEmail: ${config.resendFromEmail}`);
   console.log(`  contactEmail: ${config.contactEmail}`);
 }

@@ -1,6 +1,6 @@
 export enum Role {
   ADMIN = 'admin',
-  EDITOR = 'editor'
+  EDITOR = 'editor',
 }
 
 export interface User {
@@ -35,7 +35,7 @@ export enum WhiskeyType {
   RYE = 'rye',
   TENNESSEE = 'tennessee',
   CANADIAN = 'canadian',
-  OTHER = 'other'
+  OTHER = 'other',
 }
 
 export enum WhiskeyStatus {
@@ -43,7 +43,7 @@ export enum WhiskeyStatus {
   CONSUMED = 'consumed',
   SOLD = 'sold',
   GIFTED = 'gifted',
-  TRADED = 'traded'
+  TRADED = 'traded',
 }
 
 export interface Whiskey {

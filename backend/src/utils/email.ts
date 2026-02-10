@@ -118,7 +118,12 @@ export async function sendPasswordResetEmail(to: string, token: string): Promise
   }
 }
 
-export async function sendContactEmail(name: string, email: string, subject: string, message: string): Promise<boolean> {
+export async function sendContactEmail(
+  name: string,
+  email: string,
+  subject: string,
+  message: string
+): Promise<boolean> {
   if (!config.resendApiKey) {
     console.log('[Contact] RESEND_API_KEY not configured — logging contact form submission:');
     console.log(`  From: ${name} <${email}>`);

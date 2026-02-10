@@ -16,7 +16,10 @@ vi.mock('../services/api', () => ({
 // Default mock stats
 const mockStats = {
   totalBottles: 10,
-  typeBreakdown: [{ type: 'bourbon', count: 5 }, { type: 'scotch', count: 5 }],
+  typeBreakdown: [
+    { type: 'bourbon', count: 5 },
+    { type: 'scotch', count: 5 },
+  ],
   topDistilleries: [{ distillery: 'Buffalo Trace', count: 3 }],
   totalDistilleries: 5,
   averageRating: 8.5,
@@ -45,7 +48,10 @@ describe('PublicProfilePage', () => {
     it('shows loading spinner while fetching profile', async () => {
       let resolveProfile: (value: any) => void;
       vi.mocked(usersAPI.getPublicProfile).mockImplementation(
-        () => new Promise((resolve) => { resolveProfile = resolve; })
+        () =>
+          new Promise((resolve) => {
+            resolveProfile = resolve;
+          })
       );
 
       renderWithRouter('testuser');
@@ -54,7 +60,15 @@ describe('PublicProfilePage', () => {
       expect(screen.getByRole('status')).toBeInTheDocument();
 
       // Resolve to clean up
-      resolveProfile!({ profile: { id: 1, username: 'testuser', role: Role.EDITOR, is_profile_public: true, created_at: '2024-01-01' } });
+      resolveProfile!({
+        profile: {
+          id: 1,
+          username: 'testuser',
+          role: Role.EDITOR,
+          is_profile_public: true,
+          created_at: '2024-01-01',
+        },
+      });
     });
   });
 
@@ -156,7 +170,9 @@ describe('PublicProfilePage', () => {
 
       await waitFor(() => {
         expect(screen.getByText('Profile not found')).toBeInTheDocument();
-        expect(screen.getByText('This profile may be private or does not exist.')).toBeInTheDocument();
+        expect(
+          screen.getByText('This profile may be private or does not exist.')
+        ).toBeInTheDocument();
       });
     });
 
@@ -362,7 +378,9 @@ describe('PublicProfilePage', () => {
       renderWithRouter('collector');
 
       await waitFor(() => {
-        expect(screen.getByText("This collector hasn't added any whiskeys yet.")).toBeInTheDocument();
+        expect(
+          screen.getByText("This collector hasn't added any whiskeys yet.")
+        ).toBeInTheDocument();
       });
     });
 

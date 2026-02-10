@@ -12,62 +12,62 @@ function addIndexes() {
       name: 'idx_whiskeys_created_by',
       table: 'whiskeys',
       column: 'created_by',
-      description: 'Speed up queries filtering by user'
+      description: 'Speed up queries filtering by user',
     },
     {
       name: 'idx_whiskeys_type',
       table: 'whiskeys',
       column: 'type',
-      description: 'Speed up filtering by whiskey type'
+      description: 'Speed up filtering by whiskey type',
     },
     {
       name: 'idx_whiskeys_rating',
       table: 'whiskeys',
       column: 'rating',
-      description: 'Speed up sorting by rating'
+      description: 'Speed up sorting by rating',
     },
     {
       name: 'idx_whiskeys_name',
       table: 'whiskeys',
       column: 'name',
-      description: 'Speed up search by name'
+      description: 'Speed up search by name',
     },
     {
       name: 'idx_whiskeys_distillery',
       table: 'whiskeys',
       column: 'distillery',
-      description: 'Speed up filtering by distillery'
+      description: 'Speed up filtering by distillery',
     },
     {
       name: 'idx_whiskeys_purchase_date',
       table: 'whiskeys',
       column: 'purchase_date',
-      description: 'Speed up date range queries'
+      description: 'Speed up date range queries',
     },
     {
       name: 'idx_whiskeys_status',
       table: 'whiskeys',
       column: 'status',
-      description: 'Speed up filtering by status'
+      description: 'Speed up filtering by status',
     },
     {
       name: 'idx_whiskeys_is_opened',
       table: 'whiskeys',
       column: 'is_opened',
-      description: 'Speed up opened/sealed filtering'
+      description: 'Speed up opened/sealed filtering',
     },
     {
       name: 'idx_users_username',
       table: 'users',
       column: 'username',
-      description: 'Speed up login queries'
+      description: 'Speed up login queries',
     },
     {
       name: 'idx_users_email',
       table: 'users',
       column: 'email',
-      description: 'Speed up email lookups'
-    }
+      description: 'Speed up email lookups',
+    },
   ];
 
   let created = 0;
@@ -76,10 +76,14 @@ function addIndexes() {
   for (const index of indexes) {
     try {
       // Check if index already exists
-      const existing = db.prepare(`
+      const existing = db
+        .prepare(
+          `
         SELECT name FROM sqlite_master
         WHERE type='index' AND name=?
-      `).get(index.name);
+      `
+        )
+        .get(index.name);
 
       if (existing) {
         console.log(`⏭️  ${index.name}: Already exists`);
@@ -88,9 +92,11 @@ function addIndexes() {
       }
 
       // Create index
-      db.prepare(`
+      db.prepare(
+        `
         CREATE INDEX ${index.name} ON ${index.table}(${index.column})
-      `).run();
+      `
+      ).run();
 
       console.log(`✅ ${index.name}: Created - ${index.description}`);
       created++;
@@ -108,13 +114,17 @@ function addIndexes() {
   // Show all indexes
   console.log('\n📋 Current Database Indexes:');
   console.log('============================');
-  const allIndexes = db.prepare(`
+  const allIndexes = db
+    .prepare(
+      `
     SELECT name, tbl_name
     FROM sqlite_master
     WHERE type='index'
     AND name NOT LIKE 'sqlite_%'
     ORDER BY tbl_name, name
-  `).all() as any[];
+  `
+    )
+    .all() as any[];
 
   for (const idx of allIndexes) {
     console.log(`  ${idx.tbl_name}.${idx.name}`);

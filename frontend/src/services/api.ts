@@ -1,4 +1,13 @@
-import { User, Whiskey, CreateWhiskeyData, WhiskeyType, PublicProfile, BackupRecord, BackupSchedule, RestorePreview } from '../types';
+import {
+  User,
+  Whiskey,
+  CreateWhiskeyData,
+  WhiskeyType,
+  PublicProfile,
+  BackupRecord,
+  BackupSchedule,
+  RestorePreview,
+} from '../types';
 import { getCsrfHeaders, fetchCsrfToken } from '../utils/csrf';
 
 const API_BASE = '/api';
@@ -38,7 +47,8 @@ async function fetchAPI(url: string, options?: RequestInit, _retried = false) {
 
   if (!response.ok) {
     // On CSRF failure, fetch a fresh token and retry once
-    const isCsrfError = response.status === 403 &&
+    const isCsrfError =
+      response.status === 403 &&
       (data.error?.toLowerCase().includes('csrf') || data.code === 'EBADCSRFTOKEN');
     if (isCsrfError && !_retried) {
       await fetchCsrfToken();
@@ -57,7 +67,14 @@ async function fetchAPI(url: string, options?: RequestInit, _retried = false) {
 }
 
 export const authAPI = {
-  register: (username: string, email: string, password: string, role?: string, firstName?: string, lastName?: string) =>
+  register: (
+    username: string,
+    email: string,
+    password: string,
+    role?: string,
+    firstName?: string,
+    lastName?: string
+  ) =>
     fetchAPI('/auth/register', {
       method: 'POST',
       body: JSON.stringify({ username, email, password, role, firstName, lastName }),
@@ -105,7 +122,10 @@ export const authAPI = {
 };
 
 export const whiskeyAPI = {
-  getAll: (filters?: { type?: WhiskeyType; distillery?: string }): Promise<{ whiskeys: Whiskey[] }> => {
+  getAll: (filters?: {
+    type?: WhiskeyType;
+    distillery?: string;
+  }): Promise<{ whiskeys: Whiskey[] }> => {
     const params = new URLSearchParams();
     if (filters?.type) params.append('type', filters.type);
     if (filters?.distillery) params.append('distillery', filters.distillery);
@@ -114,8 +134,7 @@ export const whiskeyAPI = {
     return fetchAPI(`/whiskeys${query ? `?${query}` : ''}`);
   },
 
-  getById: (id: number): Promise<{ whiskey: Whiskey }> =>
-    fetchAPI(`/whiskeys/${id}`),
+  getById: (id: number): Promise<{ whiskey: Whiskey }> => fetchAPI(`/whiskeys/${id}`),
 
   search: (query: string): Promise<{ whiskeys: Whiskey[] }> =>
     fetchAPI(`/whiskeys/search?q=${encodeURIComponent(query)}`),
@@ -126,7 +145,10 @@ export const whiskeyAPI = {
       body: JSON.stringify(data),
     }),
 
-  update: (id: number, data: Partial<CreateWhiskeyData>): Promise<{ whiskey: Whiskey; message: string }> =>
+  update: (
+    id: number,
+    data: Partial<CreateWhiskeyData>
+  ): Promise<{ whiskey: Whiskey; message: string }> =>
     fetchAPI(`/whiskeys/${id}`, {
       method: 'PUT',
       body: JSON.stringify(data),
@@ -171,7 +193,9 @@ export const whiskeyAPI = {
     window.URL.revokeObjectURL(url);
   },
 
-  importCSV: async (file: File): Promise<{
+  importCSV: async (
+    file: File
+  ): Promise<{
     message: string;
     summary: {
       total: number;
@@ -252,7 +276,15 @@ export const backupAPI = {
     window.URL.revokeObjectURL(url);
   },
 
-  restore: (id: number, dryRun: boolean, conflictStrategy?: string): Promise<{ preview?: RestorePreview; result?: { whiskeysRestored: number; commentsRestored: number; skipped: number }; message?: string }> =>
+  restore: (
+    id: number,
+    dryRun: boolean,
+    conflictStrategy?: string
+  ): Promise<{
+    preview?: RestorePreview;
+    result?: { whiskeysRestored: number; commentsRestored: number; skipped: number };
+    message?: string;
+  }> =>
     fetchAPI(`/backups/${id}/restore`, {
       method: 'POST',
       body: JSON.stringify({ dryRun, conflictStrategy }),
@@ -261,10 +293,13 @@ export const backupAPI = {
   delete: (id: number): Promise<{ message: string }> =>
     fetchAPI(`/backups/${id}`, { method: 'DELETE' }),
 
-  getSchedule: (): Promise<{ schedule: BackupSchedule }> =>
-    fetchAPI('/backups/schedule'),
+  getSchedule: (): Promise<{ schedule: BackupSchedule }> => fetchAPI('/backups/schedule'),
 
-  updateSchedule: (interval: string, format: string, retentionDays: number): Promise<{ schedule: BackupSchedule; message: string }> =>
+  updateSchedule: (
+    interval: string,
+    format: string,
+    retentionDays: number
+  ): Promise<{ schedule: BackupSchedule; message: string }> =>
     fetchAPI('/backups/schedule', {
       method: 'PUT',
       body: JSON.stringify({ interval, format, retentionDays }),
@@ -278,6 +313,5 @@ export const usersAPI = {
   getPublicStats: (username: string): Promise<{ stats: PublicStats }> =>
     fetchAPI(`/users/${encodeURIComponent(username)}/stats`),
 
-  listPublicProfiles: (): Promise<{ profiles: PublicProfile[] }> =>
-    fetchAPI('/users'),
+  listPublicProfiles: (): Promise<{ profiles: PublicProfile[] }> => fetchAPI('/users'),
 };

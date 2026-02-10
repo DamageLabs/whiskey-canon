@@ -2,9 +2,7 @@ const COOKIE_NAME = '__csrf';
 const HEADER_NAME = 'x-csrf-token';
 
 function getTokenFromCookie(): string | null {
-  const match = document.cookie
-    .split('; ')
-    .find((row) => row.startsWith(`${COOKIE_NAME}=`));
+  const match = document.cookie.split('; ').find((row) => row.startsWith(`${COOKIE_NAME}=`));
   return match ? decodeURIComponent(match.split('=')[1]) : null;
 }
 

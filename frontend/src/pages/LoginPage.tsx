@@ -34,12 +34,17 @@ export function LoginPage() {
   }
 
   return (
-    <div className="min-vh-100 d-flex align-items-center justify-content-center" style={{ background: 'var(--zinc-950)' }}>
+    <div
+      className="min-vh-100 d-flex align-items-center justify-content-center"
+      style={{ background: 'var(--zinc-950)' }}
+    >
       <div className="card shadow-lg" style={{ maxWidth: '450px', width: '100%' }}>
         <div className="card-body p-5">
           <div className="d-flex align-items-center justify-content-center gap-2 mb-3">
             <span style={{ fontSize: '2.5rem' }}>🥃</span>
-            <span className="h3 mb-0 fw-bold" style={{ color: 'var(--zinc-100)' }}>Whiskey Canon</span>
+            <span className="h3 mb-0 fw-bold" style={{ color: 'var(--zinc-100)' }}>
+              Whiskey Canon
+            </span>
           </div>
           <h2 className="text-center mb-4 fs-4">Login</h2>
 
@@ -61,7 +66,9 @@ export function LoginPage() {
 
           <form onSubmit={handleSubmit}>
             <div className="mb-3">
-              <label htmlFor="username" className="form-label">Username</label>
+              <label htmlFor="username" className="form-label">
+                Username
+              </label>
               <input
                 id="username"
                 type="text"
@@ -74,7 +81,9 @@ export function LoginPage() {
             </div>
 
             <div className="mb-3">
-              <label htmlFor="password" className="form-label">Password</label>
+              <label htmlFor="password" className="form-label">
+                Password
+              </label>
               <input
                 id="password"
                 type="password"
@@ -94,18 +103,37 @@ export function LoginPage() {
             >
               {loading ? (
                 <>
-                  <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                  <span
+                    className="spinner-border spinner-border-sm me-2"
+                    role="status"
+                    aria-hidden="true"
+                  ></span>
                   Logging in...
                 </>
-              ) : 'Login'}
+              ) : (
+                'Login'
+              )}
             </button>
           </form>
 
           <p className="text-center text-muted mb-2">
-            <Link to="/forgot-password" className="text-decoration-none" style={{ color: 'var(--amber-500)' }}>Forgot your password?</Link>
+            <Link
+              to="/forgot-password"
+              className="text-decoration-none"
+              style={{ color: 'var(--amber-500)' }}
+            >
+              Forgot your password?
+            </Link>
           </p>
           <p className="text-center text-muted">
-            Don't have an account? <Link to="/register" className="text-decoration-none fw-bold" style={{ color: 'var(--amber-500)' }}>Register</Link>
+            Don't have an account?{' '}
+            <Link
+              to="/register"
+              className="text-decoration-none fw-bold"
+              style={{ color: 'var(--amber-500)' }}
+            >
+              Register
+            </Link>
           </p>
         </div>
       </div>

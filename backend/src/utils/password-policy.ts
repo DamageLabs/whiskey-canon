@@ -22,7 +22,9 @@ export function checkPasswordComplexity(password: string): ComplexityResult {
   const hasDigit = /[0-9]/.test(password);
   const hasSpecial = /[^A-Za-z0-9]/.test(password);
 
-  const characterTypesCount = [hasUppercase, hasLowercase, hasDigit, hasSpecial].filter(Boolean).length;
+  const characterTypesCount = [hasUppercase, hasLowercase, hasDigit, hasSpecial].filter(
+    Boolean
+  ).length;
   const meetsComplexity = characterTypesCount >= MIN_CHARACTER_TYPES;
   const isValid = meetsLength && meetsComplexity;
 
@@ -31,7 +33,9 @@ export function checkPasswordComplexity(password: string): ComplexityResult {
     errors.push(`Password must be at least ${MIN_PASSWORD_LENGTH} characters`);
   }
   if (!meetsComplexity) {
-    errors.push('Password must contain at least 3 of: uppercase, lowercase, digit, special character');
+    errors.push(
+      'Password must contain at least 3 of: uppercase, lowercase, digit, special character'
+    );
   }
 
   return {
@@ -85,6 +89,8 @@ export async function validatePassword(password: string): Promise<void> {
 
   const breached = await isPasswordBreached(password);
   if (breached) {
-    throw new Error('This password has been found in a data breach. Please choose a different password');
+    throw new Error(
+      'This password has been found in a data breach. Please choose a different password'
+    );
   }
 }

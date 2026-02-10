@@ -44,9 +44,7 @@ export class BackupScheduleModel {
   }
 
   static findAllActive(): BackupScheduleRecord[] {
-    const stmt = db.prepare(
-      "SELECT * FROM backup_schedules WHERE interval != 'disabled'"
-    );
+    const stmt = db.prepare("SELECT * FROM backup_schedules WHERE interval != 'disabled'");
     return stmt.all() as BackupScheduleRecord[];
   }
 

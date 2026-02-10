@@ -1,6 +1,11 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import request from 'supertest';
-import { createTestApp, createTestUser, createAuthenticatedAgent, createTestWhiskey } from '../test/helpers';
+import {
+  createTestApp,
+  createTestUser,
+  createAuthenticatedAgent,
+  createTestWhiskey,
+} from '../test/helpers';
 import { testDb } from '../test/setup';
 import { Role, WhiskeyType } from '../types';
 import type { Application } from 'express';
@@ -50,15 +55,23 @@ describe('Statistics Routes', () => {
       const { agent, user } = await createAuthenticatedAgent(app);
 
       // Create whiskeys with financial data
-      testDb.prepare(`
+      testDb
+        .prepare(
+          `
         INSERT INTO whiskeys (name, type, distillery, created_by, purchase_price, msrp, current_market_value, secondary_price)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-      `).run('Whiskey 1', 'bourbon', 'Distillery A', user.id, 50, 60, 80, 90);
+      `
+        )
+        .run('Whiskey 1', 'bourbon', 'Distillery A', user.id, 50, 60, 80, 90);
 
-      testDb.prepare(`
+      testDb
+        .prepare(
+          `
         INSERT INTO whiskeys (name, type, distillery, created_by, purchase_price, msrp, current_market_value, secondary_price)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-      `).run('Whiskey 2', 'bourbon', 'Distillery B', user.id, 100, 120, 150, 200);
+      `
+        )
+        .run('Whiskey 2', 'bourbon', 'Distillery B', user.id, 100, 120, 150, 200);
 
       const response = await agent.get('/api/statistics');
 
@@ -74,15 +87,23 @@ describe('Statistics Routes', () => {
     it('returns most valuable bottles by secondary price', async () => {
       const { agent, user } = await createAuthenticatedAgent(app);
 
-      testDb.prepare(`
+      testDb
+        .prepare(
+          `
         INSERT INTO whiskeys (name, type, distillery, created_by, secondary_price)
         VALUES (?, ?, ?, ?, ?)
-      `).run('Cheap Whiskey', 'bourbon', 'Distillery', user.id, 50);
+      `
+        )
+        .run('Cheap Whiskey', 'bourbon', 'Distillery', user.id, 50);
 
-      testDb.prepare(`
+      testDb
+        .prepare(
+          `
         INSERT INTO whiskeys (name, type, distillery, created_by, secondary_price)
         VALUES (?, ?, ?, ?, ?)
-      `).run('Expensive Whiskey', 'bourbon', 'Distillery', user.id, 500);
+      `
+        )
+        .run('Expensive Whiskey', 'bourbon', 'Distillery', user.id, 500);
 
       const response = await agent.get('/api/statistics');
 
@@ -96,20 +117,32 @@ describe('Statistics Routes', () => {
       const { agent, user } = await createAuthenticatedAgent(app);
 
       // Create opened and unopened whiskeys
-      testDb.prepare(`
+      testDb
+        .prepare(
+          `
         INSERT INTO whiskeys (name, type, distillery, created_by, is_opened, remaining_volume, status)
         VALUES (?, ?, ?, ?, ?, ?, ?)
-      `).run('Opened', 'bourbon', 'Distillery', user.id, 1, 50, 'in_collection');
+      `
+        )
+        .run('Opened', 'bourbon', 'Distillery', user.id, 1, 50, 'in_collection');
 
-      testDb.prepare(`
+      testDb
+        .prepare(
+          `
         INSERT INTO whiskeys (name, type, distillery, created_by, is_opened, status)
         VALUES (?, ?, ?, ?, ?, ?)
-      `).run('Unopened', 'bourbon', 'Distillery', user.id, 0, 'in_collection');
+      `
+        )
+        .run('Unopened', 'bourbon', 'Distillery', user.id, 0, 'in_collection');
 
-      testDb.prepare(`
+      testDb
+        .prepare(
+          `
         INSERT INTO whiskeys (name, type, distillery, created_by, status)
         VALUES (?, ?, ?, ?, ?)
-      `).run('Consumed', 'bourbon', 'Distillery', user.id, 'consumed');
+      `
+        )
+        .run('Consumed', 'bourbon', 'Distillery', user.id, 'consumed');
 
       const response = await agent.get('/api/statistics');
 
@@ -124,22 +157,34 @@ describe('Statistics Routes', () => {
       const { agent, user } = await createAuthenticatedAgent(app);
 
       // Create whiskeys without status field (NULL)
-      testDb.prepare(`
+      testDb
+        .prepare(
+          `
         INSERT INTO whiskeys (name, type, distillery, created_by)
         VALUES (?, ?, ?, ?)
-      `).run('No Status', 'bourbon', 'Distillery', user.id);
+      `
+        )
+        .run('No Status', 'bourbon', 'Distillery', user.id);
 
       // Create whiskey with empty string status
-      testDb.prepare(`
+      testDb
+        .prepare(
+          `
         INSERT INTO whiskeys (name, type, distillery, created_by, status)
         VALUES (?, ?, ?, ?, ?)
-      `).run('Empty Status', 'bourbon', 'Distillery', user.id, '');
+      `
+        )
+        .run('Empty Status', 'bourbon', 'Distillery', user.id, '');
 
       // Create whiskey with explicit in_collection status
-      testDb.prepare(`
+      testDb
+        .prepare(
+          `
         INSERT INTO whiskeys (name, type, distillery, created_by, status)
         VALUES (?, ?, ?, ?, ?)
-      `).run('Explicit Status', 'bourbon', 'Distillery', user.id, 'in_collection');
+      `
+        )
+        .run('Explicit Status', 'bourbon', 'Distillery', user.id, 'in_collection');
 
       const response = await agent.get('/api/statistics');
 
@@ -151,10 +196,14 @@ describe('Statistics Routes', () => {
     it('returns bottles running low', async () => {
       const { agent, user } = await createAuthenticatedAgent(app);
 
-      testDb.prepare(`
+      testDb
+        .prepare(
+          `
         INSERT INTO whiskeys (name, type, distillery, created_by, is_opened, remaining_volume)
         VALUES (?, ?, ?, ?, ?, ?)
-      `).run('Running Low', 'bourbon', 'Distillery', user.id, 1, 10);
+      `
+        )
+        .run('Running Low', 'bourbon', 'Distillery', user.id, 1, 10);
 
       const response = await agent.get('/api/statistics');
 
@@ -199,15 +248,23 @@ describe('Statistics Routes', () => {
     it('calculates rating statistics', async () => {
       const { agent, user } = await createAuthenticatedAgent(app);
 
-      testDb.prepare(`
+      testDb
+        .prepare(
+          `
         INSERT INTO whiskeys (name, type, distillery, created_by, rating)
         VALUES (?, ?, ?, ?, ?)
-      `).run('Good', 'bourbon', 'Distillery', user.id, 8.5);
+      `
+        )
+        .run('Good', 'bourbon', 'Distillery', user.id, 8.5);
 
-      testDb.prepare(`
+      testDb
+        .prepare(
+          `
         INSERT INTO whiskeys (name, type, distillery, created_by, rating)
         VALUES (?, ?, ?, ?, ?)
-      `).run('Great', 'bourbon', 'Distillery', user.id, 9.5);
+      `
+        )
+        .run('Great', 'bourbon', 'Distillery', user.id, 9.5);
 
       const response = await agent.get('/api/statistics');
 
@@ -220,10 +277,14 @@ describe('Statistics Routes', () => {
     it('returns highest rated bottles', async () => {
       const { agent, user } = await createAuthenticatedAgent(app);
 
-      testDb.prepare(`
+      testDb
+        .prepare(
+          `
         INSERT INTO whiskeys (name, type, distillery, created_by, rating)
         VALUES (?, ?, ?, ?, ?)
-      `).run('Top Rated', 'bourbon', 'Distillery', user.id, 9.8);
+      `
+        )
+        .run('Top Rated', 'bourbon', 'Distillery', user.id, 9.8);
 
       const response = await agent.get('/api/statistics');
 
@@ -235,10 +296,14 @@ describe('Statistics Routes', () => {
     it('calculates special items statistics', async () => {
       const { agent, user } = await createAuthenticatedAgent(app);
 
-      testDb.prepare(`
+      testDb
+        .prepare(
+          `
         INSERT INTO whiskeys (name, type, distillery, created_by, limited_edition, natural_color, barrel_number, awards)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-      `).run('Special', 'bourbon', 'Distillery', user.id, 1, 1, 'B-123', 'Gold Medal');
+      `
+        )
+        .run('Special', 'bourbon', 'Distillery', user.id, 1, 1, 'B-123', 'Gold Medal');
 
       const response = await agent.get('/api/statistics');
 
@@ -252,10 +317,14 @@ describe('Statistics Routes', () => {
     it('calculates tasting statistics', async () => {
       const { agent, user } = await createAuthenticatedAgent(app);
 
-      testDb.prepare(`
+      testDb
+        .prepare(
+          `
         INSERT INTO whiskeys (name, type, distillery, created_by, times_tasted, tasting_notes, nose_notes)
         VALUES (?, ?, ?, ?, ?, ?, ?)
-      `).run('Tasted', 'bourbon', 'Distillery', user.id, 5, 'Great whiskey', 'Vanilla, caramel');
+      `
+        )
+        .run('Tasted', 'bourbon', 'Distillery', user.id, 5, 'Great whiskey', 'Vanilla, caramel');
 
       const response = await agent.get('/api/statistics');
 
@@ -268,15 +337,23 @@ describe('Statistics Routes', () => {
     it('calculates sharing statistics', async () => {
       const { agent, user } = await createAuthenticatedAgent(app);
 
-      testDb.prepare(`
+      testDb
+        .prepare(
+          `
         INSERT INTO whiskeys (name, type, distillery, created_by, is_for_sale, is_for_trade, shared_with)
         VALUES (?, ?, ?, ?, ?, ?, ?)
-      `).run('For Sale', 'bourbon', 'Distillery', user.id, 1, 0, null);
+      `
+        )
+        .run('For Sale', 'bourbon', 'Distillery', user.id, 1, 0, null);
 
-      testDb.prepare(`
+      testDb
+        .prepare(
+          `
         INSERT INTO whiskeys (name, type, distillery, created_by, is_for_sale, is_for_trade, shared_with)
         VALUES (?, ?, ?, ?, ?, ?, ?)
-      `).run('For Trade', 'bourbon', 'Distillery', user.id, 0, 1, 'Friends');
+      `
+        )
+        .run('For Trade', 'bourbon', 'Distillery', user.id, 0, 1, 'Friends');
 
       const response = await agent.get('/api/statistics');
 
@@ -286,7 +363,7 @@ describe('Statistics Routes', () => {
       expect(response.body.statistics.sharing.shared_bottles_count).toBe(1);
     });
 
-    it('only returns statistics for authenticated user\'s whiskeys', async () => {
+    it("only returns statistics for authenticated user's whiskeys", async () => {
       const { agent, user } = await createAuthenticatedAgent(app, 'user1', 'user1@test.com');
       const user2 = await createTestUser('user2', 'user2@test.com', 'Wh1sk3yTest!!');
 

@@ -1,6 +1,11 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import request from 'supertest';
-import { createTestApp, createAuthenticatedAgent, createTestUser, createTestWhiskey } from '../test/helpers';
+import {
+  createTestApp,
+  createAuthenticatedAgent,
+  createTestUser,
+  createTestWhiskey,
+} from '../test/helpers';
 import type { Application } from 'express';
 import { Role } from '../types';
 import Database from 'better-sqlite3';
@@ -49,7 +54,13 @@ describe('Admin Backup Routes', () => {
     });
 
     it('returns 403 for non-admin backup create', async () => {
-      const { agent } = await createAuthenticatedAgent(app, 'editor', 'editor@test.com', 'Wh1sk3yTest!!', Role.EDITOR);
+      const { agent } = await createAuthenticatedAgent(
+        app,
+        'editor',
+        'editor@test.com',
+        'Wh1sk3yTest!!',
+        Role.EDITOR
+      );
       const res = await agent.post('/api/admin/backup');
       expect(res.status).toBe(403);
     });
@@ -60,7 +71,13 @@ describe('Admin Backup Routes', () => {
     });
 
     it('returns 403 for non-admin backup list', async () => {
-      const { agent } = await createAuthenticatedAgent(app, 'editor', 'editor@test.com', 'Wh1sk3yTest!!', Role.EDITOR);
+      const { agent } = await createAuthenticatedAgent(
+        app,
+        'editor',
+        'editor@test.com',
+        'Wh1sk3yTest!!',
+        Role.EDITOR
+      );
       const res = await agent.get('/api/admin/backups');
       expect(res.status).toBe(403);
     });
@@ -68,7 +85,13 @@ describe('Admin Backup Routes', () => {
 
   describe('POST /api/admin/backup', () => {
     it('creates a full database backup', async () => {
-      const { agent } = await createAuthenticatedAgent(app, 'admin', 'admin@test.com', 'Wh1sk3yTest!!', Role.ADMIN);
+      const { agent } = await createAuthenticatedAgent(
+        app,
+        'admin',
+        'admin@test.com',
+        'Wh1sk3yTest!!',
+        Role.ADMIN
+      );
 
       const res = await agent.post('/api/admin/backup');
 
@@ -86,7 +109,13 @@ describe('Admin Backup Routes', () => {
 
   describe('GET /api/admin/backups', () => {
     it('returns empty list when no backups exist', async () => {
-      const { agent } = await createAuthenticatedAgent(app, 'admin', 'admin@test.com', 'Wh1sk3yTest!!', Role.ADMIN);
+      const { agent } = await createAuthenticatedAgent(
+        app,
+        'admin',
+        'admin@test.com',
+        'Wh1sk3yTest!!',
+        Role.ADMIN
+      );
 
       const res = await agent.get('/api/admin/backups');
 
@@ -95,7 +124,13 @@ describe('Admin Backup Routes', () => {
     });
 
     it('lists created backups', async () => {
-      const { agent } = await createAuthenticatedAgent(app, 'admin', 'admin@test.com', 'Wh1sk3yTest!!', Role.ADMIN);
+      const { agent } = await createAuthenticatedAgent(
+        app,
+        'admin',
+        'admin@test.com',
+        'Wh1sk3yTest!!',
+        Role.ADMIN
+      );
 
       await agent.post('/api/admin/backup');
       await agent.post('/api/admin/backup');
@@ -111,7 +146,13 @@ describe('Admin Backup Routes', () => {
 
   describe('GET /api/admin/backups/:filename/download', () => {
     it('downloads a backup file', async () => {
-      const { agent } = await createAuthenticatedAgent(app, 'admin', 'admin@test.com', 'Wh1sk3yTest!!', Role.ADMIN);
+      const { agent } = await createAuthenticatedAgent(
+        app,
+        'admin',
+        'admin@test.com',
+        'Wh1sk3yTest!!',
+        Role.ADMIN
+      );
 
       const createRes = await agent.post('/api/admin/backup');
       const filename = createRes.body.backup.filename;
@@ -124,7 +165,13 @@ describe('Admin Backup Routes', () => {
     });
 
     it('returns 400 for invalid filename', async () => {
-      const { agent } = await createAuthenticatedAgent(app, 'admin', 'admin@test.com', 'Wh1sk3yTest!!', Role.ADMIN);
+      const { agent } = await createAuthenticatedAgent(
+        app,
+        'admin',
+        'admin@test.com',
+        'Wh1sk3yTest!!',
+        Role.ADMIN
+      );
 
       const res = await agent.get('/api/admin/backups/not-a-valid-backup.db/download');
 
@@ -132,7 +179,13 @@ describe('Admin Backup Routes', () => {
     });
 
     it('returns 404 for non-existent backup', async () => {
-      const { agent } = await createAuthenticatedAgent(app, 'admin', 'admin@test.com', 'Wh1sk3yTest!!', Role.ADMIN);
+      const { agent } = await createAuthenticatedAgent(
+        app,
+        'admin',
+        'admin@test.com',
+        'Wh1sk3yTest!!',
+        Role.ADMIN
+      );
 
       const res = await agent.get('/api/admin/backups/full-backup-nonexistent.db/download');
 
@@ -142,7 +195,13 @@ describe('Admin Backup Routes', () => {
 
   describe('DELETE /api/admin/backups/:filename', () => {
     it('deletes a backup', async () => {
-      const { agent } = await createAuthenticatedAgent(app, 'admin', 'admin@test.com', 'Wh1sk3yTest!!', Role.ADMIN);
+      const { agent } = await createAuthenticatedAgent(
+        app,
+        'admin',
+        'admin@test.com',
+        'Wh1sk3yTest!!',
+        Role.ADMIN
+      );
 
       const createRes = await agent.post('/api/admin/backup');
       const filename = createRes.body.backup.filename;
@@ -158,7 +217,13 @@ describe('Admin Backup Routes', () => {
     });
 
     it('returns 400 for invalid filename', async () => {
-      const { agent } = await createAuthenticatedAgent(app, 'admin', 'admin@test.com', 'Wh1sk3yTest!!', Role.ADMIN);
+      const { agent } = await createAuthenticatedAgent(
+        app,
+        'admin',
+        'admin@test.com',
+        'Wh1sk3yTest!!',
+        Role.ADMIN
+      );
 
       const res = await agent.delete('/api/admin/backups/not-a-valid-backup.db');
 
@@ -166,7 +231,13 @@ describe('Admin Backup Routes', () => {
     });
 
     it('returns 404 for non-existent backup', async () => {
-      const { agent } = await createAuthenticatedAgent(app, 'admin', 'admin@test.com', 'Wh1sk3yTest!!', Role.ADMIN);
+      const { agent } = await createAuthenticatedAgent(
+        app,
+        'admin',
+        'admin@test.com',
+        'Wh1sk3yTest!!',
+        Role.ADMIN
+      );
 
       const res = await agent.delete('/api/admin/backups/full-backup-nonexistent.db');
 
@@ -176,7 +247,13 @@ describe('Admin Backup Routes', () => {
 
   describe('POST /api/admin/backups/import', () => {
     it('imports a valid SQLite database file', async () => {
-      const { agent } = await createAuthenticatedAgent(app, 'admin', 'admin@test.com', 'Wh1sk3yTest!!', Role.ADMIN);
+      const { agent } = await createAuthenticatedAgent(
+        app,
+        'admin',
+        'admin@test.com',
+        'Wh1sk3yTest!!',
+        Role.ADMIN
+      );
 
       // Create a valid SQLite file to upload
       const tmpPath = path.join(__dirname, '../../test-admin-backups/tmp-import.db');
@@ -185,9 +262,7 @@ describe('Admin Backup Routes', () => {
       tmpDb.exec('CREATE TABLE test (id INTEGER)');
       tmpDb.close();
 
-      const res = await agent
-        .post('/api/admin/backups/import')
-        .attach('backup', tmpPath);
+      const res = await agent.post('/api/admin/backups/import').attach('backup', tmpPath);
 
       expect(res.status).toBe(201);
       expect(res.body.message).toBe('Backup imported successfully');
@@ -197,30 +272,38 @@ describe('Admin Backup Routes', () => {
     });
 
     it('rejects non-.db files', async () => {
-      const { agent } = await createAuthenticatedAgent(app, 'admin', 'admin@test.com', 'Wh1sk3yTest!!', Role.ADMIN);
+      const { agent } = await createAuthenticatedAgent(
+        app,
+        'admin',
+        'admin@test.com',
+        'Wh1sk3yTest!!',
+        Role.ADMIN
+      );
 
       const tmpPath = path.join(__dirname, '../../test-admin-backups/bad.txt');
       fs.mkdirSync(path.dirname(tmpPath), { recursive: true });
       fs.writeFileSync(tmpPath, 'not a database');
 
-      const res = await agent
-        .post('/api/admin/backups/import')
-        .attach('backup', tmpPath);
+      const res = await agent.post('/api/admin/backups/import').attach('backup', tmpPath);
 
       expect(res.status).toBe(400);
       fs.unlinkSync(tmpPath);
     });
 
     it('rejects files that are not valid SQLite databases', async () => {
-      const { agent } = await createAuthenticatedAgent(app, 'admin', 'admin@test.com', 'Wh1sk3yTest!!', Role.ADMIN);
+      const { agent } = await createAuthenticatedAgent(
+        app,
+        'admin',
+        'admin@test.com',
+        'Wh1sk3yTest!!',
+        Role.ADMIN
+      );
 
       const tmpPath = path.join(__dirname, '../../test-admin-backups/fake.db');
       fs.mkdirSync(path.dirname(tmpPath), { recursive: true });
       fs.writeFileSync(tmpPath, 'this is not a sqlite database at all');
 
-      const res = await agent
-        .post('/api/admin/backups/import')
-        .attach('backup', tmpPath);
+      const res = await agent.post('/api/admin/backups/import').attach('backup', tmpPath);
 
       expect(res.status).toBe(400);
       expect(res.body.error).toBe('File is not a valid SQLite database');
@@ -228,7 +311,13 @@ describe('Admin Backup Routes', () => {
     });
 
     it('returns 400 when no file is uploaded', async () => {
-      const { agent } = await createAuthenticatedAgent(app, 'admin', 'admin@test.com', 'Wh1sk3yTest!!', Role.ADMIN);
+      const { agent } = await createAuthenticatedAgent(
+        app,
+        'admin',
+        'admin@test.com',
+        'Wh1sk3yTest!!',
+        Role.ADMIN
+      );
 
       const res = await agent.post('/api/admin/backups/import');
 
@@ -238,7 +327,13 @@ describe('Admin Backup Routes', () => {
 
   describe('POST /api/admin/backups/:filename/restore', () => {
     it('restores database from a backup', async () => {
-      const { agent, user: admin } = await createAuthenticatedAgent(app, 'admin', 'admin@test.com', 'Wh1sk3yTest!!', Role.ADMIN);
+      const { agent, user: admin } = await createAuthenticatedAgent(
+        app,
+        'admin',
+        'admin@test.com',
+        'Wh1sk3yTest!!',
+        Role.ADMIN
+      );
       const user2 = await createTestUser('user2', 'user2@test.com', 'Wh1sk3yTest!!');
       createTestWhiskey(user2.id, { name: 'Pappy Van Winkle' });
 
@@ -271,7 +366,13 @@ describe('Admin Backup Routes', () => {
     });
 
     it('returns 400 for invalid filename', async () => {
-      const { agent } = await createAuthenticatedAgent(app, 'admin', 'admin@test.com', 'Wh1sk3yTest!!', Role.ADMIN);
+      const { agent } = await createAuthenticatedAgent(
+        app,
+        'admin',
+        'admin@test.com',
+        'Wh1sk3yTest!!',
+        Role.ADMIN
+      );
 
       const res = await agent.post('/api/admin/backups/not-a-valid-backup.db/restore');
 
@@ -279,7 +380,13 @@ describe('Admin Backup Routes', () => {
     });
 
     it('returns 404 for non-existent backup', async () => {
-      const { agent } = await createAuthenticatedAgent(app, 'admin', 'admin@test.com', 'Wh1sk3yTest!!', Role.ADMIN);
+      const { agent } = await createAuthenticatedAgent(
+        app,
+        'admin',
+        'admin@test.com',
+        'Wh1sk3yTest!!',
+        Role.ADMIN
+      );
 
       const res = await agent.post('/api/admin/backups/full-backup-nonexistent.db/restore');
 

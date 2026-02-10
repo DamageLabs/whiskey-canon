@@ -8,7 +8,12 @@ interface WhiskeyDetailModalProps {
   onDelete?: (id: number) => void;
 }
 
-export function WhiskeyDetailModal({ whiskey, onClose, onEdit, onDelete }: WhiskeyDetailModalProps) {
+export function WhiskeyDetailModal({
+  whiskey,
+  onClose,
+  onEdit,
+  onDelete,
+}: WhiskeyDetailModalProps) {
   return (
     <div
       className="modal show d-block"
@@ -24,12 +29,20 @@ export function WhiskeyDetailModal({ whiskey, onClose, onEdit, onDelete }: Whisk
 
           <div className="modal-body">
             <div className="mb-3">
-              <span className="badge fs-6 text-capitalize text-white" style={{ backgroundColor: 'var(--amber-500)' }}>{whiskey.type}</span>
+              <span
+                className="badge fs-6 text-capitalize text-white"
+                style={{ backgroundColor: 'var(--amber-500)' }}
+              >
+                {whiskey.type}
+              </span>
             </div>
 
             <div className="row g-3 mb-4">
               <div className="col-md-6">
-                <div className="border-start border-4 ps-3" style={{ borderColor: 'var(--amber-500)' }}>
+                <div
+                  className="border-start border-4 ps-3"
+                  style={{ borderColor: 'var(--amber-500)' }}
+                >
                   <small className="text-muted text-uppercase d-block mb-1">Distillery</small>
                   <strong>{whiskey.distillery}</strong>
                 </div>
@@ -37,7 +50,10 @@ export function WhiskeyDetailModal({ whiskey, onClose, onEdit, onDelete }: Whisk
 
               {whiskey.region && (
                 <div className="col-md-6">
-                  <div className="border-start border-4 ps-3" style={{ borderColor: 'var(--amber-500)' }}>
+                  <div
+                    className="border-start border-4 ps-3"
+                    style={{ borderColor: 'var(--amber-500)' }}
+                  >
                     <small className="text-muted text-uppercase d-block mb-1">Region</small>
                     <strong>{whiskey.region}</strong>
                   </div>
@@ -46,7 +62,10 @@ export function WhiskeyDetailModal({ whiskey, onClose, onEdit, onDelete }: Whisk
 
               {whiskey.age && (
                 <div className="col-md-4">
-                  <div className="border-start border-4 ps-3" style={{ borderColor: 'var(--amber-500)' }}>
+                  <div
+                    className="border-start border-4 ps-3"
+                    style={{ borderColor: 'var(--amber-500)' }}
+                  >
                     <small className="text-muted text-uppercase d-block mb-1">Age</small>
                     <strong>{whiskey.age} years</strong>
                   </div>
@@ -55,7 +74,10 @@ export function WhiskeyDetailModal({ whiskey, onClose, onEdit, onDelete }: Whisk
 
               {whiskey.abv && (
                 <div className="col-md-4">
-                  <div className="border-start border-4 ps-3" style={{ borderColor: 'var(--amber-500)' }}>
+                  <div
+                    className="border-start border-4 ps-3"
+                    style={{ borderColor: 'var(--amber-500)' }}
+                  >
                     <small className="text-muted text-uppercase d-block mb-1">ABV</small>
                     <strong>{whiskey.abv}%</strong>
                   </div>
@@ -64,7 +86,10 @@ export function WhiskeyDetailModal({ whiskey, onClose, onEdit, onDelete }: Whisk
 
               {whiskey.proof && (
                 <div className="col-md-4">
-                  <div className="border-start border-4 ps-3" style={{ borderColor: 'var(--amber-500)' }}>
+                  <div
+                    className="border-start border-4 ps-3"
+                    style={{ borderColor: 'var(--amber-500)' }}
+                  >
                     <small className="text-muted text-uppercase d-block mb-1">Proof</small>
                     <strong>{whiskey.proof}</strong>
                   </div>
@@ -73,7 +98,10 @@ export function WhiskeyDetailModal({ whiskey, onClose, onEdit, onDelete }: Whisk
 
               {whiskey.size && (
                 <div className="col-md-4">
-                  <div className="border-start border-4 ps-3" style={{ borderColor: 'var(--amber-500)' }}>
+                  <div
+                    className="border-start border-4 ps-3"
+                    style={{ borderColor: 'var(--amber-500)' }}
+                  >
                     <small className="text-muted text-uppercase d-block mb-1">Size</small>
                     <strong>{whiskey.size}</strong>
                   </div>
@@ -82,7 +110,10 @@ export function WhiskeyDetailModal({ whiskey, onClose, onEdit, onDelete }: Whisk
 
               {whiskey.quantity !== null && whiskey.quantity !== undefined && (
                 <div className="col-md-4">
-                  <div className="border-start border-4 ps-3" style={{ borderColor: 'var(--amber-500)' }}>
+                  <div
+                    className="border-start border-4 ps-3"
+                    style={{ borderColor: 'var(--amber-500)' }}
+                  >
                     <small className="text-muted text-uppercase d-block mb-1">Quantity</small>
                     <strong>{whiskey.quantity}</strong>
                   </div>
@@ -91,7 +122,10 @@ export function WhiskeyDetailModal({ whiskey, onClose, onEdit, onDelete }: Whisk
 
               {whiskey.msrp !== null && whiskey.msrp !== undefined && (
                 <div className="col-md-4">
-                  <div className="border-start border-4 ps-3" style={{ borderColor: 'var(--amber-500)' }}>
+                  <div
+                    className="border-start border-4 ps-3"
+                    style={{ borderColor: 'var(--amber-500)' }}
+                  >
                     <small className="text-muted text-uppercase d-block mb-1">MSRP</small>
                     <strong>{formatCurrency(whiskey.msrp)}</strong>
                   </div>
@@ -100,8 +134,13 @@ export function WhiskeyDetailModal({ whiskey, onClose, onEdit, onDelete }: Whisk
 
               {whiskey.secondary_price !== null && whiskey.secondary_price !== undefined && (
                 <div className="col-md-4">
-                  <div className="border-start border-4 ps-3" style={{ borderColor: 'var(--amber-500)' }}>
-                    <small className="text-muted text-uppercase d-block mb-1">Secondary Price</small>
+                  <div
+                    className="border-start border-4 ps-3"
+                    style={{ borderColor: 'var(--amber-500)' }}
+                  >
+                    <small className="text-muted text-uppercase d-block mb-1">
+                      Secondary Price
+                    </small>
                     <strong>{formatCurrency(whiskey.secondary_price)}</strong>
                   </div>
                 </div>
@@ -109,7 +148,10 @@ export function WhiskeyDetailModal({ whiskey, onClose, onEdit, onDelete }: Whisk
 
               {whiskey.rating !== null && whiskey.rating !== undefined && (
                 <div className="col-md-12">
-                  <div className="border-start border-4 ps-3" style={{ borderColor: 'var(--amber-500)' }}>
+                  <div
+                    className="border-start border-4 ps-3"
+                    style={{ borderColor: 'var(--amber-500)' }}
+                  >
                     <small className="text-muted text-uppercase d-block mb-1">Rating</small>
                     <strong className="fs-5">{whiskey.rating.toFixed(2)}/10</strong>
                   </div>
@@ -125,8 +167,18 @@ export function WhiskeyDetailModal({ whiskey, onClose, onEdit, onDelete }: Whisk
             )}
 
             {whiskey.tasting_notes && (
-              <div className="alert mb-0" role="alert" style={{ backgroundColor: '#E8F4FB', borderColor: 'var(--amber-500)', color: '#3A7BA8' }}>
-                <h6 className="alert-heading" style={{ color: 'var(--amber-500)' }}>Tasting Notes</h6>
+              <div
+                className="alert mb-0"
+                role="alert"
+                style={{
+                  backgroundColor: '#E8F4FB',
+                  borderColor: 'var(--amber-500)',
+                  color: '#3A7BA8',
+                }}
+              >
+                <h6 className="alert-heading" style={{ color: 'var(--amber-500)' }}>
+                  Tasting Notes
+                </h6>
                 <p className="mb-0">{whiskey.tasting_notes}</p>
               </div>
             )}
@@ -134,7 +186,11 @@ export function WhiskeyDetailModal({ whiskey, onClose, onEdit, onDelete }: Whisk
 
           <div className="modal-footer">
             {onEdit && (
-              <button onClick={() => onEdit(whiskey)} className="btn text-white" style={{ backgroundColor: 'var(--amber-500)' }}>
+              <button
+                onClick={() => onEdit(whiskey)}
+                className="btn text-white"
+                style={{ backgroundColor: 'var(--amber-500)' }}
+              >
                 Edit
               </button>
             )}

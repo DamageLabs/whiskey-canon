@@ -120,7 +120,7 @@ describe('config', () => {
       validateConfig();
 
       const resendLog = consoleSpy.mock.calls.find(
-        call => typeof call[0] === 'string' && call[0].includes('resendApiKey')
+        (call) => typeof call[0] === 'string' && call[0].includes('resendApiKey')
       );
       expect(resendLog?.[0]).toContain('[not set]');
       expect(resendLog?.[0]).toContain('email features disabled');
@@ -135,7 +135,7 @@ describe('config', () => {
       validateConfig();
 
       const resendLog = consoleSpy.mock.calls.find(
-        call => typeof call[0] === 'string' && call[0].includes('resendApiKey')
+        (call) => typeof call[0] === 'string' && call[0].includes('resendApiKey')
       );
       expect(resendLog?.[0]).toContain('[set]');
       expect(resendLog?.[0]).not.toContain('email features disabled');

@@ -40,7 +40,18 @@ interface WhiskeyWithOwner {
   owner_role: string;
 }
 
-type SortField = 'owner_username' | 'name' | 'type' | 'distillery' | 'region' | 'age' | 'abv' | 'quantity' | 'msrp' | 'secondary_price' | 'rating';
+type SortField =
+  | 'owner_username'
+  | 'name'
+  | 'type'
+  | 'distillery'
+  | 'region'
+  | 'age'
+  | 'abv'
+  | 'quantity'
+  | 'msrp'
+  | 'secondary_price'
+  | 'rating';
 type SortDirection = 'asc' | 'desc';
 
 export function AdminPage() {
@@ -55,7 +66,11 @@ export function AdminPage() {
   const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
   const [selectedUserId, setSelectedUserId] = useState<number | 'all'>('all');
   const [editingUserId, setEditingUserId] = useState<number | null>(null);
-  const [editForm, setEditForm] = useState<{ email: string; firstName: string; lastName: string }>({ email: '', firstName: '', lastName: '' });
+  const [editForm, setEditForm] = useState<{ email: string; firstName: string; lastName: string }>({
+    email: '',
+    firstName: '',
+    lastName: '',
+  });
   const [adminBackups, setAdminBackups] = useState<AdminBackup[]>([]);
   const [creatingBackup, setCreatingBackup] = useState(false);
   const [importingBackup, setImportingBackup] = useState(false);
@@ -77,7 +92,7 @@ export function AdminPage() {
     try {
       setLoading(true);
       const response = await fetch('/api/admin/users', {
-        credentials: 'include'
+        credentials: 'include',
       });
 
       if (!response.ok) {
@@ -96,7 +111,7 @@ export function AdminPage() {
   async function loadWhiskeys() {
     try {
       const response = await fetch('/api/admin/whiskeys', {
-        credentials: 'include'
+        credentials: 'include',
       });
 
       if (!response.ok) {
@@ -228,7 +243,12 @@ export function AdminPage() {
   }
 
   async function handleRestoreAdminBackup(filename: string) {
-    if (!confirm(`Restore database from "${filename}"?\n\nThis will REPLACE all current data (users, whiskeys, comments) with the data from this backup. This action cannot be undone.\n\nAre you sure?`)) return;
+    if (
+      !confirm(
+        `Restore database from "${filename}"?\n\nThis will REPLACE all current data (users, whiskeys, comments) with the data from this backup. This action cannot be undone.\n\nAre you sure?`
+      )
+    )
+      return;
 
     setRestoringBackup(filename);
     setError('');
@@ -246,7 +266,9 @@ export function AdminPage() {
       }
 
       const data = await response.json();
-      alert(`${data.message}\n\nTables restored: ${data.tablesRestored.join(', ')}\n\nPlease reload the page to see updated data.`);
+      alert(
+        `${data.message}\n\nTables restored: ${data.tablesRestored.join(', ')}\n\nPlease reload the page to see updated data.`
+      );
       window.location.reload();
     } catch (err: any) {
       setError(err.message);
@@ -265,7 +287,7 @@ export function AdminPage() {
           ...csrfHeaders,
         },
         credentials: 'include',
-        body: JSON.stringify({ role: newRole })
+        body: JSON.stringify({ role: newRole }),
       });
 
       if (!response.ok) {
@@ -284,7 +306,7 @@ export function AdminPage() {
     setEditForm({
       email: u.email,
       firstName: u.first_name || '',
-      lastName: u.last_name || ''
+      lastName: u.last_name || '',
     });
   }
 
@@ -306,8 +328,8 @@ export function AdminPage() {
         body: JSON.stringify({
           email: editForm.email,
           firstName: editForm.firstName,
-          lastName: editForm.lastName
-        })
+          lastName: editForm.lastName,
+        }),
       });
 
       const data = await response.json();
@@ -325,7 +347,9 @@ export function AdminPage() {
   }
 
   async function handleDeleteUser(userId: number, username: string) {
-    if (!confirm(`Are you sure you want to delete user "${username}"? This action cannot be undone.`)) {
+    if (
+      !confirm(`Are you sure you want to delete user "${username}"? This action cannot be undone.`)
+    ) {
       return;
     }
 
@@ -362,7 +386,7 @@ export function AdminPage() {
 
     // Filter by user if selected
     if (selectedUserId !== 'all') {
-      filtered = whiskeys.filter(w => w.created_by === selectedUserId);
+      filtered = whiskeys.filter((w) => w.created_by === selectedUserId);
     }
 
     // Sort
@@ -396,17 +420,32 @@ export function AdminPage() {
   return (
     <div className="min-vh-100" style={{ backgroundColor: 'var(--zinc-950)' }}>
       {/* Header */}
-      <nav className="navbar shadow-sm" style={{ backgroundColor: 'var(--zinc-900)', borderBottom: '1px solid var(--zinc-800)' }}>
+      <nav
+        className="navbar shadow-sm"
+        style={{ backgroundColor: 'var(--zinc-900)', borderBottom: '1px solid var(--zinc-800)' }}
+      >
         <div className="container-fluid px-4">
-          <div className="navbar-brand mb-0 d-flex align-items-center gap-3" onClick={() => navigate('/dashboard')} style={{ cursor: 'pointer' }}>
-            <span className="h4 mb-0" style={{ color: 'var(--amber-500)' }}>Admin Panel</span>
+          <div
+            className="navbar-brand mb-0 d-flex align-items-center gap-3"
+            onClick={() => navigate('/dashboard')}
+            style={{ cursor: 'pointer' }}
+          >
+            <span className="h4 mb-0" style={{ color: 'var(--amber-500)' }}>
+              Admin Panel
+            </span>
           </div>
           <div className="d-flex align-items-center gap-3">
             <button onClick={() => navigate('/dashboard')} className="btn btn-outline-light btn-sm">
               Back to Dashboard
             </button>
             <span style={{ color: 'var(--zinc-300)' }}>
-              {user?.username} <span className="badge" style={{ backgroundColor: 'var(--amber-600)', color: 'white' }}>{user?.role}</span>
+              {user?.username}{' '}
+              <span
+                className="badge"
+                style={{ backgroundColor: 'var(--amber-600)', color: 'white' }}
+              >
+                {user?.role}
+              </span>
             </span>
             <button onClick={() => navigate('/profile')} className="btn btn-outline-light btn-sm">
               Profile
@@ -431,7 +470,10 @@ export function AdminPage() {
         {!loading && (
           <div className="row g-3 mb-4">
             <div className="col-md-3">
-              <div className="card shadow-sm border-0" style={{ borderLeft: '4px solid var(--amber-500)' }}>
+              <div
+                className="card shadow-sm border-0"
+                style={{ borderLeft: '4px solid var(--amber-500)' }}
+              >
                 <div className="card-body">
                   <div className="d-flex justify-content-between align-items-center">
                     <div>
@@ -466,7 +508,9 @@ export function AdminPage() {
                   <div className="d-flex justify-content-between align-items-center">
                     <div>
                       <p className="text-muted mb-1 small">Avg per User</p>
-                      <h3 className="mb-0">{users.length > 0 ? (whiskeys.length / users.length).toFixed(1) : 0}</h3>
+                      <h3 className="mb-0">
+                        {users.length > 0 ? (whiskeys.length / users.length).toFixed(1) : 0}
+                      </h3>
                     </div>
                     <div className="text-warning" style={{ fontSize: '2rem', opacity: 0.5 }}>
                       <i className="bi bi-graph-up"></i>
@@ -481,7 +525,7 @@ export function AdminPage() {
                   <div className="d-flex justify-content-between align-items-center">
                     <div>
                       <p className="text-muted mb-1 small">Admins</p>
-                      <h3 className="mb-0">{users.filter(u => u.role === 'admin').length}</h3>
+                      <h3 className="mb-0">{users.filter((u) => u.role === 'admin').length}</h3>
                     </div>
                     <div className="text-danger" style={{ fontSize: '2rem', opacity: 0.5 }}>
                       <i className="bi bi-shield-check"></i>
@@ -498,7 +542,15 @@ export function AdminPage() {
           <li className="nav-item">
             <button
               className={`nav-link ${activeTab === 'users' ? 'active' : ''}`}
-              style={activeTab === 'users' ? { backgroundColor: 'var(--amber-500)', color: 'white', borderColor: 'var(--amber-500)' } : {}}
+              style={
+                activeTab === 'users'
+                  ? {
+                      backgroundColor: 'var(--amber-500)',
+                      color: 'white',
+                      borderColor: 'var(--amber-500)',
+                    }
+                  : {}
+              }
               onClick={() => setActiveTab('users')}
             >
               User Management
@@ -507,7 +559,15 @@ export function AdminPage() {
           <li className="nav-item">
             <button
               className={`nav-link ${activeTab === 'whiskeys' ? 'active' : ''}`}
-              style={activeTab === 'whiskeys' ? { backgroundColor: 'var(--amber-500)', color: 'white', borderColor: 'var(--amber-500)' } : {}}
+              style={
+                activeTab === 'whiskeys'
+                  ? {
+                      backgroundColor: 'var(--amber-500)',
+                      color: 'white',
+                      borderColor: 'var(--amber-500)',
+                    }
+                  : {}
+              }
               onClick={() => setActiveTab('whiskeys')}
             >
               All Collections ({getSortedAndFilteredWhiskeys().length} whiskeys)
@@ -516,7 +576,15 @@ export function AdminPage() {
           <li className="nav-item">
             <button
               className={`nav-link ${activeTab === 'backups' ? 'active' : ''}`}
-              style={activeTab === 'backups' ? { backgroundColor: 'var(--amber-500)', color: 'white', borderColor: 'var(--amber-500)' } : {}}
+              style={
+                activeTab === 'backups'
+                  ? {
+                      backgroundColor: 'var(--amber-500)',
+                      color: 'white',
+                      borderColor: 'var(--amber-500)',
+                    }
+                  : {}
+              }
               onClick={() => setActiveTab('backups')}
             >
               Database Backup
@@ -565,7 +633,9 @@ export function AdminPage() {
                       </thead>
                       <tbody>
                         {users.map((u) => {
-                          const userWhiskeyCount = whiskeys.filter(w => w.created_by === u.id).length;
+                          const userWhiskeyCount = whiskeys.filter(
+                            (w) => w.created_by === u.id
+                          ).length;
                           return (
                             <tr key={u.id}>
                               <td>{u.id}</td>
@@ -578,20 +648,26 @@ export function AdminPage() {
                                       className="form-control form-control-sm"
                                       placeholder="First Name"
                                       value={editForm.firstName}
-                                      onChange={(e) => setEditForm({ ...editForm, firstName: e.target.value })}
+                                      onChange={(e) =>
+                                        setEditForm({ ...editForm, firstName: e.target.value })
+                                      }
                                     />
                                     <input
                                       type="text"
                                       className="form-control form-control-sm"
                                       placeholder="Last Name"
                                       value={editForm.lastName}
-                                      onChange={(e) => setEditForm({ ...editForm, lastName: e.target.value })}
+                                      onChange={(e) =>
+                                        setEditForm({ ...editForm, lastName: e.target.value })
+                                      }
                                     />
                                   </div>
-                                ) : (u.first_name || u.last_name) && (
-                                  <div className="text-muted small">
-                                    {u.first_name} {u.last_name}
-                                  </div>
+                                ) : (
+                                  (u.first_name || u.last_name) && (
+                                    <div className="text-muted small">
+                                      {u.first_name} {u.last_name}
+                                    </div>
+                                  )
                                 )}
                               </td>
                               <td>
@@ -601,13 +677,20 @@ export function AdminPage() {
                                     className="form-control form-control-sm"
                                     placeholder="Email"
                                     value={editForm.email}
-                                    onChange={(e) => setEditForm({ ...editForm, email: e.target.value })}
+                                    onChange={(e) =>
+                                      setEditForm({ ...editForm, email: e.target.value })
+                                    }
                                   />
-                                ) : u.email}
+                                ) : (
+                                  u.email
+                                )}
                               </td>
                               <td>
                                 {u.id === user?.id ? (
-                                  <span className="badge text-white text-capitalize" style={{ backgroundColor: 'var(--amber-500)' }}>
+                                  <span
+                                    className="badge text-white text-capitalize"
+                                    style={{ backgroundColor: 'var(--amber-500)' }}
+                                  >
                                     {u.role}
                                   </span>
                                 ) : (
@@ -624,7 +707,8 @@ export function AdminPage() {
                               </td>
                               <td>
                                 <span className="badge bg-secondary">
-                                  {userWhiskeyCount} {userWhiskeyCount === 1 ? 'whiskey' : 'whiskeys'}
+                                  {userWhiskeyCount}{' '}
+                                  {userWhiskeyCount === 1 ? 'whiskey' : 'whiskeys'}
                                 </span>
                                 {userWhiskeyCount > 0 && (
                                   <button
@@ -700,11 +784,13 @@ export function AdminPage() {
                     className="form-select"
                     style={{ width: 'auto' }}
                     value={selectedUserId}
-                    onChange={(e) => setSelectedUserId(e.target.value === 'all' ? 'all' : parseInt(e.target.value))}
+                    onChange={(e) =>
+                      setSelectedUserId(e.target.value === 'all' ? 'all' : parseInt(e.target.value))
+                    }
                   >
                     <option value="all">All Users ({whiskeys.length} whiskeys)</option>
-                    {users.map(u => {
-                      const userWhiskeyCount = whiskeys.filter(w => w.created_by === u.id).length;
+                    {users.map((u) => {
+                      const userWhiskeyCount = whiskeys.filter((w) => w.created_by === u.id).length;
                       return (
                         <option key={u.id} value={u.id}>
                           {u.username} ({userWhiskeyCount} whiskeys)
@@ -796,16 +882,20 @@ export function AdminPage() {
                                 <div>
                                   <span className="fw-bold">{w.owner_username}</span>
                                   <br />
-                                  <span className="badge text-white text-capitalize" style={{ backgroundColor: 'var(--amber-500)', fontSize: '0.7rem' }}>
+                                  <span
+                                    className="badge text-white text-capitalize"
+                                    style={{
+                                      backgroundColor: 'var(--amber-500)',
+                                      fontSize: '0.7rem',
+                                    }}
+                                  >
                                     {w.owner_role}
                                   </span>
                                 </div>
                               </td>
                               <td className="fw-bold">{w.name}</td>
                               <td>
-                                <span className="badge bg-secondary text-capitalize">
-                                  {w.type}
-                                </span>
+                                <span className="badge bg-secondary text-capitalize">{w.type}</span>
                               </td>
                               <td>{w.distillery}</td>
                               <td>{w.region || '-'}</td>
@@ -814,10 +904,15 @@ export function AdminPage() {
                               <td>{w.size || '-'}</td>
                               <td>{w.quantity || '-'}</td>
                               <td>{w.msrp ? `$${w.msrp.toFixed(2)}` : '-'}</td>
-                              <td>{w.secondary_price ? `$${w.secondary_price.toFixed(2)}` : '-'}</td>
+                              <td>
+                                {w.secondary_price ? `$${w.secondary_price.toFixed(2)}` : '-'}
+                              </td>
                               <td>
                                 {w.rating ? (
-                                  <span className="badge" style={{ backgroundColor: '#FFD700', color: '#333' }}>
+                                  <span
+                                    className="badge"
+                                    style={{ backgroundColor: '#FFD700', color: '#333' }}
+                                  >
                                     ★ {w.rating.toFixed(1)}
                                   </span>
                                 ) : (
@@ -843,7 +938,8 @@ export function AdminPage() {
                     Full Database Backup
                   </h5>
                   <p className="text-muted">
-                    Create a complete copy of the SQLite database including all users, whiskeys, comments, sessions, and settings.
+                    Create a complete copy of the SQLite database including all users, whiskeys,
+                    comments, sessions, and settings.
                   </p>
 
                   <div className="d-flex gap-2 mb-4">
@@ -864,7 +960,9 @@ export function AdminPage() {
                         </>
                       )}
                     </button>
-                    <label className={`btn btn-outline-primary mb-0 ${importingBackup ? 'disabled' : ''}`}>
+                    <label
+                      className={`btn btn-outline-primary mb-0 ${importingBackup ? 'disabled' : ''}`}
+                    >
                       {importingBackup ? (
                         <>
                           <span className="spinner-border spinner-border-sm me-1"></span>
@@ -902,7 +1000,9 @@ export function AdminPage() {
                           <tbody>
                             {adminBackups.map((b) => (
                               <tr key={b.filename}>
-                                <td className="text-break" style={{ maxWidth: '300px' }}>{b.filename}</td>
+                                <td className="text-break" style={{ maxWidth: '300px' }}>
+                                  {b.filename}
+                                </td>
                                 <td>
                                   {b.size_bytes < 1024 * 1024
                                     ? `${(b.size_bytes / 1024).toFixed(1)} KB`
@@ -910,8 +1010,11 @@ export function AdminPage() {
                                 </td>
                                 <td>
                                   {new Date(b.created_at).toLocaleDateString('en-US', {
-                                    year: 'numeric', month: 'short', day: 'numeric',
-                                    hour: '2-digit', minute: '2-digit',
+                                    year: 'numeric',
+                                    month: 'short',
+                                    day: 'numeric',
+                                    hour: '2-digit',
+                                    minute: '2-digit',
                                   })}
                                 </td>
                                 <td className="text-center">
@@ -925,7 +1028,9 @@ export function AdminPage() {
                                       {restoringBackup === b.filename ? (
                                         <span className="spinner-border spinner-border-sm"></span>
                                       ) : (
-                                        <><i className="bi bi-arrow-counterclockwise"></i> Restore</>
+                                        <>
+                                          <i className="bi bi-arrow-counterclockwise"></i> Restore
+                                        </>
                                       )}
                                     </button>
                                     <button
@@ -953,7 +1058,9 @@ export function AdminPage() {
                   )}
 
                   {adminBackups.length === 0 && (
-                    <p className="text-muted">No backups yet. Create your first full database backup above.</p>
+                    <p className="text-muted">
+                      No backups yet. Create your first full database backup above.
+                    </p>
                   )}
                 </div>
               </div>

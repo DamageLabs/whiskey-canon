@@ -32,7 +32,14 @@ export function RegisterPage() {
     setLoading(true);
 
     try {
-      const response = await authAPI.register(username, email, password, undefined, firstName, lastName);
+      const response = await authAPI.register(
+        username,
+        email,
+        password,
+        undefined,
+        firstName,
+        lastName
+      );
       if (response.requiresVerification) {
         navigate(`/verify-email?email=${encodeURIComponent(email)}`);
       } else {
@@ -46,12 +53,17 @@ export function RegisterPage() {
   }
 
   return (
-    <div className="min-vh-100 d-flex align-items-center justify-content-center" style={{ background: 'var(--zinc-950)' }}>
+    <div
+      className="min-vh-100 d-flex align-items-center justify-content-center"
+      style={{ background: 'var(--zinc-950)' }}
+    >
       <div className="card shadow-lg" style={{ maxWidth: '450px', width: '100%' }}>
         <div className="card-body p-5">
           <div className="d-flex align-items-center justify-content-center gap-2 mb-3">
             <span style={{ fontSize: '2.5rem' }}>🥃</span>
-            <span className="h3 mb-0 fw-bold" style={{ color: 'var(--zinc-100)' }}>Whiskey Canon</span>
+            <span className="h3 mb-0 fw-bold" style={{ color: 'var(--zinc-100)' }}>
+              Whiskey Canon
+            </span>
           </div>
           <h2 className="text-center mb-4 fs-4">Register</h2>
 
@@ -63,7 +75,9 @@ export function RegisterPage() {
 
           <form onSubmit={handleSubmit}>
             <div className="mb-3">
-              <label htmlFor="firstName" className="form-label">First Name (Optional)</label>
+              <label htmlFor="firstName" className="form-label">
+                First Name (Optional)
+              </label>
               <input
                 id="firstName"
                 type="text"
@@ -75,7 +89,9 @@ export function RegisterPage() {
             </div>
 
             <div className="mb-3">
-              <label htmlFor="lastName" className="form-label">Last Name (Optional)</label>
+              <label htmlFor="lastName" className="form-label">
+                Last Name (Optional)
+              </label>
               <input
                 id="lastName"
                 type="text"
@@ -87,7 +103,9 @@ export function RegisterPage() {
             </div>
 
             <div className="mb-3">
-              <label htmlFor="username" className="form-label">Username</label>
+              <label htmlFor="username" className="form-label">
+                Username
+              </label>
               <input
                 id="username"
                 type="text"
@@ -101,7 +119,9 @@ export function RegisterPage() {
             </div>
 
             <div className="mb-3">
-              <label htmlFor="email" className="form-label">Email</label>
+              <label htmlFor="email" className="form-label">
+                Email
+              </label>
               <input
                 id="email"
                 type="email"
@@ -114,7 +134,9 @@ export function RegisterPage() {
             </div>
 
             <div className="mb-3">
-              <label htmlFor="password" className="form-label">Password</label>
+              <label htmlFor="password" className="form-label">
+                Password
+              </label>
               <input
                 id="password"
                 type="password"
@@ -129,7 +151,9 @@ export function RegisterPage() {
             </div>
 
             <div className="mb-3">
-              <label htmlFor="confirmPassword" className="form-label">Confirm Password</label>
+              <label htmlFor="confirmPassword" className="form-label">
+                Confirm Password
+              </label>
               <input
                 id="confirmPassword"
                 type="password"
@@ -150,15 +174,28 @@ export function RegisterPage() {
             >
               {loading ? (
                 <>
-                  <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                  <span
+                    className="spinner-border spinner-border-sm me-2"
+                    role="status"
+                    aria-hidden="true"
+                  ></span>
                   Registering...
                 </>
-              ) : 'Register'}
+              ) : (
+                'Register'
+              )}
             </button>
           </form>
 
           <p className="text-center text-muted">
-            Already have an account? <Link to="/login" className="text-decoration-none fw-bold" style={{ color: 'var(--amber-500)' }}>Login</Link>
+            Already have an account?{' '}
+            <Link
+              to="/login"
+              className="text-decoration-none fw-bold"
+              style={{ color: 'var(--amber-500)' }}
+            >
+              Login
+            </Link>
           </p>
         </div>
       </div>

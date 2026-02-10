@@ -26,7 +26,16 @@ interface Statistics {
   sharing: any;
 }
 
-const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8', '#82CA9D', '#FFC658', '#FF6B9D'];
+const COLORS = [
+  '#0088FE',
+  '#00C49F',
+  '#FFBB28',
+  '#FF8042',
+  '#8884D8',
+  '#82CA9D',
+  '#FFC658',
+  '#FF6B9D',
+];
 
 export default function AnalyticsDashboard() {
   const [statistics, setStatistics] = useState<Statistics | null>(null);
@@ -103,7 +112,9 @@ export default function AnalyticsDashboard() {
           <div className="card text-center">
             <div className="card-body">
               <h6 className="card-subtitle mb-2 text-muted">Gain/Loss</h6>
-              <h3 className={`card-title ${(statistics.financial.total_gain_loss || 0) >= 0 ? 'text-success' : 'text-danger'}`}>
+              <h3
+                className={`card-title ${(statistics.financial.total_gain_loss || 0) >= 0 ? 'text-success' : 'text-danger'}`}
+              >
                 {(statistics.financial.total_gain_loss || 0) >= 0 ? '+' : ''}
                 {formatCurrency(statistics.financial.total_gain_loss || 0)}
               </h3>
@@ -180,7 +191,10 @@ export default function AnalyticsDashboard() {
               <ResponsiveContainer width="100%" height={300}>
                 <BarChart data={statistics.quality.ratingDistribution}>
                   <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="rating_bucket" label={{ value: 'Rating (out of 10)', position: 'insideBottom', offset: -5 }} />
+                  <XAxis
+                    dataKey="rating_bucket"
+                    label={{ value: 'Rating (out of 10)', position: 'insideBottom', offset: -5 }}
+                  />
                   <YAxis label={{ value: 'Count', angle: -90, position: 'insideLeft' }} />
                   <Tooltip />
                   <Bar dataKey="count" fill="#82ca9d" name="Number of Bottles" />
@@ -238,7 +252,13 @@ export default function AnalyticsDashboard() {
               <ResponsiveContainer width="100%" height={300}>
                 <BarChart data={statistics.composition.topDistilleries}>
                   <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="distillery" angle={-45} textAnchor="end" height={100} fontSize={11} />
+                  <XAxis
+                    dataKey="distillery"
+                    angle={-45}
+                    textAnchor="end"
+                    height={100}
+                    fontSize={11}
+                  />
                   <YAxis />
                   <Tooltip />
                   <Bar dataKey="count" fill="#FF8042" name="Number of Bottles" />
@@ -258,15 +278,21 @@ export default function AnalyticsDashboard() {
               <ul className="list-group list-group-flush">
                 <li className="list-group-item d-flex justify-content-between align-items-center">
                   Opened
-                  <span className="badge bg-warning rounded-pill">{statistics.inventory.opened_count || 0}</span>
+                  <span className="badge bg-warning rounded-pill">
+                    {statistics.inventory.opened_count || 0}
+                  </span>
                 </li>
                 <li className="list-group-item d-flex justify-content-between align-items-center">
                   Unopened
-                  <span className="badge bg-success rounded-pill">{statistics.inventory.unopened_count || 0}</span>
+                  <span className="badge bg-success rounded-pill">
+                    {statistics.inventory.unopened_count || 0}
+                  </span>
                 </li>
                 <li className="list-group-item d-flex justify-content-between align-items-center">
                   Running Low (&lt;25%)
-                  <span className="badge bg-danger rounded-pill">{statistics.inventory.running_low_count || 0}</span>
+                  <span className="badge bg-danger rounded-pill">
+                    {statistics.inventory.running_low_count || 0}
+                  </span>
                 </li>
               </ul>
             </div>
@@ -280,15 +306,21 @@ export default function AnalyticsDashboard() {
               <ul className="list-group list-group-flush">
                 <li className="list-group-item d-flex justify-content-between align-items-center">
                   Limited Edition
-                  <span className="badge bg-primary rounded-pill">{statistics.special.limited_edition_count || 0}</span>
+                  <span className="badge bg-primary rounded-pill">
+                    {statistics.special.limited_edition_count || 0}
+                  </span>
                 </li>
                 <li className="list-group-item d-flex justify-content-between align-items-center">
                   Single Barrel
-                  <span className="badge bg-info rounded-pill">{statistics.special.single_barrel_count || 0}</span>
+                  <span className="badge bg-info rounded-pill">
+                    {statistics.special.single_barrel_count || 0}
+                  </span>
                 </li>
                 <li className="list-group-item d-flex justify-content-between align-items-center">
                   Award Winners
-                  <span className="badge bg-warning rounded-pill">{statistics.special.award_winning_count || 0}</span>
+                  <span className="badge bg-warning rounded-pill">
+                    {statistics.special.award_winning_count || 0}
+                  </span>
                 </li>
               </ul>
             </div>
@@ -302,15 +334,21 @@ export default function AnalyticsDashboard() {
               <ul className="list-group list-group-flush">
                 <li className="list-group-item d-flex justify-content-between align-items-center">
                   Total Tastings
-                  <span className="badge bg-success rounded-pill">{statistics.tasting.total_tasting_sessions || 0}</span>
+                  <span className="badge bg-success rounded-pill">
+                    {statistics.tasting.total_tasting_sessions || 0}
+                  </span>
                 </li>
                 <li className="list-group-item d-flex justify-content-between align-items-center">
                   With Notes
-                  <span className="badge bg-info rounded-pill">{statistics.tasting.bottles_with_notes || 0}</span>
+                  <span className="badge bg-info rounded-pill">
+                    {statistics.tasting.bottles_with_notes || 0}
+                  </span>
                 </li>
                 <li className="list-group-item d-flex justify-content-between align-items-center">
                   With Pairings
-                  <span className="badge bg-warning rounded-pill">{statistics.tasting.bottles_with_pairings || 0}</span>
+                  <span className="badge bg-warning rounded-pill">
+                    {statistics.tasting.bottles_with_pairings || 0}
+                  </span>
                 </li>
               </ul>
             </div>

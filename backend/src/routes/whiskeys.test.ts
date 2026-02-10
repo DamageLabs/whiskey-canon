@@ -1,6 +1,11 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import request from 'supertest';
-import { createTestApp, createTestUser, createAuthenticatedAgent, createTestWhiskey } from '../test/helpers';
+import {
+  createTestApp,
+  createTestUser,
+  createAuthenticatedAgent,
+  createTestWhiskey,
+} from '../test/helpers';
 import { Role, WhiskeyType } from '../types';
 import type { Application } from 'express';
 import { WhiskeyModel } from '../models/Whiskey';
@@ -31,9 +36,7 @@ describe('Whiskey Routes', () => {
     });
 
     it('returns 401 for unauthenticated requests to PUT /api/whiskeys/:id', async () => {
-      const response = await request(app)
-        .put('/api/whiskeys/1')
-        .send({ name: 'Updated' });
+      const response = await request(app).put('/api/whiskeys/1').send({ name: 'Updated' });
       expect(response.status).toBe(401);
     });
 
@@ -58,7 +61,7 @@ describe('Whiskey Routes', () => {
       expect(response.body.whiskeys).toEqual([]);
     });
 
-    it('returns only user\'s own whiskeys', async () => {
+    it("returns only user's own whiskeys", async () => {
       const { agent, user } = await createAuthenticatedAgent(app, 'user1', 'user1@test.com');
       const user2 = await createTestUser('user2', 'user2@test.com', 'Wh1sk3yTest!!');
 
@@ -129,7 +132,7 @@ describe('Whiskey Routes', () => {
       expect(response.body.error).toBe('Whiskey not found');
     });
 
-    it('returns 404 when accessing another user\'s whiskey', async () => {
+    it("returns 404 when accessing another user's whiskey", async () => {
       const { agent } = await createAuthenticatedAgent(app, 'user1', 'user1@test.com');
       const user2 = await createTestUser('user2', 'user2@test.com', 'Wh1sk3yTest!!');
       const whiskey = createTestWhiskey(user2.id, { name: 'User2 Whiskey' });
@@ -145,13 +148,11 @@ describe('Whiskey Routes', () => {
     it('creates a whiskey with required fields', async () => {
       const { agent } = await createAuthenticatedAgent(app);
 
-      const response = await agent
-        .post('/api/whiskeys')
-        .send({
-          name: 'New Bourbon',
-          type: 'bourbon',
-          distillery: 'Test Distillery'
-        });
+      const response = await agent.post('/api/whiskeys').send({
+        name: 'New Bourbon',
+        type: 'bourbon',
+        distillery: 'Test Distillery',
+      });
 
       expect(response.status).toBe(201);
       expect(response.body.message).toBe('Whiskey created successfully');
@@ -163,18 +164,16 @@ describe('Whiskey Routes', () => {
     it('creates a whiskey with optional fields', async () => {
       const { agent } = await createAuthenticatedAgent(app);
 
-      const response = await agent
-        .post('/api/whiskeys')
-        .send({
-          name: 'Premium Bourbon',
-          type: 'bourbon',
-          distillery: 'Buffalo Trace',
-          region: 'Kentucky',
-          age: 12,
-          abv: 45.0,
-          rating: 8.5,
-          description: 'A fine bourbon'
-        });
+      const response = await agent.post('/api/whiskeys').send({
+        name: 'Premium Bourbon',
+        type: 'bourbon',
+        distillery: 'Buffalo Trace',
+        region: 'Kentucky',
+        age: 12,
+        abv: 45.0,
+        rating: 8.5,
+        description: 'A fine bourbon',
+      });
 
       expect(response.status).toBe(201);
       expect(response.body.whiskey.region).toBe('Kentucky');
@@ -186,13 +185,11 @@ describe('Whiskey Routes', () => {
     it('assigns whiskey to the authenticated user', async () => {
       const { agent, user } = await createAuthenticatedAgent(app);
 
-      const response = await agent
-        .post('/api/whiskeys')
-        .send({
-          name: 'My Bourbon',
-          type: 'bourbon',
-          distillery: 'Test'
-        });
+      const response = await agent.post('/api/whiskeys').send({
+        name: 'My Bourbon',
+        type: 'bourbon',
+        distillery: 'Test',
+      });
 
       expect(response.status).toBe(201);
       expect(response.body.whiskey.created_by).toBe(user.id);
@@ -201,12 +198,10 @@ describe('Whiskey Routes', () => {
     it('validates required fields - missing name', async () => {
       const { agent } = await createAuthenticatedAgent(app);
 
-      const response = await agent
-        .post('/api/whiskeys')
-        .send({
-          type: 'bourbon',
-          distillery: 'Test'
-        });
+      const response = await agent.post('/api/whiskeys').send({
+        type: 'bourbon',
+        distillery: 'Test',
+      });
 
       expect(response.status).toBe(400);
       expect(response.body.errors).toBeDefined();
@@ -216,12 +211,10 @@ describe('Whiskey Routes', () => {
     it('validates required fields - missing type', async () => {
       const { agent } = await createAuthenticatedAgent(app);
 
-      const response = await agent
-        .post('/api/whiskeys')
-        .send({
-          name: 'Test',
-          distillery: 'Test'
-        });
+      const response = await agent.post('/api/whiskeys').send({
+        name: 'Test',
+        distillery: 'Test',
+      });
 
       expect(response.status).toBe(400);
       expect(response.body.errors).toBeDefined();
@@ -230,12 +223,10 @@ describe('Whiskey Routes', () => {
     it('validates required fields - missing distillery', async () => {
       const { agent } = await createAuthenticatedAgent(app);
 
-      const response = await agent
-        .post('/api/whiskeys')
-        .send({
-          name: 'Test',
-          type: 'bourbon'
-        });
+      const response = await agent.post('/api/whiskeys').send({
+        name: 'Test',
+        type: 'bourbon',
+      });
 
       expect(response.status).toBe(400);
       expect(response.body.errors).toBeDefined();
@@ -245,13 +236,11 @@ describe('Whiskey Routes', () => {
     it('validates type is valid whiskey type', async () => {
       const { agent } = await createAuthenticatedAgent(app);
 
-      const response = await agent
-        .post('/api/whiskeys')
-        .send({
-          name: 'Test',
-          type: 'invalid',
-          distillery: 'Test'
-        });
+      const response = await agent.post('/api/whiskeys').send({
+        name: 'Test',
+        type: 'invalid',
+        distillery: 'Test',
+      });
 
       expect(response.status).toBe(400);
       expect(response.body.errors).toBeDefined();
@@ -261,14 +250,12 @@ describe('Whiskey Routes', () => {
     it('validates ABV is between 0 and 100', async () => {
       const { agent } = await createAuthenticatedAgent(app);
 
-      const response = await agent
-        .post('/api/whiskeys')
-        .send({
-          name: 'Test',
-          type: 'bourbon',
-          distillery: 'Test',
-          abv: 150
-        });
+      const response = await agent.post('/api/whiskeys').send({
+        name: 'Test',
+        type: 'bourbon',
+        distillery: 'Test',
+        abv: 150,
+      });
 
       expect(response.status).toBe(400);
       expect(response.body.errors).toBeDefined();
@@ -277,14 +264,12 @@ describe('Whiskey Routes', () => {
     it('validates rating is between 0 and 10', async () => {
       const { agent } = await createAuthenticatedAgent(app);
 
-      const response = await agent
-        .post('/api/whiskeys')
-        .send({
-          name: 'Test',
-          type: 'bourbon',
-          distillery: 'Test',
-          rating: 15
-        });
+      const response = await agent.post('/api/whiskeys').send({
+        name: 'Test',
+        type: 'bourbon',
+        distillery: 'Test',
+        rating: 15,
+      });
 
       expect(response.status).toBe(400);
       expect(response.body.errors).toBeDefined();
@@ -293,14 +278,12 @@ describe('Whiskey Routes', () => {
     it('validates age is positive', async () => {
       const { agent } = await createAuthenticatedAgent(app);
 
-      const response = await agent
-        .post('/api/whiskeys')
-        .send({
-          name: 'Test',
-          type: 'bourbon',
-          distillery: 'Test',
-          age: -5
-        });
+      const response = await agent.post('/api/whiskeys').send({
+        name: 'Test',
+        type: 'bourbon',
+        distillery: 'Test',
+        age: -5,
+      });
 
       expect(response.status).toBe(400);
       expect(response.body.errors).toBeDefined();
@@ -325,13 +308,11 @@ describe('Whiskey Routes', () => {
       const { agent, user } = await createAuthenticatedAgent(app);
       const whiskey = createTestWhiskey(user.id);
 
-      const response = await agent
-        .put(`/api/whiskeys/${whiskey.id}`)
-        .send({
-          name: 'Updated Bourbon',
-          rating: 9.0,
-          region: 'Kentucky'
-        });
+      const response = await agent.put(`/api/whiskeys/${whiskey.id}`).send({
+        name: 'Updated Bourbon',
+        rating: 9.0,
+        region: 'Kentucky',
+      });
 
       expect(response.status).toBe(200);
       expect(response.body.whiskey.name).toBe('Updated Bourbon');
@@ -342,21 +323,17 @@ describe('Whiskey Routes', () => {
     it('returns 404 for non-existent whiskey', async () => {
       const { agent } = await createAuthenticatedAgent(app);
 
-      const response = await agent
-        .put('/api/whiskeys/99999')
-        .send({ name: 'Updated' });
+      const response = await agent.put('/api/whiskeys/99999').send({ name: 'Updated' });
 
       expect(response.status).toBe(404);
     });
 
-    it('returns 404 when updating another user\'s whiskey', async () => {
+    it("returns 404 when updating another user's whiskey", async () => {
       const { agent } = await createAuthenticatedAgent(app, 'user1', 'user1@test.com');
       const user2 = await createTestUser('user2', 'user2@test.com', 'Wh1sk3yTest!!');
       const whiskey = createTestWhiskey(user2.id, { name: 'User2 Whiskey' });
 
-      const response = await agent
-        .put(`/api/whiskeys/${whiskey.id}`)
-        .send({ name: 'Hacked!' });
+      const response = await agent.put(`/api/whiskeys/${whiskey.id}`).send({ name: 'Hacked!' });
 
       expect(response.status).toBe(404);
       expect(response.body.error).toContain('not found');
@@ -366,9 +343,7 @@ describe('Whiskey Routes', () => {
       const { agent, user } = await createAuthenticatedAgent(app);
       const whiskey = createTestWhiskey(user.id);
 
-      const response = await agent
-        .put(`/api/whiskeys/${whiskey.id}`)
-        .send({ rating: 15 });
+      const response = await agent.put(`/api/whiskeys/${whiskey.id}`).send({ rating: 15 });
 
       expect(response.status).toBe(400);
       expect(response.body.errors).toBeDefined();
@@ -378,7 +353,13 @@ describe('Whiskey Routes', () => {
   describe('DELETE /api/whiskeys/:id', () => {
     it('deletes a whiskey (admin role required)', async () => {
       // Note: DELETE requires ADMIN role per RolePermissions
-      const { agent, user } = await createAuthenticatedAgent(app, 'admin', 'admin@test.com', 'Wh1sk3yTest!!', Role.ADMIN);
+      const { agent, user } = await createAuthenticatedAgent(
+        app,
+        'admin',
+        'admin@test.com',
+        'Wh1sk3yTest!!',
+        Role.ADMIN
+      );
       const whiskey = createTestWhiskey(user.id);
 
       const response = await agent.delete(`/api/whiskeys/${whiskey.id}`);
@@ -392,7 +373,13 @@ describe('Whiskey Routes', () => {
     });
 
     it('returns 403 for editor role (no delete permission)', async () => {
-      const { agent, user } = await createAuthenticatedAgent(app, 'editor', 'editor@test.com', 'Wh1sk3yTest!!', Role.EDITOR);
+      const { agent, user } = await createAuthenticatedAgent(
+        app,
+        'editor',
+        'editor@test.com',
+        'Wh1sk3yTest!!',
+        Role.EDITOR
+      );
       const whiskey = createTestWhiskey(user.id);
 
       const response = await agent.delete(`/api/whiskeys/${whiskey.id}`);
@@ -402,15 +389,27 @@ describe('Whiskey Routes', () => {
     });
 
     it('returns 404 for non-existent whiskey', async () => {
-      const { agent } = await createAuthenticatedAgent(app, 'admin', 'admin@test.com', 'Wh1sk3yTest!!', Role.ADMIN);
+      const { agent } = await createAuthenticatedAgent(
+        app,
+        'admin',
+        'admin@test.com',
+        'Wh1sk3yTest!!',
+        Role.ADMIN
+      );
 
       const response = await agent.delete('/api/whiskeys/99999');
 
       expect(response.status).toBe(404);
     });
 
-    it('returns 404 when deleting another user\'s whiskey', async () => {
-      const { agent } = await createAuthenticatedAgent(app, 'admin1', 'admin1@test.com', 'Wh1sk3yTest!!', Role.ADMIN);
+    it("returns 404 when deleting another user's whiskey", async () => {
+      const { agent } = await createAuthenticatedAgent(
+        app,
+        'admin1',
+        'admin1@test.com',
+        'Wh1sk3yTest!!',
+        Role.ADMIN
+      );
       const user2 = await createTestUser('admin2', 'admin2@test.com', 'Wh1sk3yTest!!', Role.ADMIN);
       const whiskey = createTestWhiskey(user2.id);
 
@@ -419,9 +418,15 @@ describe('Whiskey Routes', () => {
       expect(response.status).toBe(404);
     });
 
-    it('does not delete another user\'s whiskey', async () => {
+    it("does not delete another user's whiskey", async () => {
       // Create two admin users
-      const { agent: agent1 } = await createAuthenticatedAgent(app, 'admin1', 'admin1@test.com', 'Wh1sk3yTest!!', Role.ADMIN);
+      const { agent: agent1 } = await createAuthenticatedAgent(
+        app,
+        'admin1',
+        'admin1@test.com',
+        'Wh1sk3yTest!!',
+        Role.ADMIN
+      );
       const user2 = await createTestUser('admin2', 'admin2@test.com', 'Wh1sk3yTest!!', Role.ADMIN);
       const whiskey = createTestWhiskey(user2.id, { name: 'User2 Whiskey' });
 
@@ -464,7 +469,7 @@ describe('Whiskey Routes', () => {
       expect(response.body.whiskeys).toHaveLength(1);
     });
 
-    it('only searches user\'s own whiskeys', async () => {
+    it("only searches user's own whiskeys", async () => {
       const { agent, user } = await createAuthenticatedAgent(app, 'user1', 'user1@test.com');
       const user2 = await createTestUser('user2', 'user2@test.com', 'Wh1sk3yTest!!');
 
@@ -502,7 +507,11 @@ describe('Whiskey Routes', () => {
     it('exports whiskeys as CSV', async () => {
       const { agent, user } = await createAuthenticatedAgent(app);
 
-      createTestWhiskey(user.id, { name: 'Test Bourbon', type: WhiskeyType.BOURBON, distillery: 'Test Distillery' });
+      createTestWhiskey(user.id, {
+        name: 'Test Bourbon',
+        type: WhiskeyType.BOURBON,
+        distillery: 'Test Distillery',
+      });
 
       const response = await agent.get('/api/whiskeys/export/csv');
 
@@ -514,7 +523,7 @@ describe('Whiskey Routes', () => {
       expect(response.text).toContain('Test Bourbon');
     });
 
-    it('only exports user\'s own whiskeys', async () => {
+    it("only exports user's own whiskeys", async () => {
       const { agent, user } = await createAuthenticatedAgent(app, 'user1', 'user1@test.com');
       const user2 = await createTestUser('user2', 'user2@test.com', 'Wh1sk3yTest!!');
 
@@ -544,7 +553,13 @@ describe('Whiskey Routes', () => {
   describe('User Isolation (Integration)', () => {
     it('complete isolation: user cannot see, update, or delete other users whiskeys', async () => {
       // Setup: Admin1 creates a whiskey (use admin to test delete permission)
-      const { agent: agent1, user: user1 } = await createAuthenticatedAgent(app, 'admin1', 'admin1@test.com', 'Wh1sk3yTest!!', Role.ADMIN);
+      const { agent: agent1, user: user1 } = await createAuthenticatedAgent(
+        app,
+        'admin1',
+        'admin1@test.com',
+        'Wh1sk3yTest!!',
+        Role.ADMIN
+      );
 
       const createResponse = await agent1
         .post('/api/whiskeys')
@@ -792,7 +807,13 @@ Valid2,scotch,Distillery2
     });
 
     it('deletes multiple whiskeys by ids', async () => {
-      const { agent, user } = await createAuthenticatedAgent(app, 'admin', 'admin@test.com', 'Wh1sk3yTest!!', Role.ADMIN);
+      const { agent, user } = await createAuthenticatedAgent(
+        app,
+        'admin',
+        'admin@test.com',
+        'Wh1sk3yTest!!',
+        Role.ADMIN
+      );
 
       const whiskey1 = createTestWhiskey(user.id, { name: 'Whiskey 1' });
       const whiskey2 = createTestWhiskey(user.id, { name: 'Whiskey 2' });
@@ -812,37 +833,55 @@ Valid2,scotch,Distillery2
     });
 
     it('returns 400 when ids array is empty', async () => {
-      const { agent } = await createAuthenticatedAgent(app, 'admin', 'admin@test.com', 'Wh1sk3yTest!!', Role.ADMIN);
+      const { agent } = await createAuthenticatedAgent(
+        app,
+        'admin',
+        'admin@test.com',
+        'Wh1sk3yTest!!',
+        Role.ADMIN
+      );
 
-      const response = await agent
-        .delete('/api/whiskeys/bulk')
-        .send({ ids: [] });
+      const response = await agent.delete('/api/whiskeys/bulk').send({ ids: [] });
 
       expect(response.status).toBe(400);
     });
 
     it('returns 400 when ids array is missing', async () => {
-      const { agent } = await createAuthenticatedAgent(app, 'admin', 'admin@test.com', 'Wh1sk3yTest!!', Role.ADMIN);
+      const { agent } = await createAuthenticatedAgent(
+        app,
+        'admin',
+        'admin@test.com',
+        'Wh1sk3yTest!!',
+        Role.ADMIN
+      );
 
-      const response = await agent
-        .delete('/api/whiskeys/bulk')
-        .send({});
+      const response = await agent.delete('/api/whiskeys/bulk').send({});
 
       expect(response.status).toBe(400);
     });
 
     it('returns 400 when ids contains invalid values', async () => {
-      const { agent } = await createAuthenticatedAgent(app, 'admin', 'admin@test.com', 'Wh1sk3yTest!!', Role.ADMIN);
+      const { agent } = await createAuthenticatedAgent(
+        app,
+        'admin',
+        'admin@test.com',
+        'Wh1sk3yTest!!',
+        Role.ADMIN
+      );
 
-      const response = await agent
-        .delete('/api/whiskeys/bulk')
-        .send({ ids: ['not-a-number', -1] });
+      const response = await agent.delete('/api/whiskeys/bulk').send({ ids: ['not-a-number', -1] });
 
       expect(response.status).toBe(400);
     });
 
     it('only deletes whiskeys belonging to the user', async () => {
-      const { agent: agent1, user: user1 } = await createAuthenticatedAgent(app, 'admin1', 'admin1@test.com', 'Wh1sk3yTest!!', Role.ADMIN);
+      const { agent: agent1, user: user1 } = await createAuthenticatedAgent(
+        app,
+        'admin1',
+        'admin1@test.com',
+        'Wh1sk3yTest!!',
+        Role.ADMIN
+      );
       const user2 = await createTestUser('user2', 'user2@test.com', 'Wh1sk3yTest!!', Role.ADMIN);
 
       const user1Whiskey = createTestWhiskey(user1.id, { name: 'User1 Whiskey' });
@@ -858,21 +897,29 @@ Valid2,scotch,Distillery2
     });
 
     it('returns 403 for viewer role', async () => {
-      const { agent } = await createAuthenticatedAgent(app, 'viewer', 'viewer@test.com', 'Wh1sk3yTest!!', Role.VIEWER);
+      const { agent } = await createAuthenticatedAgent(
+        app,
+        'viewer',
+        'viewer@test.com',
+        'Wh1sk3yTest!!',
+        Role.VIEWER
+      );
 
-      const response = await agent
-        .delete('/api/whiskeys/bulk')
-        .send({ ids: [1] });
+      const response = await agent.delete('/api/whiskeys/bulk').send({ ids: [1] });
 
       expect(response.status).toBe(403);
     });
 
     it('returns 403 for editor role', async () => {
-      const { agent } = await createAuthenticatedAgent(app, 'editor', 'editor@test.com', 'Wh1sk3yTest!!', Role.EDITOR);
+      const { agent } = await createAuthenticatedAgent(
+        app,
+        'editor',
+        'editor@test.com',
+        'Wh1sk3yTest!!',
+        Role.EDITOR
+      );
 
-      const response = await agent
-        .delete('/api/whiskeys/bulk')
-        .send({ ids: [1] });
+      const response = await agent.delete('/api/whiskeys/bulk').send({ ids: [1] });
 
       expect(response.status).toBe(403);
     });
@@ -885,7 +932,13 @@ Valid2,scotch,Distillery2
     });
 
     it('deletes all whiskeys for the user', async () => {
-      const { agent, user } = await createAuthenticatedAgent(app, 'admin', 'admin@test.com', 'Wh1sk3yTest!!', Role.ADMIN);
+      const { agent, user } = await createAuthenticatedAgent(
+        app,
+        'admin',
+        'admin@test.com',
+        'Wh1sk3yTest!!',
+        Role.ADMIN
+      );
 
       createTestWhiskey(user.id, { name: 'Whiskey 1' });
       createTestWhiskey(user.id, { name: 'Whiskey 2' });
@@ -902,8 +955,20 @@ Valid2,scotch,Distillery2
     });
 
     it('only deletes whiskeys for the authenticated user', async () => {
-      const { agent: agent1, user: user1 } = await createAuthenticatedAgent(app, 'admin1', 'admin1@test.com', 'Wh1sk3yTest!!', Role.ADMIN);
-      const { agent: agent2, user: user2 } = await createAuthenticatedAgent(app, 'admin2', 'admin2@test.com', 'Wh1sk3yTest!!', Role.ADMIN);
+      const { agent: agent1, user: user1 } = await createAuthenticatedAgent(
+        app,
+        'admin1',
+        'admin1@test.com',
+        'Wh1sk3yTest!!',
+        Role.ADMIN
+      );
+      const { agent: agent2, user: user2 } = await createAuthenticatedAgent(
+        app,
+        'admin2',
+        'admin2@test.com',
+        'Wh1sk3yTest!!',
+        Role.ADMIN
+      );
 
       createTestWhiskey(user1.id, { name: 'User1 Whiskey' });
       createTestWhiskey(user2.id, { name: 'User2 Whiskey' });
@@ -920,7 +985,13 @@ Valid2,scotch,Distillery2
     });
 
     it('returns 0 when user has no whiskeys', async () => {
-      const { agent } = await createAuthenticatedAgent(app, 'admin', 'admin@test.com', 'Wh1sk3yTest!!', Role.ADMIN);
+      const { agent } = await createAuthenticatedAgent(
+        app,
+        'admin',
+        'admin@test.com',
+        'Wh1sk3yTest!!',
+        Role.ADMIN
+      );
 
       const response = await agent.delete('/api/whiskeys/all');
 
@@ -929,7 +1000,13 @@ Valid2,scotch,Distillery2
     });
 
     it('returns 403 for viewer role', async () => {
-      const { agent } = await createAuthenticatedAgent(app, 'viewer', 'viewer@test.com', 'Wh1sk3yTest!!', Role.VIEWER);
+      const { agent } = await createAuthenticatedAgent(
+        app,
+        'viewer',
+        'viewer@test.com',
+        'Wh1sk3yTest!!',
+        Role.VIEWER
+      );
 
       const response = await agent.delete('/api/whiskeys/all');
 
@@ -937,7 +1014,13 @@ Valid2,scotch,Distillery2
     });
 
     it('returns 403 for editor role', async () => {
-      const { agent } = await createAuthenticatedAgent(app, 'editor', 'editor@test.com', 'Wh1sk3yTest!!', Role.EDITOR);
+      const { agent } = await createAuthenticatedAgent(
+        app,
+        'editor',
+        'editor@test.com',
+        'Wh1sk3yTest!!',
+        Role.EDITOR
+      );
 
       const response = await agent.delete('/api/whiskeys/all');
 
@@ -947,7 +1030,13 @@ Valid2,scotch,Distillery2
 
   describe('Error Handling', () => {
     it('returns 500 when deleteAllByUser throws an error', async () => {
-      const { agent } = await createAuthenticatedAgent(app, 'admin', 'admin@test.com', 'Wh1sk3yTest!!', Role.ADMIN);
+      const { agent } = await createAuthenticatedAgent(
+        app,
+        'admin',
+        'admin@test.com',
+        'Wh1sk3yTest!!',
+        Role.ADMIN
+      );
 
       // Mock deleteAllByUser to throw an error
       const spy = vi.spyOn(WhiskeyModel, 'deleteAllByUser').mockImplementation(() => {
@@ -963,7 +1052,13 @@ Valid2,scotch,Distillery2
     });
 
     it('returns 500 when delete throws an error', async () => {
-      const { agent, user } = await createAuthenticatedAgent(app, 'admin', 'admin@test.com', 'Wh1sk3yTest!!', Role.ADMIN);
+      const { agent, user } = await createAuthenticatedAgent(
+        app,
+        'admin',
+        'admin@test.com',
+        'Wh1sk3yTest!!',
+        Role.ADMIN
+      );
       const whiskey = createTestWhiskey(user.id);
 
       // Mock delete to throw an error
@@ -999,7 +1094,13 @@ Valid2,scotch,Distillery2
     });
 
     it('returns 500 when deleteMany throws an error', async () => {
-      const { agent, user } = await createAuthenticatedAgent(app, 'admin', 'admin@test.com', 'Wh1sk3yTest!!', Role.ADMIN);
+      const { agent, user } = await createAuthenticatedAgent(
+        app,
+        'admin',
+        'admin@test.com',
+        'Wh1sk3yTest!!',
+        Role.ADMIN
+      );
       const whiskey = createTestWhiskey(user.id);
 
       // Mock deleteMany to throw an error
@@ -1007,9 +1108,7 @@ Valid2,scotch,Distillery2
         throw new Error('Database error');
       });
 
-      const response = await agent
-        .delete('/api/whiskeys/bulk')
-        .send({ ids: [whiskey.id] });
+      const response = await agent.delete('/api/whiskeys/bulk').send({ ids: [whiskey.id] });
 
       expect(response.status).toBe(500);
       expect(response.body.error).toBe('Failed to delete whiskeys');
@@ -1025,13 +1124,11 @@ Valid2,scotch,Distillery2
         throw new Error('Database error');
       });
 
-      const response = await agent
-        .post('/api/whiskeys')
-        .send({
-          name: 'Test Whiskey',
-          type: 'bourbon',
-          distillery: 'Test Distillery'
-        });
+      const response = await agent.post('/api/whiskeys').send({
+        name: 'Test Whiskey',
+        type: 'bourbon',
+        distillery: 'Test Distillery',
+      });
 
       expect(response.status).toBe(500);
       expect(response.body.error).toBe('Failed to create whiskey');
@@ -1042,28 +1139,34 @@ Valid2,scotch,Distillery2
 
   describe('Special User Handling', () => {
     it('sets quantity to 1 for guntharp user when quantity is 0', async () => {
-      const { agent, user } = await createAuthenticatedAgent(app, 'guntharp', 'guntharp@test.com', 'Wh1sk3yTest!!');
+      const { agent, user } = await createAuthenticatedAgent(
+        app,
+        'guntharp',
+        'guntharp@test.com',
+        'Wh1sk3yTest!!'
+      );
       const whiskey = createTestWhiskey(user.id);
 
-      const response = await agent
-        .put(`/api/whiskeys/${whiskey.id}`)
-        .send({ quantity: 0 });
+      const response = await agent.put(`/api/whiskeys/${whiskey.id}`).send({ quantity: 0 });
 
       expect(response.status).toBe(200);
       expect(response.body.whiskey.quantity).toBe(1);
     });
 
     it('sets quantity to 1 for guntharp user when quantity is 0 on create', async () => {
-      const { agent } = await createAuthenticatedAgent(app, 'guntharp', 'guntharp2@test.com', 'Wh1sk3yTest!!');
+      const { agent } = await createAuthenticatedAgent(
+        app,
+        'guntharp',
+        'guntharp2@test.com',
+        'Wh1sk3yTest!!'
+      );
 
-      const response = await agent
-        .post('/api/whiskeys')
-        .send({
-          name: 'Test Bourbon',
-          type: 'bourbon',
-          distillery: 'Test Distillery',
-          quantity: 0
-        });
+      const response = await agent.post('/api/whiskeys').send({
+        name: 'Test Bourbon',
+        type: 'bourbon',
+        distillery: 'Test Distillery',
+        quantity: 0,
+      });
 
       expect(response.status).toBe(201);
       expect(response.body.whiskey.quantity).toBe(1);

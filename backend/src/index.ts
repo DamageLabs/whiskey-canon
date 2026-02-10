@@ -18,6 +18,7 @@ import contactRoutes from './routes/contact';
 import backupRoutes from './routes/backups';
 import { startBackupScheduler } from './utils/backup-scheduler';
 
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 const SqliteStore = require('better-sqlite3-session-store')(session);
 
 const app = express();
@@ -32,26 +33,30 @@ validateConfig();
 initializeDatabase();
 
 // Middleware
-app.use(helmet({
-  contentSecurityPolicy: {
-    directives: {
-      defaultSrc: ["'self'"],
-      scriptSrc: ["'self'"],
-      styleSrc: ["'self'", "'unsafe-inline'"],
-      imgSrc: ["'self'", "data:", "blob:"],
-      connectSrc: ["'self'"],
-      fontSrc: ["'self'"],
-      objectSrc: ["'none'"],
-      frameAncestors: ["'none'"],
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: ["'self'"],
+        styleSrc: ["'self'", "'unsafe-inline'"],
+        imgSrc: ["'self'", 'data:', 'blob:'],
+        connectSrc: ["'self'"],
+        fontSrc: ["'self'"],
+        objectSrc: ["'none'"],
+        frameAncestors: ["'none'"],
+      },
     },
-  },
-  strictTransportSecurity: config.isProduction,
-}));
+    strictTransportSecurity: config.isProduction,
+  })
+);
 
-app.use(cors({
-  origin: config.frontendUrl,
-  credentials: true
-}));
+app.use(
+  cors({
+    origin: config.frontendUrl,
+    credentials: true,
+  })
+);
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -64,8 +69,8 @@ app.use(
       client: db,
       expired: {
         clear: true,
-        intervalMs: 900000 // 15 min cleanup
-      }
+        intervalMs: 900000, // 15 min cleanup
+      },
     }),
     secret: config.sessionSecret,
     resave: false,
@@ -74,8 +79,8 @@ app.use(
       secure: config.isProduction,
       httpOnly: true,
       sameSite: config.isProduction ? 'strict' : 'lax',
-      maxAge: 1000 * 60 * 60 * 24 * 7 // 7 days
-    }
+      maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
+    },
   })
 );
 

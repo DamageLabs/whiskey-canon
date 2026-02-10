@@ -19,7 +19,9 @@ export function checkPasswordStrength(password: string): PasswordStrengthResult 
   const hasDigit = /[0-9]/.test(password);
   const hasSpecial = /[^A-Za-z0-9]/.test(password);
 
-  const characterTypesCount = [hasUppercase, hasLowercase, hasDigit, hasSpecial].filter(Boolean).length;
+  const characterTypesCount = [hasUppercase, hasLowercase, hasDigit, hasSpecial].filter(
+    Boolean
+  ).length;
   const meetsComplexity = characterTypesCount >= 3;
   const isValid = meetsLength && meetsComplexity;
 

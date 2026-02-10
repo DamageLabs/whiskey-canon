@@ -36,7 +36,7 @@ export default function ProfilePage() {
     lastName: user?.last_name || '',
     currentPassword: '',
     newPassword: '',
-    confirmPassword: ''
+    confirmPassword: '',
   });
 
   // Clear collection state
@@ -109,9 +109,9 @@ export default function ProfilePage() {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
@@ -143,7 +143,7 @@ export default function ProfilePage() {
       const updateData: any = {
         email: formData.email,
         firstName: formData.firstName,
-        lastName: formData.lastName
+        lastName: formData.lastName,
       };
 
       if (formData.newPassword) {
@@ -159,7 +159,7 @@ export default function ProfilePage() {
           ...csrfHeaders,
         },
         credentials: 'include',
-        body: JSON.stringify(updateData)
+        body: JSON.stringify(updateData),
       });
 
       const data = await response.json();
@@ -177,11 +177,11 @@ export default function ProfilePage() {
       setIsEditing(false);
 
       // Clear password fields
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
         currentPassword: '',
         newPassword: '',
-        confirmPassword: ''
+        confirmPassword: '',
       }));
     } catch (error: any) {
       setMessage({ type: 'error', text: error.message || 'Failed to update profile' });
@@ -202,7 +202,7 @@ export default function ProfilePage() {
       lastName: user?.last_name || '',
       currentPassword: '',
       newPassword: '',
-      confirmPassword: ''
+      confirmPassword: '',
     });
   };
 
@@ -248,7 +248,7 @@ export default function ProfilePage() {
         method: 'POST',
         credentials: 'include',
         headers: csrfHeaders,
-        body: formData
+        body: formData,
       });
 
       const data = await response.json();
@@ -332,17 +332,26 @@ export default function ProfilePage() {
     return new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'long',
-      day: 'numeric'
+      day: 'numeric',
     });
   };
 
   return (
     <div className="profile-page">
       {/* Navigation Bar */}
-      <nav className="navbar shadow-sm mb-4" style={{ backgroundColor: 'var(--zinc-900)', borderBottom: '1px solid var(--zinc-800)' }}>
+      <nav
+        className="navbar shadow-sm mb-4"
+        style={{ backgroundColor: 'var(--zinc-900)', borderBottom: '1px solid var(--zinc-800)' }}
+      >
         <div className="container-fluid px-4">
-          <div className="navbar-brand mb-0 d-flex align-items-center gap-3" onClick={() => navigate('/dashboard')} style={{ cursor: 'pointer' }}>
-            <span className="h4 mb-0" style={{ color: 'var(--amber-500)' }}>My Profile</span>
+          <div
+            className="navbar-brand mb-0 d-flex align-items-center gap-3"
+            onClick={() => navigate('/dashboard')}
+            style={{ cursor: 'pointer' }}
+          >
+            <span className="h4 mb-0" style={{ color: 'var(--amber-500)' }}>
+              My Profile
+            </span>
           </div>
           <div className="d-flex align-items-center gap-3">
             <button onClick={() => navigate('/dashboard')} className="btn btn-outline-light btn-sm">
@@ -364,23 +373,20 @@ export default function ProfilePage() {
         <div className="profile-header">
           <div className="profile-avatar">
             {user.profile_photo ? (
-              <img
-                src={user.profile_photo}
-                alt={user.username}
-                className="avatar-image"
-              />
+              <img src={user.profile_photo} alt={user.username} className="avatar-image" />
             ) : (
               <span className="avatar-text">{user.username.charAt(0).toUpperCase()}</span>
             )}
           </div>
           <h1>{user.username}</h1>
-          <span className={`role-badge ${getRoleBadgeClass(user.role)}`}>
-            {user.role}
-          </span>
+          <span className={`role-badge ${getRoleBadgeClass(user.role)}`}>{user.role}</span>
         </div>
 
         {message && (
-          <div className={`alert alert-${message.type === 'success' ? 'success' : 'danger'}`} role="alert">
+          <div
+            className={`alert alert-${message.type === 'success' ? 'success' : 'danger'}`}
+            role="alert"
+          >
             {message.text}
           </div>
         )}
@@ -393,7 +399,10 @@ export default function ProfilePage() {
                 {(user.first_name || user.last_name) && (
                   <div className="info-group">
                     <label>Name</label>
-                    <p>{[user.first_name, user.last_name].filter(Boolean).join(' ') || 'Not provided'}</p>
+                    <p>
+                      {[user.first_name, user.last_name].filter(Boolean).join(' ') ||
+                        'Not provided'}
+                    </p>
                   </div>
                 )}
                 <div className="info-group">
@@ -421,10 +430,7 @@ export default function ProfilePage() {
               </div>
 
               <div className="profile-actions">
-                <button
-                  className="btn btn-primary"
-                  onClick={() => setIsEditing(true)}
-                >
+                <button className="btn btn-primary" onClick={() => setIsEditing(true)}>
                   Edit Profile
                 </button>
               </div>
@@ -497,12 +503,16 @@ export default function ProfilePage() {
               <BackupManager />
 
               {/* Danger Zone */}
-              <div className="profile-section mt-5" style={{ borderTop: '1px solid var(--danger, #dc3545)', paddingTop: '2rem' }}>
+              <div
+                className="profile-section mt-5"
+                style={{ borderTop: '1px solid var(--danger, #dc3545)', paddingTop: '2rem' }}
+              >
                 <h2 className="text-danger">Danger Zone</h2>
                 <div className="info-group">
                   <label>Clear Collection</label>
                   <p className="text-muted mb-3">
-                    Permanently delete all whiskeys from your collection. This action cannot be undone.
+                    Permanently delete all whiskeys from your collection. This action cannot be
+                    undone.
                   </p>
                   <button
                     className="btn btn-outline-danger"
@@ -524,11 +534,7 @@ export default function ProfilePage() {
                     {photoPreview ? (
                       <img src={photoPreview} alt="Preview" className="photo-preview" />
                     ) : user.profile_photo ? (
-                      <img
-                        src={user.profile_photo}
-                        alt={user.username}
-                        className="photo-preview"
-                      />
+                      <img src={user.profile_photo} alt={user.username} className="photo-preview" />
                     ) : (
                       <div className="photo-placeholder">
                         <span>No photo</span>
@@ -670,11 +676,7 @@ export default function ProfilePage() {
               </div>
 
               <div className="profile-actions">
-                <button
-                  type="submit"
-                  className="btn btn-primary"
-                  disabled={loading}
-                >
+                <button type="submit" className="btn btn-primary" disabled={loading}>
                   {loading ? 'Saving...' : 'Save Changes'}
                 </button>
                 <button
@@ -695,7 +697,10 @@ export default function ProfilePage() {
       {showClearConfirm && (
         <div className="modal show d-block" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
           <div className="modal-dialog modal-dialog-centered">
-            <div className="modal-content" style={{ backgroundColor: 'var(--zinc-900)', color: 'var(--zinc-100)' }}>
+            <div
+              className="modal-content"
+              style={{ backgroundColor: 'var(--zinc-900)', color: 'var(--zinc-100)' }}
+            >
               <div className="modal-header border-danger">
                 <h5 className="modal-title text-danger">
                   <i className="bi bi-exclamation-triangle-fill me-2"></i>
@@ -704,15 +709,20 @@ export default function ProfilePage() {
                 <button
                   type="button"
                   className="btn-close btn-close-white"
-                  onClick={() => { setShowClearConfirm(false); setClearConfirmText(''); }}
+                  onClick={() => {
+                    setShowClearConfirm(false);
+                    setClearConfirmText('');
+                  }}
                 ></button>
               </div>
               <div className="modal-body">
                 <p>
-                  This will permanently delete <strong>all {collectionCount} whiskeys</strong> from your collection.
-                  This action cannot be undone.
+                  This will permanently delete <strong>all {collectionCount} whiskeys</strong> from
+                  your collection. This action cannot be undone.
                 </p>
-                <p className="mb-2">Type <strong>DELETE</strong> to confirm:</p>
+                <p className="mb-2">
+                  Type <strong>DELETE</strong> to confirm:
+                </p>
                 <input
                   type="text"
                   className="form-control"
@@ -726,7 +736,10 @@ export default function ProfilePage() {
                 <button
                   type="button"
                   className="btn btn-secondary"
-                  onClick={() => { setShowClearConfirm(false); setClearConfirmText(''); }}
+                  onClick={() => {
+                    setShowClearConfirm(false);
+                    setClearConfirmText('');
+                  }}
                 >
                   Cancel
                 </button>
@@ -748,7 +761,10 @@ export default function ProfilePage() {
       {showPublicConfirm && (
         <div className="modal show d-block" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
           <div className="modal-dialog modal-dialog-centered">
-            <div className="modal-content" style={{ backgroundColor: 'var(--zinc-900)', color: 'var(--zinc-100)' }}>
+            <div
+              className="modal-content"
+              style={{ backgroundColor: 'var(--zinc-900)', color: 'var(--zinc-100)' }}
+            >
               <div className="modal-header">
                 <h5 className="modal-title">
                   <i className="bi bi-globe me-2"></i>
@@ -762,7 +778,8 @@ export default function ProfilePage() {
               </div>
               <div className="modal-body">
                 <p>
-                  Making your profile public means <strong>anyone</strong> can view your profile information including:
+                  Making your profile public means <strong>anyone</strong> can view your profile
+                  information including:
                 </p>
                 <ul>
                   <li>Your username and display name</li>

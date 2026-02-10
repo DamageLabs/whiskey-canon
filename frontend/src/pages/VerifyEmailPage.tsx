@@ -56,7 +56,10 @@ export function VerifyEmailPage() {
 
   function handlePaste(e: React.ClipboardEvent) {
     e.preventDefault();
-    const pastedText = e.clipboardData.getData('text').toUpperCase().replace(/[^A-Z0-9]/g, '');
+    const pastedText = e.clipboardData
+      .getData('text')
+      .toUpperCase()
+      .replace(/[^A-Z0-9]/g, '');
     if (pastedText.length === 8) {
       setCode(pastedText.split(''));
       inputRefs.current[7]?.focus();
@@ -108,16 +111,22 @@ export function VerifyEmailPage() {
   }
 
   return (
-    <div className="min-vh-100 d-flex align-items-center justify-content-center" style={{ background: 'var(--zinc-950)' }}>
+    <div
+      className="min-vh-100 d-flex align-items-center justify-content-center"
+      style={{ background: 'var(--zinc-950)' }}
+    >
       <div className="card shadow-lg" style={{ maxWidth: '500px', width: '100%' }}>
         <div className="card-body p-5">
           <div className="d-flex align-items-center justify-content-center gap-2 mb-3">
             <span style={{ fontSize: '2.5rem' }}>🥃</span>
-            <span className="h3 mb-0 fw-bold" style={{ color: 'var(--zinc-100)' }}>Whiskey Canon</span>
+            <span className="h3 mb-0 fw-bold" style={{ color: 'var(--zinc-100)' }}>
+              Whiskey Canon
+            </span>
           </div>
           <h2 className="text-center mb-2 fs-4">Verify Your Email</h2>
           <p className="text-center text-muted mb-4">
-            We sent a verification code to<br />
+            We sent a verification code to
+            <br />
             <strong style={{ color: 'var(--zinc-100)' }}>{email}</strong>
           </p>
 
@@ -138,7 +147,9 @@ export function VerifyEmailPage() {
               {code.map((digit, index) => (
                 <input
                   key={index}
-                  ref={(el) => { inputRefs.current[index] = el; }}
+                  ref={(el) => {
+                    inputRefs.current[index] = el;
+                  }}
                   type="text"
                   maxLength={1}
                   className="form-control text-center fw-bold"
@@ -146,7 +157,7 @@ export function VerifyEmailPage() {
                     width: '48px',
                     height: '56px',
                     fontSize: '1.5rem',
-                    textTransform: 'uppercase'
+                    textTransform: 'uppercase',
                   }}
                   value={digit}
                   onChange={(e) => handleInputChange(index, e.target.value)}
@@ -165,10 +176,16 @@ export function VerifyEmailPage() {
             >
               {loading ? (
                 <>
-                  <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                  <span
+                    className="spinner-border spinner-border-sm me-2"
+                    role="status"
+                    aria-hidden="true"
+                  ></span>
                   Verifying...
                 </>
-              ) : 'Verify Email'}
+              ) : (
+                'Verify Email'
+              )}
             </button>
           </form>
 
@@ -183,7 +200,11 @@ export function VerifyEmailPage() {
             >
               {resendLoading ? (
                 <>
-                  <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                  <span
+                    className="spinner-border spinner-border-sm me-2"
+                    role="status"
+                    aria-hidden="true"
+                  ></span>
                   Sending...
                 </>
               ) : cooldown > 0 ? (
@@ -197,7 +218,11 @@ export function VerifyEmailPage() {
           <hr className="my-4" />
 
           <p className="text-center text-muted mb-0">
-            <Link to="/login" className="text-decoration-none fw-bold" style={{ color: 'var(--amber-500)' }}>
+            <Link
+              to="/login"
+              className="text-decoration-none fw-bold"
+              style={{ color: 'var(--amber-500)' }}
+            >
               Back to Login
             </Link>
           </p>

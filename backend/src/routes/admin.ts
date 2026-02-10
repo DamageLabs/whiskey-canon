@@ -27,7 +27,7 @@ router.get(
     try {
       const users = UserModel.findAll();
       // Remove password hashes from response
-      const sanitizedUsers = users.map(user => {
+      const sanitizedUsers = users.map((user) => {
         const { password, ...userWithoutPassword } = user;
         return userWithoutPassword;
       });
@@ -45,7 +45,7 @@ router.put(
   requirePermission(Permission.MANAGE_USERS),
   [
     param('id').isInt({ min: 1 }).withMessage('User ID must be a positive integer'),
-    body('role').isIn(Object.values(Role)).withMessage('Invalid role')
+    body('role').isIn(Object.values(Role)).withMessage('Invalid role'),
   ],
   (req: AuthRequest, res: Response) => {
     const errors = validationResult(req);
@@ -70,7 +70,7 @@ router.put(
       const { password, ...userWithoutPassword } = user;
       res.json({
         message: 'User role updated successfully',
-        user: userWithoutPassword
+        user: userWithoutPassword,
       });
     } catch (error) {
       console.error('Error updating user role:', error);
@@ -86,9 +86,13 @@ router.put(
   [
     param('id').isInt({ min: 1 }).withMessage('User ID must be a positive integer'),
     body('email').optional().isEmail().withMessage('Invalid email'),
-    body('username').optional().trim().isLength({ min: 3 }).withMessage('Username must be at least 3 characters'),
+    body('username')
+      .optional()
+      .trim()
+      .isLength({ min: 3 })
+      .withMessage('Username must be at least 3 characters'),
     body('firstName').optional().trim(),
-    body('lastName').optional().trim()
+    body('lastName').optional().trim(),
   ],
   async (req: AuthRequest, res: Response): Promise<void> => {
     const errors = validationResult(req);
@@ -134,7 +138,7 @@ router.put(
       const { password, ...userWithoutPassword } = user;
       res.json({
         message: 'User profile updated successfully',
-        user: userWithoutPassword
+        user: userWithoutPassword,
       });
     } catch (error) {
       console.error('Error updating user profile:', error);
@@ -236,9 +240,10 @@ router.get(
         return res.json({ backups: [] });
       }
 
-      const files = fs.readdirSync(adminDir)
-        .filter(f => f.startsWith('full-backup-') && f.endsWith('.db'))
-        .map(filename => {
+      const files = fs
+        .readdirSync(adminDir)
+        .filter((f) => f.startsWith('full-backup-') && f.endsWith('.db'))
+        .map((filename) => {
           const filePath = path.join(adminDir, filename);
           const stats = fs.statSync(filePath);
           return {
@@ -365,19 +370,23 @@ router.post(
 
       try {
         // Get list of tables from the backup (exclude sqlite internals)
-        const backupTables = db.prepare(
-          `SELECT name FROM backup_db.sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'`
-        ).all() as Array<{ name: string }>;
+        const backupTables = db
+          .prepare(
+            `SELECT name FROM backup_db.sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'`
+          )
+          .all() as Array<{ name: string }>;
 
-        const mainTables = db.prepare(
-          `SELECT name FROM main.sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'`
-        ).all() as Array<{ name: string }>;
-        const mainTableNames = new Set(mainTables.map(t => t.name));
+        const mainTables = db
+          .prepare(
+            `SELECT name FROM main.sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'`
+          )
+          .all() as Array<{ name: string }>;
+        const mainTableNames = new Set(mainTables.map((t) => t.name));
 
         // Only restore tables that exist in both the backup and the live db
         const tablesToRestore = backupTables
-          .map(t => t.name)
-          .filter(name => mainTableNames.has(name));
+          .map((t) => t.name)
+          .filter((name) => mainTableNames.has(name));
 
         if (tablesToRestore.length === 0) {
           db.exec('DETACH DATABASE backup_db');
@@ -405,7 +414,11 @@ router.post(
         });
       } catch (innerError) {
         // Ensure we detach even on failure
-        try { db.exec('DETACH DATABASE backup_db'); } catch { /* already detached */ }
+        try {
+          db.exec('DETACH DATABASE backup_db');
+        } catch {
+          /* already detached */
+        }
         db.pragma('foreign_keys = ON');
         throw innerError;
       }

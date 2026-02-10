@@ -18,7 +18,14 @@ export class UserModel {
       VALUES (?, ?, ?, ?, ?, ?)
     `);
 
-    const result = stmt.run(username, email, hashedPassword, role, firstName || null, lastName || null);
+    const result = stmt.run(
+      username,
+      email,
+      hashedPassword,
+      role,
+      firstName || null,
+      lastName || null
+    );
     return this.findById(result.lastInsertRowid as number)!;
   }
 
@@ -47,7 +54,9 @@ export class UserModel {
   }
 
   static updateRole(id: number, role: Role): User | undefined {
-    const stmt = db.prepare('UPDATE users SET role = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?');
+    const stmt = db.prepare(
+      'UPDATE users SET role = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?'
+    );
     const result = stmt.run(role, id);
 
     if (result.changes === 0) {
@@ -64,7 +73,9 @@ export class UserModel {
   }
 
   static updateEmail(id: number, email: string): User | undefined {
-    const stmt = db.prepare('UPDATE users SET email = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?');
+    const stmt = db.prepare(
+      'UPDATE users SET email = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?'
+    );
     const result = stmt.run(email, id);
 
     if (result.changes === 0) {
@@ -76,7 +87,9 @@ export class UserModel {
 
   static async updatePassword(id: number, newPassword: string): Promise<User | undefined> {
     const hashedPassword = await bcrypt.hash(newPassword, 10);
-    const stmt = db.prepare('UPDATE users SET password = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?');
+    const stmt = db.prepare(
+      'UPDATE users SET password = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?'
+    );
     const result = stmt.run(hashedPassword, id);
 
     if (result.changes === 0) {
@@ -86,7 +99,10 @@ export class UserModel {
     return this.findById(id);
   }
 
-  static updateProfile(id: number, updates: { email?: string; firstName?: string; lastName?: string }): User | undefined {
+  static updateProfile(
+    id: number,
+    updates: { email?: string; firstName?: string; lastName?: string }
+  ): User | undefined {
     const fields: string[] = [];
     const values: any[] = [];
 
@@ -123,7 +139,9 @@ export class UserModel {
   }
 
   static updateProfilePhoto(id: number, photoPath: string): User | undefined {
-    const stmt = db.prepare('UPDATE users SET profile_photo = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?');
+    const stmt = db.prepare(
+      'UPDATE users SET profile_photo = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?'
+    );
     const result = stmt.run(photoPath, id);
 
     if (result.changes === 0) {

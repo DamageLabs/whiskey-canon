@@ -17,7 +17,7 @@ describe('RBAC Middleware', () => {
       session({
         secret: 'test-secret',
         resave: false,
-        saveUninitialized: false
+        saveUninitialized: false,
       })
     );
     app.use(attachUser);
@@ -129,10 +129,18 @@ describe('RBAC Middleware', () => {
         req.session.save(() => res.json({ ok: true }));
       });
 
-      app.post('/create', requirePermission(Permission.CREATE_WHISKEY), (req, res) => res.json({ action: 'create' }));
-      app.get('/read', requirePermission(Permission.READ_WHISKEY), (req, res) => res.json({ action: 'read' }));
-      app.put('/update', requirePermission(Permission.UPDATE_WHISKEY), (req, res) => res.json({ action: 'update' }));
-      app.delete('/delete', requirePermission(Permission.DELETE_WHISKEY), (req, res) => res.json({ action: 'delete' }));
+      app.post('/create', requirePermission(Permission.CREATE_WHISKEY), (req, res) =>
+        res.json({ action: 'create' })
+      );
+      app.get('/read', requirePermission(Permission.READ_WHISKEY), (req, res) =>
+        res.json({ action: 'read' })
+      );
+      app.put('/update', requirePermission(Permission.UPDATE_WHISKEY), (req, res) =>
+        res.json({ action: 'update' })
+      );
+      app.delete('/delete', requirePermission(Permission.DELETE_WHISKEY), (req, res) =>
+        res.json({ action: 'delete' })
+      );
 
       const agent = request.agent(app);
       await agent.post('/set-session');
@@ -206,7 +214,12 @@ describe('RBAC Middleware', () => {
     });
 
     it('allows access when user has one of multiple allowed roles', async () => {
-      const editor = await createTestUser('editor', 'editor@test.com', 'Wh1sk3yTest!!', Role.EDITOR);
+      const editor = await createTestUser(
+        'editor',
+        'editor@test.com',
+        'Wh1sk3yTest!!',
+        Role.EDITOR
+      );
 
       app.post('/set-session', (req, res) => {
         req.session.userId = editor.id;
@@ -228,7 +241,12 @@ describe('RBAC Middleware', () => {
     });
 
     it('denies access when user role not in allowed list', async () => {
-      const editor = await createTestUser('editor', 'editor@test.com', 'Wh1sk3yTest!!', Role.EDITOR);
+      const editor = await createTestUser(
+        'editor',
+        'editor@test.com',
+        'Wh1sk3yTest!!',
+        Role.EDITOR
+      );
 
       app.post('/set-session', (req, res) => {
         req.session.userId = editor.id;

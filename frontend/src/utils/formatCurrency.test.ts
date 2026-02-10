@@ -31,7 +31,7 @@ describe('formatCurrency', () => {
     });
 
     it('formats small negative number', () => {
-      expect(formatCurrency(-0.50)).toBe('$(0.50)');
+      expect(formatCurrency(-0.5)).toBe('$(0.50)');
     });
   });
 

@@ -22,11 +22,7 @@ router.use(requireAuth);
 router.post(
   '/',
   backupLimiter,
-  [
-    body('format')
-      .isIn(['json', 'csv'])
-      .withMessage('Format must be json or csv'),
-  ],
+  [body('format').isIn(['json', 'csv']).withMessage('Format must be json or csv')],
   validate,
   (req: AuthRequest, res: Response) => {
     try {
@@ -75,9 +71,7 @@ router.put(
     body('interval')
       .isIn(['disabled', 'daily', 'weekly', 'monthly'])
       .withMessage('Interval must be disabled, daily, weekly, or monthly'),
-    body('format')
-      .isIn(['json', 'csv'])
-      .withMessage('Format must be json or csv'),
+    body('format').isIn(['json', 'csv']).withMessage('Format must be json or csv'),
     body('retentionDays')
       .isInt({ min: 1, max: 365 })
       .withMessage('Retention days must be between 1 and 365'),
@@ -86,12 +80,7 @@ router.put(
   (req: AuthRequest, res: Response) => {
     try {
       const { interval, format, retentionDays } = req.body;
-      const schedule = BackupScheduleModel.upsert(
-        req.user!.id,
-        interval,
-        format,
-        retentionDays
-      );
+      const schedule = BackupScheduleModel.upsert(req.user!.id, interval, format, retentionDays);
       res.json({ schedule, message: 'Backup schedule updated' });
     } catch (error) {
       console.error('Schedule update error:', error);
@@ -152,18 +141,17 @@ router.post(
         return res.json({ preview });
       }
 
-      const result = restoreFromBackup(
-        req.user!.id,
-        backupId,
-        conflictStrategy || 'skip'
-      );
+      const result = restoreFromBackup(req.user!.id, backupId, conflictStrategy || 'skip');
       res.json({ result, message: 'Backup restored successfully' });
     } catch (error: any) {
       console.error('Backup restore error:', error);
       if (error.message === 'Backup not found' || error.message === 'Backup file not found') {
         return res.status(404).json({ error: error.message });
       }
-      if (error.message === 'Only JSON backups can be restored' || error.message === 'Invalid backup format') {
+      if (
+        error.message === 'Only JSON backups can be restored' ||
+        error.message === 'Invalid backup format'
+      ) {
         return res.status(400).json({ error: error.message });
       }
       res.status(500).json({ error: 'Failed to restore backup' });

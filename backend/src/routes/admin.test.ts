@@ -1,6 +1,11 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import request from 'supertest';
-import { createTestApp, createTestUser, createAuthenticatedAgent, createTestWhiskey } from '../test/helpers';
+import {
+  createTestApp,
+  createTestUser,
+  createAuthenticatedAgent,
+  createTestWhiskey,
+} from '../test/helpers';
 import { Role } from '../types';
 import type { Application } from 'express';
 import { UserModel } from '../models/User';
@@ -20,7 +25,13 @@ describe('Admin Routes', () => {
     });
 
     it('returns 403 for non-admin users', async () => {
-      const { agent } = await createAuthenticatedAgent(app, 'editor', 'editor@test.com', 'Wh1sk3yTest!!', Role.EDITOR);
+      const { agent } = await createAuthenticatedAgent(
+        app,
+        'editor',
+        'editor@test.com',
+        'Wh1sk3yTest!!',
+        Role.EDITOR
+      );
 
       const response = await agent.get('/api/admin/users');
 
@@ -31,7 +42,13 @@ describe('Admin Routes', () => {
 
   describe('GET /api/admin/users', () => {
     it('returns all users for admin', async () => {
-      const { agent } = await createAuthenticatedAgent(app, 'admin', 'admin@test.com', 'Wh1sk3yTest!!', Role.ADMIN);
+      const { agent } = await createAuthenticatedAgent(
+        app,
+        'admin',
+        'admin@test.com',
+        'Wh1sk3yTest!!',
+        Role.ADMIN
+      );
       await createTestUser('user1', 'user1@test.com', 'Wh1sk3yTest!!');
       await createTestUser('user2', 'user2@test.com', 'Wh1sk3yTest!!');
 
@@ -42,7 +59,13 @@ describe('Admin Routes', () => {
     });
 
     it('does not return password hashes', async () => {
-      const { agent } = await createAuthenticatedAgent(app, 'admin', 'admin@test.com', 'Wh1sk3yTest!!', Role.ADMIN);
+      const { agent } = await createAuthenticatedAgent(
+        app,
+        'admin',
+        'admin@test.com',
+        'Wh1sk3yTest!!',
+        Role.ADMIN
+      );
 
       const response = await agent.get('/api/admin/users');
 
@@ -53,7 +76,13 @@ describe('Admin Routes', () => {
     });
 
     it('returns user details', async () => {
-      const { agent } = await createAuthenticatedAgent(app, 'admin', 'admin@test.com', 'Wh1sk3yTest!!', Role.ADMIN);
+      const { agent } = await createAuthenticatedAgent(
+        app,
+        'admin',
+        'admin@test.com',
+        'Wh1sk3yTest!!',
+        Role.ADMIN
+      );
 
       const response = await agent.get('/api/admin/users');
 
@@ -66,7 +95,13 @@ describe('Admin Routes', () => {
 
   describe('PUT /api/admin/users/:id/role', () => {
     it('updates user role', async () => {
-      const { agent } = await createAuthenticatedAgent(app, 'admin', 'admin@test.com', 'Wh1sk3yTest!!', Role.ADMIN);
+      const { agent } = await createAuthenticatedAgent(
+        app,
+        'admin',
+        'admin@test.com',
+        'Wh1sk3yTest!!',
+        Role.ADMIN
+      );
       const user = await createTestUser('editor', 'editor@test.com', 'Wh1sk3yTest!!', Role.EDITOR);
 
       const response = await agent
@@ -79,7 +114,13 @@ describe('Admin Routes', () => {
     });
 
     it('prevents admin from changing their own role', async () => {
-      const { agent, user } = await createAuthenticatedAgent(app, 'admin', 'admin@test.com', 'Wh1sk3yTest!!', Role.ADMIN);
+      const { agent, user } = await createAuthenticatedAgent(
+        app,
+        'admin',
+        'admin@test.com',
+        'Wh1sk3yTest!!',
+        Role.ADMIN
+      );
 
       const response = await agent
         .put(`/api/admin/users/${user.id}/role`)
@@ -90,18 +131,28 @@ describe('Admin Routes', () => {
     });
 
     it('returns 404 for non-existent user', async () => {
-      const { agent } = await createAuthenticatedAgent(app, 'admin', 'admin@test.com', 'Wh1sk3yTest!!', Role.ADMIN);
+      const { agent } = await createAuthenticatedAgent(
+        app,
+        'admin',
+        'admin@test.com',
+        'Wh1sk3yTest!!',
+        Role.ADMIN
+      );
 
-      const response = await agent
-        .put('/api/admin/users/99999/role')
-        .send({ role: Role.ADMIN });
+      const response = await agent.put('/api/admin/users/99999/role').send({ role: Role.ADMIN });
 
       expect(response.status).toBe(404);
       expect(response.body.error).toBe('User not found');
     });
 
     it('validates role value', async () => {
-      const { agent } = await createAuthenticatedAgent(app, 'admin', 'admin@test.com', 'Wh1sk3yTest!!', Role.ADMIN);
+      const { agent } = await createAuthenticatedAgent(
+        app,
+        'admin',
+        'admin@test.com',
+        'Wh1sk3yTest!!',
+        Role.ADMIN
+      );
       const user = await createTestUser('editor', 'editor@test.com', 'Wh1sk3yTest!!');
 
       const response = await agent
@@ -113,7 +164,13 @@ describe('Admin Routes', () => {
     });
 
     it('does not return password in response', async () => {
-      const { agent } = await createAuthenticatedAgent(app, 'admin', 'admin@test.com', 'Wh1sk3yTest!!', Role.ADMIN);
+      const { agent } = await createAuthenticatedAgent(
+        app,
+        'admin',
+        'admin@test.com',
+        'Wh1sk3yTest!!',
+        Role.ADMIN
+      );
       const user = await createTestUser('editor', 'editor@test.com', 'Wh1sk3yTest!!');
 
       const response = await agent
@@ -127,16 +184,20 @@ describe('Admin Routes', () => {
 
   describe('PUT /api/admin/users/:id', () => {
     it('updates user profile', async () => {
-      const { agent } = await createAuthenticatedAgent(app, 'admin', 'admin@test.com', 'Wh1sk3yTest!!', Role.ADMIN);
+      const { agent } = await createAuthenticatedAgent(
+        app,
+        'admin',
+        'admin@test.com',
+        'Wh1sk3yTest!!',
+        Role.ADMIN
+      );
       const user = await createTestUser('target', 'target@test.com', 'Wh1sk3yTest!!');
 
-      const response = await agent
-        .put(`/api/admin/users/${user.id}`)
-        .send({
-          email: 'newemail@test.com',
-          firstName: 'John',
-          lastName: 'Doe'
-        });
+      const response = await agent.put(`/api/admin/users/${user.id}`).send({
+        email: 'newemail@test.com',
+        firstName: 'John',
+        lastName: 'Doe',
+      });
 
       expect(response.status).toBe(200);
       expect(response.body.message).toBe('User profile updated successfully');
@@ -146,7 +207,13 @@ describe('Admin Routes', () => {
     });
 
     it('rejects duplicate email', async () => {
-      const { agent } = await createAuthenticatedAgent(app, 'admin', 'admin@test.com', 'Wh1sk3yTest!!', Role.ADMIN);
+      const { agent } = await createAuthenticatedAgent(
+        app,
+        'admin',
+        'admin@test.com',
+        'Wh1sk3yTest!!',
+        Role.ADMIN
+      );
       await createTestUser('existing', 'existing@test.com', 'Wh1sk3yTest!!');
       const target = await createTestUser('target', 'target@test.com', 'Wh1sk3yTest!!');
 
@@ -159,7 +226,13 @@ describe('Admin Routes', () => {
     });
 
     it('rejects duplicate username', async () => {
-      const { agent } = await createAuthenticatedAgent(app, 'admin', 'admin@test.com', 'Wh1sk3yTest!!', Role.ADMIN);
+      const { agent } = await createAuthenticatedAgent(
+        app,
+        'admin',
+        'admin@test.com',
+        'Wh1sk3yTest!!',
+        Role.ADMIN
+      );
       await createTestUser('existing', 'existing@test.com', 'Wh1sk3yTest!!');
       const target = await createTestUser('target', 'target@test.com', 'Wh1sk3yTest!!');
 
@@ -172,18 +245,28 @@ describe('Admin Routes', () => {
     });
 
     it('returns 404 for non-existent user', async () => {
-      const { agent } = await createAuthenticatedAgent(app, 'admin', 'admin@test.com', 'Wh1sk3yTest!!', Role.ADMIN);
+      const { agent } = await createAuthenticatedAgent(
+        app,
+        'admin',
+        'admin@test.com',
+        'Wh1sk3yTest!!',
+        Role.ADMIN
+      );
 
-      const response = await agent
-        .put('/api/admin/users/99999')
-        .send({ email: 'new@test.com' });
+      const response = await agent.put('/api/admin/users/99999').send({ email: 'new@test.com' });
 
       expect(response.status).toBe(404);
       expect(response.body.error).toBe('User not found');
     });
 
     it('validates email format', async () => {
-      const { agent } = await createAuthenticatedAgent(app, 'admin', 'admin@test.com', 'Wh1sk3yTest!!', Role.ADMIN);
+      const { agent } = await createAuthenticatedAgent(
+        app,
+        'admin',
+        'admin@test.com',
+        'Wh1sk3yTest!!',
+        Role.ADMIN
+      );
       const user = await createTestUser('target', 'target@test.com', 'Wh1sk3yTest!!');
 
       const response = await agent
@@ -195,12 +278,16 @@ describe('Admin Routes', () => {
     });
 
     it('validates username length', async () => {
-      const { agent } = await createAuthenticatedAgent(app, 'admin', 'admin@test.com', 'Wh1sk3yTest!!', Role.ADMIN);
+      const { agent } = await createAuthenticatedAgent(
+        app,
+        'admin',
+        'admin@test.com',
+        'Wh1sk3yTest!!',
+        Role.ADMIN
+      );
       const user = await createTestUser('target', 'target@test.com', 'Wh1sk3yTest!!');
 
-      const response = await agent
-        .put(`/api/admin/users/${user.id}`)
-        .send({ username: 'ab' });
+      const response = await agent.put(`/api/admin/users/${user.id}`).send({ username: 'ab' });
 
       expect(response.status).toBe(400);
       expect(response.body.errors).toBeDefined();
@@ -209,7 +296,13 @@ describe('Admin Routes', () => {
 
   describe('DELETE /api/admin/users/:id', () => {
     it('deletes user', async () => {
-      const { agent } = await createAuthenticatedAgent(app, 'admin', 'admin@test.com', 'Wh1sk3yTest!!', Role.ADMIN);
+      const { agent } = await createAuthenticatedAgent(
+        app,
+        'admin',
+        'admin@test.com',
+        'Wh1sk3yTest!!',
+        Role.ADMIN
+      );
       const user = await createTestUser('deleteme', 'delete@test.com', 'Wh1sk3yTest!!');
 
       const response = await agent.delete(`/api/admin/users/${user.id}`);
@@ -219,7 +312,13 @@ describe('Admin Routes', () => {
     });
 
     it('prevents admin from deleting themselves', async () => {
-      const { agent, user } = await createAuthenticatedAgent(app, 'admin', 'admin@test.com', 'Wh1sk3yTest!!', Role.ADMIN);
+      const { agent, user } = await createAuthenticatedAgent(
+        app,
+        'admin',
+        'admin@test.com',
+        'Wh1sk3yTest!!',
+        Role.ADMIN
+      );
 
       const response = await agent.delete(`/api/admin/users/${user.id}`);
 
@@ -228,7 +327,13 @@ describe('Admin Routes', () => {
     });
 
     it('returns 404 for non-existent user', async () => {
-      const { agent } = await createAuthenticatedAgent(app, 'admin', 'admin@test.com', 'Wh1sk3yTest!!', Role.ADMIN);
+      const { agent } = await createAuthenticatedAgent(
+        app,
+        'admin',
+        'admin@test.com',
+        'Wh1sk3yTest!!',
+        Role.ADMIN
+      );
 
       const response = await agent.delete('/api/admin/users/99999');
 
@@ -237,7 +342,13 @@ describe('Admin Routes', () => {
     });
 
     it('cascades delete to user whiskeys', async () => {
-      const { agent } = await createAuthenticatedAgent(app, 'admin', 'admin@test.com', 'Wh1sk3yTest!!', Role.ADMIN);
+      const { agent } = await createAuthenticatedAgent(
+        app,
+        'admin',
+        'admin@test.com',
+        'Wh1sk3yTest!!',
+        Role.ADMIN
+      );
       const user = await createTestUser('withwhiskeys', 'whiskeys@test.com', 'Wh1sk3yTest!!');
       createTestWhiskey(user.id, { name: 'User Whiskey' });
 
@@ -245,17 +356,31 @@ describe('Admin Routes', () => {
       await agent.delete(`/api/admin/users/${user.id}`);
 
       // Verify user's whiskeys are also deleted
-      const { agent: adminAgent } = await createAuthenticatedAgent(app, 'admin2', 'admin2@test.com', 'Wh1sk3yTest!!', Role.ADMIN);
+      const { agent: adminAgent } = await createAuthenticatedAgent(
+        app,
+        'admin2',
+        'admin2@test.com',
+        'Wh1sk3yTest!!',
+        Role.ADMIN
+      );
       const whiskeysResponse = await adminAgent.get('/api/admin/whiskeys');
 
-      const userWhiskeys = whiskeysResponse.body.whiskeys.filter((w: any) => w.created_by === user.id);
+      const userWhiskeys = whiskeysResponse.body.whiskeys.filter(
+        (w: any) => w.created_by === user.id
+      );
       expect(userWhiskeys).toHaveLength(0);
     });
   });
 
   describe('GET /api/admin/whiskeys', () => {
     it('returns all whiskeys from all users', async () => {
-      const { agent, user: admin } = await createAuthenticatedAgent(app, 'admin', 'admin@test.com', 'Wh1sk3yTest!!', Role.ADMIN);
+      const { agent, user: admin } = await createAuthenticatedAgent(
+        app,
+        'admin',
+        'admin@test.com',
+        'Wh1sk3yTest!!',
+        Role.ADMIN
+      );
       const user1 = await createTestUser('user1', 'user1@test.com', 'Wh1sk3yTest!!');
       const user2 = await createTestUser('user2', 'user2@test.com', 'Wh1sk3yTest!!');
 
@@ -270,7 +395,13 @@ describe('Admin Routes', () => {
     });
 
     it('includes owner information', async () => {
-      const { agent } = await createAuthenticatedAgent(app, 'admin', 'admin@test.com', 'Wh1sk3yTest!!', Role.ADMIN);
+      const { agent } = await createAuthenticatedAgent(
+        app,
+        'admin',
+        'admin@test.com',
+        'Wh1sk3yTest!!',
+        Role.ADMIN
+      );
       const user = await createTestUser('owner', 'owner@test.com', 'Wh1sk3yTest!!');
       createTestWhiskey(user.id, { name: 'Owned Whiskey' });
 
@@ -283,7 +414,13 @@ describe('Admin Routes', () => {
     });
 
     it('returns 403 for non-admin users', async () => {
-      const { agent } = await createAuthenticatedAgent(app, 'editor', 'editor@test.com', 'Wh1sk3yTest!!', Role.EDITOR);
+      const { agent } = await createAuthenticatedAgent(
+        app,
+        'editor',
+        'editor@test.com',
+        'Wh1sk3yTest!!',
+        Role.EDITOR
+      );
 
       const response = await agent.get('/api/admin/whiskeys');
 
@@ -293,7 +430,13 @@ describe('Admin Routes', () => {
 
   describe('Error Handling', () => {
     it('returns 500 when delete user throws an error', async () => {
-      const { agent } = await createAuthenticatedAgent(app, 'admin', 'admin@test.com', 'Wh1sk3yTest!!', Role.ADMIN);
+      const { agent } = await createAuthenticatedAgent(
+        app,
+        'admin',
+        'admin@test.com',
+        'Wh1sk3yTest!!',
+        Role.ADMIN
+      );
       const user = await createTestUser('todelete', 'todelete@test.com', 'Wh1sk3yTest!!');
 
       const spy = vi.spyOn(UserModel, 'delete').mockImplementation(() => {
@@ -309,7 +452,13 @@ describe('Admin Routes', () => {
     });
 
     it('returns 500 when get all whiskeys throws an error', async () => {
-      const { agent } = await createAuthenticatedAgent(app, 'admin', 'admin@test.com', 'Wh1sk3yTest!!', Role.ADMIN);
+      const { agent } = await createAuthenticatedAgent(
+        app,
+        'admin',
+        'admin@test.com',
+        'Wh1sk3yTest!!',
+        Role.ADMIN
+      );
 
       const spy = vi.spyOn(WhiskeyModel, 'findAllWithOwners').mockImplementation(() => {
         throw new Error('Database error');

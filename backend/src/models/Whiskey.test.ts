@@ -13,12 +13,15 @@ describe('WhiskeyModel', () => {
     user2 = await createTestUser('user2', 'user2@example.com', 'Wh1sk3yTest!!', Role.EDITOR);
   });
 
-  const createWhiskeyData = (userId: number, overrides: Partial<CreateWhiskeyData> = {}): CreateWhiskeyData => ({
+  const createWhiskeyData = (
+    userId: number,
+    overrides: Partial<CreateWhiskeyData> = {}
+  ): CreateWhiskeyData => ({
     name: 'Test Bourbon',
     type: WhiskeyType.BOURBON,
     distillery: 'Test Distillery',
     created_by: userId,
-    ...overrides
+    ...overrides,
   });
 
   describe('create', () => {
@@ -34,19 +37,21 @@ describe('WhiskeyModel', () => {
     });
 
     it('creates a whiskey with optional fields', () => {
-      const whiskey = WhiskeyModel.create(createWhiskeyData(user1.id, {
-        region: 'Kentucky',
-        age: 12,
-        abv: 45.0,
-        proof: 90.0,
-        size: '750ml',
-        quantity: 2,
-        msrp: 50.00,
-        secondary_price: 75.00,
-        description: 'A fine bourbon',
-        tasting_notes: 'Caramel, vanilla, oak',
-        rating: 8.5
-      }));
+      const whiskey = WhiskeyModel.create(
+        createWhiskeyData(user1.id, {
+          region: 'Kentucky',
+          age: 12,
+          abv: 45.0,
+          proof: 90.0,
+          size: '750ml',
+          quantity: 2,
+          msrp: 50.0,
+          secondary_price: 75.0,
+          description: 'A fine bourbon',
+          tasting_notes: 'Caramel, vanilla, oak',
+          rating: 8.5,
+        })
+      );
 
       expect(whiskey.region).toBe('Kentucky');
       expect(whiskey.age).toBe(12);
@@ -54,8 +59,8 @@ describe('WhiskeyModel', () => {
       expect(whiskey.proof).toBe(90.0);
       expect(whiskey.size).toBe('750ml');
       expect(whiskey.quantity).toBe(2);
-      expect(whiskey.msrp).toBe(50.00);
-      expect(whiskey.secondary_price).toBe(75.00);
+      expect(whiskey.msrp).toBe(50.0);
+      expect(whiskey.secondary_price).toBe(75.0);
       expect(whiskey.description).toBe('A fine bourbon');
       expect(whiskey.tasting_notes).toBe('Caramel, vanilla, oak');
       expect(whiskey.rating).toBe(8.5);
@@ -68,10 +73,12 @@ describe('WhiskeyModel', () => {
     });
 
     it('creates a whiskey with obtained_from field', () => {
-      const whiskey = WhiskeyModel.create(createWhiskeyData(user1.id, {
-        obtained_from: 'John Smith',
-        purchase_location: 'Gift'
-      }));
+      const whiskey = WhiskeyModel.create(
+        createWhiskeyData(user1.id, {
+          obtained_from: 'John Smith',
+          purchase_location: 'Gift',
+        })
+      );
 
       expect(whiskey.obtained_from).toBe('John Smith');
       expect(whiskey.purchase_location).toBe('Gift');
@@ -121,7 +128,13 @@ describe('WhiskeyModel', () => {
     beforeEach(() => {
       // Create whiskeys for both users
       WhiskeyModel.create(createWhiskeyData(user1.id, { name: 'User1 Bourbon' }));
-      WhiskeyModel.create(createWhiskeyData(user1.id, { name: 'User1 Scotch', type: WhiskeyType.SCOTCH, distillery: 'Scottish Distillery' }));
+      WhiskeyModel.create(
+        createWhiskeyData(user1.id, {
+          name: 'User1 Scotch',
+          type: WhiskeyType.SCOTCH,
+          distillery: 'Scottish Distillery',
+        })
+      );
       WhiskeyModel.create(createWhiskeyData(user2.id, { name: 'User2 Bourbon' }));
     });
 
@@ -137,8 +150,8 @@ describe('WhiskeyModel', () => {
 
       expect(user1Whiskeys).toHaveLength(2);
       expect(user2Whiskeys).toHaveLength(1);
-      expect(user1Whiskeys.every(w => w.created_by === user1.id)).toBe(true);
-      expect(user2Whiskeys.every(w => w.created_by === user2.id)).toBe(true);
+      expect(user1Whiskeys.every((w) => w.created_by === user1.id)).toBe(true);
+      expect(user2Whiskeys.every((w) => w.created_by === user2.id)).toBe(true);
     });
 
     it('filters by type', () => {
@@ -159,7 +172,7 @@ describe('WhiskeyModel', () => {
     it('combines multiple filters', () => {
       const whiskeys = WhiskeyModel.findAll({
         userId: user1.id,
-        type: WhiskeyType.BOURBON
+        type: WhiskeyType.BOURBON,
       });
 
       expect(whiskeys).toHaveLength(1);
@@ -178,7 +191,7 @@ describe('WhiskeyModel', () => {
       // Just verify we get 2 results ordered by created_at DESC
       // (timestamps may be identical in fast test execution)
       expect(whiskeys).toHaveLength(2);
-      expect(whiskeys.map(w => w.name).sort()).toEqual(['User1 Bourbon', 'User1 Scotch']);
+      expect(whiskeys.map((w) => w.name).sort()).toEqual(['User1 Bourbon', 'User1 Scotch']);
     });
   });
 
@@ -188,7 +201,7 @@ describe('WhiskeyModel', () => {
 
       const updated = WhiskeyModel.update(created.id, {
         name: 'Updated Bourbon',
-        rating: 9.0
+        rating: 9.0,
       });
 
       expect(updated).toBeDefined();
@@ -249,7 +262,7 @@ describe('WhiskeyModel', () => {
 
       const updated = WhiskeyModel.update(created.id, {
         is_opened: true,
-        is_investment_bottle: false
+        is_investment_bottle: false,
       });
 
       expect(updated).toBeDefined();
@@ -258,12 +271,14 @@ describe('WhiskeyModel', () => {
     });
 
     it('handles null and empty string values', () => {
-      const created = WhiskeyModel.create(createWhiskeyData(user1.id, {
-        description: 'Original description'
-      }));
+      const created = WhiskeyModel.create(
+        createWhiskeyData(user1.id, {
+          description: 'Original description',
+        })
+      );
 
       const updated = WhiskeyModel.update(created.id, {
-        description: ''
+        description: '',
       });
 
       expect(updated).toBeDefined();
@@ -330,8 +345,12 @@ describe('WhiskeyModel', () => {
     });
 
     it('only deletes whiskeys belonging to the user', () => {
-      const user1Whiskey = WhiskeyModel.create(createWhiskeyData(user1.id, { name: 'User1 Whiskey' }));
-      const user2Whiskey = WhiskeyModel.create(createWhiskeyData(user2.id, { name: 'User2 Whiskey' }));
+      const user1Whiskey = WhiskeyModel.create(
+        createWhiskeyData(user1.id, { name: 'User1 Whiskey' })
+      );
+      const user2Whiskey = WhiskeyModel.create(
+        createWhiskeyData(user2.id, { name: 'User2 Whiskey' })
+      );
 
       // Try to delete both whiskeys as user1
       const deleted = WhiskeyModel.deleteMany([user1Whiskey.id, user2Whiskey.id], user1.id);
@@ -343,7 +362,9 @@ describe('WhiskeyModel', () => {
     });
 
     it('returns 0 when none of the ids belong to user', () => {
-      const user2Whiskey = WhiskeyModel.create(createWhiskeyData(user2.id, { name: 'User2 Whiskey' }));
+      const user2Whiskey = WhiskeyModel.create(
+        createWhiskeyData(user2.id, { name: 'User2 Whiskey' })
+      );
 
       const deleted = WhiskeyModel.deleteMany([user2Whiskey.id], user1.id);
 
@@ -384,21 +405,27 @@ describe('WhiskeyModel', () => {
 
   describe('search', () => {
     beforeEach(() => {
-      WhiskeyModel.create(createWhiskeyData(user1.id, {
-        name: 'Buffalo Trace',
-        distillery: 'Buffalo Trace Distillery',
-        description: 'Classic Kentucky bourbon'
-      }));
-      WhiskeyModel.create(createWhiskeyData(user1.id, {
-        name: 'Eagle Rare',
-        distillery: 'Buffalo Trace Distillery',
-        description: 'Single barrel bourbon'
-      }));
-      WhiskeyModel.create(createWhiskeyData(user2.id, {
-        name: 'Makers Mark',
-        distillery: 'Makers Mark Distillery',
-        description: 'Wheated bourbon'
-      }));
+      WhiskeyModel.create(
+        createWhiskeyData(user1.id, {
+          name: 'Buffalo Trace',
+          distillery: 'Buffalo Trace Distillery',
+          description: 'Classic Kentucky bourbon',
+        })
+      );
+      WhiskeyModel.create(
+        createWhiskeyData(user1.id, {
+          name: 'Eagle Rare',
+          distillery: 'Buffalo Trace Distillery',
+          description: 'Single barrel bourbon',
+        })
+      );
+      WhiskeyModel.create(
+        createWhiskeyData(user2.id, {
+          name: 'Makers Mark',
+          distillery: 'Makers Mark Distillery',
+          description: 'Wheated bourbon',
+        })
+      );
     });
 
     it('searches by name', () => {
@@ -461,8 +488,8 @@ describe('WhiskeyModel', () => {
     it('includes correct owner data', () => {
       const whiskeys = WhiskeyModel.findAllWithOwners();
 
-      const user1Whiskey = whiskeys.find(w => w.name === 'User1 Whiskey');
-      const user2Whiskey = whiskeys.find(w => w.name === 'User2 Whiskey');
+      const user1Whiskey = whiskeys.find((w) => w.name === 'User1 Whiskey');
+      const user2Whiskey = whiskeys.find((w) => w.name === 'User2 Whiskey');
 
       expect(user1Whiskey?.owner_username).toBe('user1');
       expect(user1Whiskey?.owner_email).toBe('user1@example.com');
@@ -478,8 +505,8 @@ describe('WhiskeyModel', () => {
 
       // Should be ordered by username (user1, user2)
       // User1 should have 2 whiskeys, user2 should have 1
-      const user1Whiskeys = whiskeys.filter(w => w.owner_username === 'user1');
-      const user2Whiskeys = whiskeys.filter(w => w.owner_username === 'user2');
+      const user1Whiskeys = whiskeys.filter((w) => w.owner_username === 'user1');
+      const user2Whiskeys = whiskeys.filter((w) => w.owner_username === 'user2');
 
       expect(user1Whiskeys).toHaveLength(2);
       expect(user2Whiskeys).toHaveLength(1);
@@ -498,28 +525,32 @@ describe('WhiskeyModel', () => {
         WhiskeyType.RYE,
         WhiskeyType.TENNESSEE,
         WhiskeyType.CANADIAN,
-        WhiskeyType.OTHER
+        WhiskeyType.OTHER,
       ];
 
-      types.forEach(type => {
-        const whiskey = WhiskeyModel.create(createWhiskeyData(user1.id, {
-          name: `${type} Whiskey`,
-          type
-        }));
+      types.forEach((type) => {
+        const whiskey = WhiskeyModel.create(
+          createWhiskeyData(user1.id, {
+            name: `${type} Whiskey`,
+            type,
+          })
+        );
         expect(whiskey.type).toBe(type);
       });
     });
 
     it('handles special characters in search', () => {
-      WhiskeyModel.create(createWhiskeyData(user1.id, {
-        name: "Maker's Mark",
-        description: "100% corn & wheat mash"
-      }));
+      WhiskeyModel.create(
+        createWhiskeyData(user1.id, {
+          name: "Maker's Mark",
+          description: '100% corn & wheat mash',
+        })
+      );
 
       const results = WhiskeyModel.search("Maker's");
       expect(results).toHaveLength(1);
 
-      const results2 = WhiskeyModel.search("corn & wheat");
+      const results2 = WhiskeyModel.search('corn & wheat');
       expect(results2).toHaveLength(1);
     });
 
@@ -535,34 +566,40 @@ describe('WhiskeyModel', () => {
 
   describe('getPublicStats', () => {
     it('returns correct stats for user with whiskeys', () => {
-      WhiskeyModel.create(createWhiskeyData(user1.id, {
-        name: 'Bourbon 1',
-        type: WhiskeyType.BOURBON,
-        distillery: 'Buffalo Trace',
-        country: 'USA',
-        rating: 8.5
-      }));
-      WhiskeyModel.create(createWhiskeyData(user1.id, {
-        name: 'Bourbon 2',
-        type: WhiskeyType.BOURBON,
-        distillery: 'Buffalo Trace',
-        country: 'USA',
-        rating: 9.0
-      }));
-      WhiskeyModel.create(createWhiskeyData(user1.id, {
-        name: 'Scotch 1',
-        type: WhiskeyType.SCOTCH,
-        distillery: 'Macallan',
-        country: 'Scotland',
-        rating: 9.5
-      }));
+      WhiskeyModel.create(
+        createWhiskeyData(user1.id, {
+          name: 'Bourbon 1',
+          type: WhiskeyType.BOURBON,
+          distillery: 'Buffalo Trace',
+          country: 'USA',
+          rating: 8.5,
+        })
+      );
+      WhiskeyModel.create(
+        createWhiskeyData(user1.id, {
+          name: 'Bourbon 2',
+          type: WhiskeyType.BOURBON,
+          distillery: 'Buffalo Trace',
+          country: 'USA',
+          rating: 9.0,
+        })
+      );
+      WhiskeyModel.create(
+        createWhiskeyData(user1.id, {
+          name: 'Scotch 1',
+          type: WhiskeyType.SCOTCH,
+          distillery: 'Macallan',
+          country: 'Scotland',
+          rating: 9.5,
+        })
+      );
 
       const stats = WhiskeyModel.getPublicStats(user1.id);
 
       expect(stats.totalBottles).toBe(3);
       expect(stats.typeBreakdown).toHaveLength(2);
-      expect(stats.typeBreakdown.find(t => t.type === WhiskeyType.BOURBON)?.count).toBe(2);
-      expect(stats.typeBreakdown.find(t => t.type === WhiskeyType.SCOTCH)?.count).toBe(1);
+      expect(stats.typeBreakdown.find((t) => t.type === WhiskeyType.BOURBON)?.count).toBe(2);
+      expect(stats.typeBreakdown.find((t) => t.type === WhiskeyType.SCOTCH)?.count).toBe(1);
       expect(stats.topDistilleries).toHaveLength(2);
       expect(stats.totalDistilleries).toBe(2);
       expect(stats.averageRating).toBe(9.0); // (8.5 + 9.0 + 9.5) / 3 = 9.0
@@ -581,10 +618,12 @@ describe('WhiskeyModel', () => {
     });
 
     it('returns null averageRating when no whiskeys have ratings', () => {
-      WhiskeyModel.create(createWhiskeyData(user1.id, {
-        name: 'Unrated Bourbon'
-        // No rating provided
-      }));
+      WhiskeyModel.create(
+        createWhiskeyData(user1.id, {
+          name: 'Unrated Bourbon',
+          // No rating provided
+        })
+      );
 
       const stats = WhiskeyModel.getPublicStats(user1.id);
 
@@ -593,14 +632,18 @@ describe('WhiskeyModel', () => {
     });
 
     it('calculates averageRating only from rated whiskeys', () => {
-      WhiskeyModel.create(createWhiskeyData(user1.id, {
-        name: 'Rated Bourbon',
-        rating: 8.0
-      }));
-      WhiskeyModel.create(createWhiskeyData(user1.id, {
-        name: 'Unrated Bourbon'
-        // No rating
-      }));
+      WhiskeyModel.create(
+        createWhiskeyData(user1.id, {
+          name: 'Rated Bourbon',
+          rating: 8.0,
+        })
+      );
+      WhiskeyModel.create(
+        createWhiskeyData(user1.id, {
+          name: 'Unrated Bourbon',
+          // No rating
+        })
+      );
 
       const stats = WhiskeyModel.getPublicStats(user1.id);
 
@@ -609,14 +652,18 @@ describe('WhiskeyModel', () => {
     });
 
     it('only returns stats for specified user', () => {
-      WhiskeyModel.create(createWhiskeyData(user1.id, {
-        name: 'User1 Bourbon',
-        type: WhiskeyType.BOURBON
-      }));
-      WhiskeyModel.create(createWhiskeyData(user2.id, {
-        name: 'User2 Scotch',
-        type: WhiskeyType.SCOTCH
-      }));
+      WhiskeyModel.create(
+        createWhiskeyData(user1.id, {
+          name: 'User1 Bourbon',
+          type: WhiskeyType.BOURBON,
+        })
+      );
+      WhiskeyModel.create(
+        createWhiskeyData(user2.id, {
+          name: 'User2 Scotch',
+          type: WhiskeyType.SCOTCH,
+        })
+      );
 
       const user1Stats = WhiskeyModel.getPublicStats(user1.id);
       const user2Stats = WhiskeyModel.getPublicStats(user2.id);
@@ -631,37 +678,49 @@ describe('WhiskeyModel', () => {
     it('returns top 5 distilleries ordered by count', () => {
       // Create whiskeys with varying distillery counts
       for (let i = 0; i < 6; i++) {
-        WhiskeyModel.create(createWhiskeyData(user1.id, {
-          name: `Buffalo Trace ${i}`,
-          distillery: 'Buffalo Trace'
-        }));
+        WhiskeyModel.create(
+          createWhiskeyData(user1.id, {
+            name: `Buffalo Trace ${i}`,
+            distillery: 'Buffalo Trace',
+          })
+        );
       }
       for (let i = 0; i < 4; i++) {
-        WhiskeyModel.create(createWhiskeyData(user1.id, {
-          name: `Macallan ${i}`,
-          distillery: 'Macallan'
-        }));
+        WhiskeyModel.create(
+          createWhiskeyData(user1.id, {
+            name: `Macallan ${i}`,
+            distillery: 'Macallan',
+          })
+        );
       }
       for (let i = 0; i < 3; i++) {
-        WhiskeyModel.create(createWhiskeyData(user1.id, {
-          name: `Makers Mark ${i}`,
-          distillery: 'Makers Mark'
-        }));
+        WhiskeyModel.create(
+          createWhiskeyData(user1.id, {
+            name: `Makers Mark ${i}`,
+            distillery: 'Makers Mark',
+          })
+        );
       }
       for (let i = 0; i < 2; i++) {
-        WhiskeyModel.create(createWhiskeyData(user1.id, {
-          name: `Wild Turkey ${i}`,
-          distillery: 'Wild Turkey'
-        }));
+        WhiskeyModel.create(
+          createWhiskeyData(user1.id, {
+            name: `Wild Turkey ${i}`,
+            distillery: 'Wild Turkey',
+          })
+        );
       }
-      WhiskeyModel.create(createWhiskeyData(user1.id, {
-        name: 'Woodford Reserve 1',
-        distillery: 'Woodford Reserve'
-      }));
-      WhiskeyModel.create(createWhiskeyData(user1.id, {
-        name: 'Four Roses 1',
-        distillery: 'Four Roses'
-      }));
+      WhiskeyModel.create(
+        createWhiskeyData(user1.id, {
+          name: 'Woodford Reserve 1',
+          distillery: 'Woodford Reserve',
+        })
+      );
+      WhiskeyModel.create(
+        createWhiskeyData(user1.id, {
+          name: 'Four Roses 1',
+          distillery: 'Four Roses',
+        })
+      );
 
       const stats = WhiskeyModel.getPublicStats(user1.id);
 
@@ -674,13 +733,15 @@ describe('WhiskeyModel', () => {
     });
 
     it('handles single whiskey correctly', () => {
-      WhiskeyModel.create(createWhiskeyData(user1.id, {
-        name: 'Only Bourbon',
-        type: WhiskeyType.BOURBON,
-        distillery: 'Buffalo Trace',
-        country: 'USA',
-        rating: 7.5
-      }));
+      WhiskeyModel.create(
+        createWhiskeyData(user1.id, {
+          name: 'Only Bourbon',
+          type: WhiskeyType.BOURBON,
+          distillery: 'Buffalo Trace',
+          country: 'USA',
+          rating: 7.5,
+        })
+      );
 
       const stats = WhiskeyModel.getPublicStats(user1.id);
 
@@ -695,18 +756,24 @@ describe('WhiskeyModel', () => {
     });
 
     it('excludes empty string countries', () => {
-      WhiskeyModel.create(createWhiskeyData(user1.id, {
-        name: 'Bourbon with Country',
-        country: 'USA'
-      }));
-      WhiskeyModel.create(createWhiskeyData(user1.id, {
-        name: 'Bourbon without Country',
-        country: ''
-      }));
-      WhiskeyModel.create(createWhiskeyData(user1.id, {
-        name: 'Bourbon with null Country'
-        // country is undefined/null
-      }));
+      WhiskeyModel.create(
+        createWhiskeyData(user1.id, {
+          name: 'Bourbon with Country',
+          country: 'USA',
+        })
+      );
+      WhiskeyModel.create(
+        createWhiskeyData(user1.id, {
+          name: 'Bourbon without Country',
+          country: '',
+        })
+      );
+      WhiskeyModel.create(
+        createWhiskeyData(user1.id, {
+          name: 'Bourbon with null Country',
+          // country is undefined/null
+        })
+      );
 
       const stats = WhiskeyModel.getPublicStats(user1.id);
 
@@ -715,22 +782,30 @@ describe('WhiskeyModel', () => {
     });
 
     it('orders countries alphabetically', () => {
-      WhiskeyModel.create(createWhiskeyData(user1.id, {
-        name: 'Japanese',
-        country: 'Japan'
-      }));
-      WhiskeyModel.create(createWhiskeyData(user1.id, {
-        name: 'American',
-        country: 'USA'
-      }));
-      WhiskeyModel.create(createWhiskeyData(user1.id, {
-        name: 'Scottish',
-        country: 'Scotland'
-      }));
-      WhiskeyModel.create(createWhiskeyData(user1.id, {
-        name: 'Irish',
-        country: 'Ireland'
-      }));
+      WhiskeyModel.create(
+        createWhiskeyData(user1.id, {
+          name: 'Japanese',
+          country: 'Japan',
+        })
+      );
+      WhiskeyModel.create(
+        createWhiskeyData(user1.id, {
+          name: 'American',
+          country: 'USA',
+        })
+      );
+      WhiskeyModel.create(
+        createWhiskeyData(user1.id, {
+          name: 'Scottish',
+          country: 'Scotland',
+        })
+      );
+      WhiskeyModel.create(
+        createWhiskeyData(user1.id, {
+          name: 'Irish',
+          country: 'Ireland',
+        })
+      );
 
       const stats = WhiskeyModel.getPublicStats(user1.id);
 
@@ -738,18 +813,24 @@ describe('WhiskeyModel', () => {
     });
 
     it('handles duplicate countries correctly', () => {
-      WhiskeyModel.create(createWhiskeyData(user1.id, {
-        name: 'Bourbon 1',
-        country: 'USA'
-      }));
-      WhiskeyModel.create(createWhiskeyData(user1.id, {
-        name: 'Bourbon 2',
-        country: 'USA'
-      }));
-      WhiskeyModel.create(createWhiskeyData(user1.id, {
-        name: 'Scotch 1',
-        country: 'Scotland'
-      }));
+      WhiskeyModel.create(
+        createWhiskeyData(user1.id, {
+          name: 'Bourbon 1',
+          country: 'USA',
+        })
+      );
+      WhiskeyModel.create(
+        createWhiskeyData(user1.id, {
+          name: 'Bourbon 2',
+          country: 'USA',
+        })
+      );
+      WhiskeyModel.create(
+        createWhiskeyData(user1.id, {
+          name: 'Scotch 1',
+          country: 'Scotland',
+        })
+      );
 
       const stats = WhiskeyModel.getPublicStats(user1.id);
 
@@ -757,14 +838,18 @@ describe('WhiskeyModel', () => {
     });
 
     it('rounds average rating to one decimal place', () => {
-      WhiskeyModel.create(createWhiskeyData(user1.id, {
-        name: 'Bourbon 1',
-        rating: 8.33
-      }));
-      WhiskeyModel.create(createWhiskeyData(user1.id, {
-        name: 'Bourbon 2',
-        rating: 8.67
-      }));
+      WhiskeyModel.create(
+        createWhiskeyData(user1.id, {
+          name: 'Bourbon 1',
+          rating: 8.33,
+        })
+      );
+      WhiskeyModel.create(
+        createWhiskeyData(user1.id, {
+          name: 'Bourbon 2',
+          rating: 8.67,
+        })
+      );
 
       const stats = WhiskeyModel.getPublicStats(user1.id);
 
@@ -773,18 +858,24 @@ describe('WhiskeyModel', () => {
     });
 
     it('handles ratings with many decimal places', () => {
-      WhiskeyModel.create(createWhiskeyData(user1.id, {
-        name: 'Bourbon 1',
-        rating: 7.777
-      }));
-      WhiskeyModel.create(createWhiskeyData(user1.id, {
-        name: 'Bourbon 2',
-        rating: 8.333
-      }));
-      WhiskeyModel.create(createWhiskeyData(user1.id, {
-        name: 'Bourbon 3',
-        rating: 9.111
-      }));
+      WhiskeyModel.create(
+        createWhiskeyData(user1.id, {
+          name: 'Bourbon 1',
+          rating: 7.777,
+        })
+      );
+      WhiskeyModel.create(
+        createWhiskeyData(user1.id, {
+          name: 'Bourbon 2',
+          rating: 8.333,
+        })
+      );
+      WhiskeyModel.create(
+        createWhiskeyData(user1.id, {
+          name: 'Bourbon 3',
+          rating: 9.111,
+        })
+      );
 
       const stats = WhiskeyModel.getPublicStats(user1.id);
 
@@ -806,21 +897,27 @@ describe('WhiskeyModel', () => {
     it('orders type breakdown by count descending', () => {
       // Create more bourbons than scotch
       for (let i = 0; i < 5; i++) {
-        WhiskeyModel.create(createWhiskeyData(user1.id, {
-          name: `Bourbon ${i}`,
-          type: WhiskeyType.BOURBON
-        }));
+        WhiskeyModel.create(
+          createWhiskeyData(user1.id, {
+            name: `Bourbon ${i}`,
+            type: WhiskeyType.BOURBON,
+          })
+        );
       }
       for (let i = 0; i < 3; i++) {
-        WhiskeyModel.create(createWhiskeyData(user1.id, {
-          name: `Scotch ${i}`,
-          type: WhiskeyType.SCOTCH
-        }));
+        WhiskeyModel.create(
+          createWhiskeyData(user1.id, {
+            name: `Scotch ${i}`,
+            type: WhiskeyType.SCOTCH,
+          })
+        );
       }
-      WhiskeyModel.create(createWhiskeyData(user1.id, {
-        name: 'Rye 1',
-        type: WhiskeyType.RYE
-      }));
+      WhiskeyModel.create(
+        createWhiskeyData(user1.id, {
+          name: 'Rye 1',
+          type: WhiskeyType.RYE,
+        })
+      );
 
       const stats = WhiskeyModel.getPublicStats(user1.id);
 

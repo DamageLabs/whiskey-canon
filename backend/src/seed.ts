@@ -59,9 +59,9 @@ async function seed() {
         size: '750ml',
         quantity: 1,
         msrp: 119.99,
-        secondary_price: 1800.00,
-        purchase_price: 1500.00,
-        current_market_value: 1800.00,
+        secondary_price: 1800.0,
+        purchase_price: 1500.0,
+        current_market_value: 1800.0,
         purchase_date: '2023-01-15',
         purchase_location: 'Bourbon Heaven',
         description: 'One of the most sought-after bourbons in the world',
@@ -77,7 +77,7 @@ async function seed() {
         palate_notes: 'Sweet oak, butterscotch, hint of spice',
         finish_notes: 'Long, smooth, lingering sweetness',
         times_tasted: 0,
-        created_by: admin.id
+        created_by: admin.id,
       },
       {
         name: "Blanton's Single Barrel",
@@ -90,9 +90,9 @@ async function seed() {
         size: '750ml',
         quantity: 2,
         msrp: 59.99,
-        secondary_price: 120.00,
-        purchase_price: 65.00,
-        current_market_value: 120.00,
+        secondary_price: 120.0,
+        purchase_price: 65.0,
+        current_market_value: 120.0,
         purchase_date: '2023-06-20',
         purchase_location: 'Local Liquor Store',
         description: 'Single barrel bourbon with a distinctive bottle',
@@ -106,7 +106,7 @@ async function seed() {
         times_tasted: 4,
         last_tasted_date: '2024-11-01',
         food_pairings: 'Dark chocolate, grilled steak',
-        created_by: admin.id
+        created_by: admin.id,
       },
       {
         name: 'Buffalo Trace',
@@ -119,9 +119,9 @@ async function seed() {
         size: '750ml',
         quantity: 3,
         msrp: 29.99,
-        secondary_price: 35.00,
+        secondary_price: 35.0,
         purchase_price: 25.99,
-        current_market_value: 35.00,
+        current_market_value: 35.0,
         purchase_date: '2024-01-10',
         purchase_location: 'Total Wine',
         description: 'Classic Kentucky straight bourbon',
@@ -133,7 +133,7 @@ async function seed() {
         tasting_notes: 'Vanilla, caramel, and subtle spice',
         times_tasted: 8,
         last_tasted_date: '2024-11-10',
-        created_by: editor.id
+        created_by: editor.id,
       },
       {
         name: 'Eagle Rare 10 Year',
@@ -147,9 +147,9 @@ async function seed() {
         size: '750ml',
         quantity: 1,
         msrp: 35.99,
-        secondary_price: 60.00,
-        purchase_price: 40.00,
-        current_market_value: 60.00,
+        secondary_price: 60.0,
+        purchase_price: 40.0,
+        current_market_value: 60.0,
         purchase_date: '2024-03-15',
         description: 'Aged longer than most bourbons',
         rating: 8.3,
@@ -158,7 +158,7 @@ async function seed() {
         remaining_volume: 45,
         status: 'in_collection',
         times_tasted: 6,
-        created_by: admin.id
+        created_by: admin.id,
       },
       {
         name: 'Elijah Craig Small Batch',
@@ -171,8 +171,8 @@ async function seed() {
         size: '750ml',
         quantity: 2,
         msrp: 32.99,
-        purchase_price: 30.00,
-        current_market_value: 35.00,
+        purchase_price: 30.0,
+        current_market_value: 35.0,
         purchase_date: '2024-05-01',
         rating: 7.8,
         is_opened: true,
@@ -180,7 +180,7 @@ async function seed() {
         remaining_volume: 70,
         status: 'in_collection',
         times_tasted: 5,
-        created_by: editor.id
+        created_by: editor.id,
       },
 
       // Scotch Whiskies
@@ -196,8 +196,8 @@ async function seed() {
         size: '750ml',
         quantity: 2,
         msrp: 49.99,
-        purchase_price: 45.00,
-        current_market_value: 50.00,
+        purchase_price: 45.0,
+        current_market_value: 50.0,
         purchase_date: '2024-02-14',
         description: 'Classic Speyside single malt',
         rating: 8.2,
@@ -207,7 +207,7 @@ async function seed() {
         status: 'in_collection',
         tasting_notes: 'Pear, apple, subtle oak',
         times_tasted: 7,
-        created_by: admin.id
+        created_by: admin.id,
       },
       {
         name: 'Ardbeg 10 Year',
@@ -221,8 +221,8 @@ async function seed() {
         size: '750ml',
         quantity: 1,
         msrp: 59.99,
-        purchase_price: 55.00,
-        current_market_value: 65.00,
+        purchase_price: 55.0,
+        current_market_value: 65.0,
         purchase_date: '2023-12-01',
         description: 'Heavily peated Islay single malt',
         rating: 9.0,
@@ -238,7 +238,7 @@ async function seed() {
         last_tasted_date: '2024-11-05',
         chill_filtered: false,
         natural_color: true,
-        created_by: admin.id
+        created_by: admin.id,
       },
       {
         name: 'Macallan 18 Year Sherry Oak',
@@ -252,9 +252,9 @@ async function seed() {
         size: '750ml',
         quantity: 1,
         msrp: 349.99,
-        secondary_price: 450.00,
-        purchase_price: 340.00,
-        current_market_value: 450.00,
+        secondary_price: 450.0,
+        purchase_price: 340.0,
+        current_market_value: 450.0,
         purchase_date: '2023-11-20',
         description: 'Luxury sherry cask matured single malt',
         rating: 9.3,
@@ -264,7 +264,7 @@ async function seed() {
         is_investment_bottle: true,
         cask_type: 'Sherry',
         awards: 'Multiple Gold Medals',
-        created_by: admin.id
+        created_by: admin.id,
       },
       {
         name: 'Lagavulin 16 Year',
@@ -278,8 +278,8 @@ async function seed() {
         size: '750ml',
         quantity: 1,
         msrp: 89.99,
-        purchase_price: 85.00,
-        current_market_value: 95.00,
+        purchase_price: 85.0,
+        current_market_value: 95.0,
         purchase_date: '2024-04-20',
         description: 'Iconic peated Islay single malt',
         rating: 9.1,
@@ -288,7 +288,7 @@ async function seed() {
         remaining_volume: 75,
         status: 'in_collection',
         times_tasted: 4,
-        created_by: admin.id
+        created_by: admin.id,
       },
 
       // Irish Whiskeys
@@ -304,8 +304,8 @@ async function seed() {
         size: '750ml',
         quantity: 1,
         msrp: 69.99,
-        purchase_price: 65.00,
-        current_market_value: 70.00,
+        purchase_price: 65.0,
+        current_market_value: 70.0,
         purchase_date: '2024-06-15',
         description: 'Single pot still Irish whiskey',
         rating: 8.7,
@@ -314,7 +314,7 @@ async function seed() {
         remaining_volume: 65,
         status: 'in_collection',
         times_tasted: 5,
-        created_by: editor.id
+        created_by: editor.id,
       },
       {
         name: 'Green Spot',
@@ -328,8 +328,8 @@ async function seed() {
         size: '750ml',
         quantity: 1,
         msrp: 59.99,
-        purchase_price: 55.00,
-        current_market_value: 60.00,
+        purchase_price: 55.0,
+        current_market_value: 60.0,
         purchase_date: '2024-08-01',
         description: 'Single pot still Irish whiskey',
         rating: 8.4,
@@ -338,7 +338,7 @@ async function seed() {
         remaining_volume: 80,
         status: 'in_collection',
         times_tasted: 3,
-        created_by: editor.id
+        created_by: editor.id,
       },
       {
         name: 'Jameson Irish Whiskey',
@@ -352,8 +352,8 @@ async function seed() {
         size: '750ml',
         quantity: 2,
         msrp: 29.99,
-        purchase_price: 25.00,
-        current_market_value: 30.00,
+        purchase_price: 25.0,
+        current_market_value: 30.0,
         purchase_date: '2024-09-15',
         description: 'Classic Irish blended whiskey',
         rating: 7.5,
@@ -362,7 +362,7 @@ async function seed() {
         remaining_volume: 90,
         status: 'in_collection',
         times_tasted: 6,
-        created_by: viewer.id
+        created_by: viewer.id,
       },
 
       // Japanese Whisky
@@ -378,9 +378,9 @@ async function seed() {
         size: '700ml',
         quantity: 1,
         msrp: 124.99,
-        secondary_price: 250.00,
-        purchase_price: 200.00,
-        current_market_value: 250.00,
+        secondary_price: 250.0,
+        purchase_price: 200.0,
+        current_market_value: 250.0,
         purchase_date: '2023-10-10',
         description: 'Pioneering Japanese single malt',
         rating: 9.2,
@@ -388,7 +388,7 @@ async function seed() {
         status: 'in_collection',
         is_investment_bottle: true,
         awards: 'World Whisky of the Year 2013',
-        created_by: admin.id
+        created_by: admin.id,
       },
       {
         name: 'Hibiki Harmony',
@@ -401,9 +401,9 @@ async function seed() {
         size: '700ml',
         quantity: 1,
         msrp: 89.99,
-        secondary_price: 150.00,
-        purchase_price: 130.00,
-        current_market_value: 150.00,
+        secondary_price: 150.0,
+        purchase_price: 130.0,
+        current_market_value: 150.0,
         purchase_date: '2024-02-28',
         description: 'Blended Japanese whisky',
         rating: 8.8,
@@ -412,7 +412,7 @@ async function seed() {
         remaining_volume: 70,
         status: 'in_collection',
         times_tasted: 4,
-        created_by: admin.id
+        created_by: admin.id,
       },
       {
         name: 'Nikka From The Barrel',
@@ -425,8 +425,8 @@ async function seed() {
         size: '500ml',
         quantity: 2,
         msrp: 69.99,
-        purchase_price: 65.00,
-        current_market_value: 75.00,
+        purchase_price: 65.0,
+        current_market_value: 75.0,
         purchase_date: '2024-07-20',
         description: 'Blended whisky bottled at cask strength',
         rating: 8.6,
@@ -435,7 +435,7 @@ async function seed() {
         remaining_volume: 55,
         status: 'in_collection',
         times_tasted: 5,
-        created_by: editor.id
+        created_by: editor.id,
       },
 
       // Rye Whiskeys
@@ -451,8 +451,8 @@ async function seed() {
         size: '750ml',
         quantity: 1,
         msrp: 84.99,
-        purchase_price: 80.00,
-        current_market_value: 90.00,
+        purchase_price: 80.0,
+        current_market_value: 90.0,
         purchase_date: '2024-05-10',
         description: 'Straight rye whiskey aged 10 years',
         rating: 8.9,
@@ -461,7 +461,7 @@ async function seed() {
         remaining_volume: 50,
         status: 'in_collection',
         times_tasted: 7,
-        created_by: admin.id
+        created_by: admin.id,
       },
       {
         name: 'Rittenhouse Rye',
@@ -474,8 +474,8 @@ async function seed() {
         size: '750ml',
         quantity: 1,
         msrp: 29.99,
-        purchase_price: 27.00,
-        current_market_value: 30.00,
+        purchase_price: 27.0,
+        current_market_value: 30.0,
         purchase_date: '2024-08-15',
         description: 'Bottled-in-bond rye whiskey',
         rating: 8.1,
@@ -484,7 +484,7 @@ async function seed() {
         remaining_volume: 65,
         status: 'in_collection',
         times_tasted: 4,
-        created_by: editor.id
+        created_by: editor.id,
       },
 
       // Tennessee Whiskey
@@ -499,8 +499,8 @@ async function seed() {
         size: '750ml',
         quantity: 1,
         msrp: 49.99,
-        purchase_price: 45.00,
-        current_market_value: 50.00,
+        purchase_price: 45.0,
+        current_market_value: 50.0,
         purchase_date: '2024-10-01',
         description: 'Single barrel Tennessee whiskey',
         rating: 8.0,
@@ -510,7 +510,7 @@ async function seed() {
         status: 'in_collection',
         barrel_number: 'Barrel 24-1234',
         times_tasted: 2,
-        created_by: editor.id
+        created_by: editor.id,
       },
 
       // Some consumed bottles for statistics
@@ -526,18 +526,18 @@ async function seed() {
         size: '750ml',
         quantity: 1,
         msrp: 36.99,
-        purchase_price: 32.00,
+        purchase_price: 32.0,
         purchase_date: '2023-08-01',
         rating: 8.3,
         status: 'consumed',
         times_tasted: 12,
         tasting_notes: 'Full-bodied with notes of dried fruit and vanilla',
-        created_by: admin.id
+        created_by: admin.id,
       },
       {
-        name: 'Maker\'s Mark',
+        name: "Maker's Mark",
         type: 'bourbon',
-        distillery: 'Maker\'s Mark Distillery',
+        distillery: "Maker's Mark Distillery",
         region: 'Kentucky',
         country: 'USA',
         age: 6,
@@ -546,12 +546,12 @@ async function seed() {
         size: '750ml',
         quantity: 1,
         msrp: 29.99,
-        purchase_price: 26.00,
+        purchase_price: 26.0,
         purchase_date: '2023-05-15',
         rating: 7.8,
         status: 'consumed',
         times_tasted: 10,
-        created_by: editor.id
+        created_by: editor.id,
       },
 
       // Bottles for sale
@@ -567,15 +567,15 @@ async function seed() {
         size: '750ml',
         quantity: 1,
         msrp: 119.99,
-        purchase_price: 110.00,
-        current_market_value: 130.00,
+        purchase_price: 110.0,
+        current_market_value: 130.0,
         purchase_date: '2023-03-10',
         rating: 8.9,
         is_opened: false,
         status: 'in_collection',
         is_for_sale: true,
-        asking_price: 125.00,
-        created_by: admin.id
+        asking_price: 125.0,
+        created_by: admin.id,
       },
     ];
 
@@ -658,28 +658,34 @@ async function seed() {
     console.log(`  - Viewer: enthusiast / Wh1sk3yTest!!`);
     console.log(`\nWhiskeys created: ${whiskeys.length}`);
 
-    const typeCount = whiskeys.reduce((acc, w) => {
-      acc[w.type] = (acc[w.type] || 0) + 1;
-      return acc;
-    }, {} as Record<string, number>);
+    const typeCount = whiskeys.reduce(
+      (acc, w) => {
+        acc[w.type] = (acc[w.type] || 0) + 1;
+        return acc;
+      },
+      {} as Record<string, number>
+    );
 
     console.log(`\nBy Type:`);
     Object.entries(typeCount).forEach(([type, count]) => {
       console.log(`  - ${type}: ${count}`);
     });
 
-    const statusCount = whiskeys.reduce((acc, w) => {
-      acc[w.status || 'in_collection'] = (acc[w.status || 'in_collection'] || 0) + 1;
-      return acc;
-    }, {} as Record<string, number>);
+    const statusCount = whiskeys.reduce(
+      (acc, w) => {
+        acc[w.status || 'in_collection'] = (acc[w.status || 'in_collection'] || 0) + 1;
+        return acc;
+      },
+      {} as Record<string, number>
+    );
 
     console.log(`\nBy Status:`);
     Object.entries(statusCount).forEach(([status, count]) => {
       console.log(`  - ${status}: ${count}`);
     });
 
-    const openedCount = whiskeys.filter(w => w.is_opened).length;
-    const unopenedCount = whiskeys.filter(w => !w.is_opened).length;
+    const openedCount = whiskeys.filter((w) => w.is_opened).length;
+    const unopenedCount = whiskeys.filter((w) => !w.is_opened).length;
 
     console.log(`\nOpened: ${openedCount}`);
     console.log(`Unopened: ${unopenedCount}`);
@@ -688,7 +694,6 @@ async function seed() {
     console.log('\nYou can now login with:');
     console.log('  Username: admin');
     console.log('  Password: Wh1sk3yTest!!\n');
-
   } catch (error) {
     console.error('❌ Error seeding database:', error);
     throw error;

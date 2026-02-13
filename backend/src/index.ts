@@ -16,6 +16,7 @@ import commentRoutes from './routes/comments';
 import usersRoutes from './routes/users';
 import contactRoutes from './routes/contact';
 import backupRoutes from './routes/backups';
+import lookupRoutes from './routes/lookup';
 import { startBackupScheduler } from './utils/backup-scheduler';
 
 // eslint-disable-next-line @typescript-eslint/no-require-imports
@@ -97,6 +98,7 @@ app.use('/uploads', express.static(uploadsPath));
 
 // Routes
 app.use('/api/auth', authRoutes);
+app.use('/api/whiskeys', lookupRoutes);
 app.use('/api/whiskeys', whiskeyRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/statistics', statisticsRoutes);

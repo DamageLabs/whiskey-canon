@@ -1,5 +1,6 @@
-import { useState, useEffect } from 'react';
-import { whiskeyAPI } from '../services/api';
+import { useState, useEffect, useRef } from 'react';
+import { whiskeyAPI, lookupAPI } from '../services/api';
+import { useAuth } from '../context/AuthContext';
 import { Whiskey, WhiskeyType, WhiskeyStatus, CreateWhiskeyData } from '../types';
 
 interface WhiskeyFormProps {
@@ -9,6 +10,7 @@ interface WhiskeyFormProps {
 }
 
 export function WhiskeyForm({ whiskey, onClose, onSuccess }: WhiskeyFormProps) {
+  const { user: authUser } = useAuth();
   const [activeTab, setActiveTab] = useState('basic');
   const [formData, setFormData] = useState<CreateWhiskeyData>({
     name: '',
@@ -17,6 +19,9 @@ export function WhiskeyForm({ whiskey, onClose, onSuccess }: WhiskeyFormProps) {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [lookingUp, setLookingUp] = useState(false);
+  const [aiFields, setAiFields] = useState<Set<string>>(new Set());
+  const imageInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (whiskey) {
@@ -146,6 +151,70 @@ export function WhiskeyForm({ whiskey, onClose, onSuccess }: WhiskeyFormProps) {
       ...prev,
       [name]: processedValue,
     }));
+    // Clear AI indicator when user manually edits a field
+    if (aiFields.has(name)) {
+      setAiFields((prev) => {
+        const next = new Set(prev);
+        next.delete(name);
+        return next;
+      });
+    }
+  }
+
+  function applyLookupData(data: Partial<CreateWhiskeyData>) {
+    const filledKeys = new Set<string>();
+    const merged = { ...formData };
+    for (const [key, value] of Object.entries(data)) {
+      if (value !== null && value !== undefined) {
+        (merged as any)[key] = value;
+        filledKeys.add(key);
+      }
+    }
+    setFormData(merged);
+    setAiFields(filledKeys);
+  }
+
+  async function handleTextLookup() {
+    if (!formData.name.trim()) return;
+    setLookingUp(true);
+    setError('');
+    try {
+      const result = await lookupAPI.lookupByName(formData.name.trim());
+      if (result.found && result.data) {
+        applyLookupData(result.data);
+      } else {
+        setError('Could not identify that whiskey. Try a more specific name.');
+      }
+    } catch (err: any) {
+      setError(err.message || 'Lookup failed');
+    } finally {
+      setLookingUp(false);
+    }
+  }
+
+  async function handleImageLookup(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setLookingUp(true);
+    setError('');
+    try {
+      const result = await lookupAPI.lookupByImage(file);
+      if (result.found && result.data) {
+        applyLookupData(result.data);
+      } else {
+        setError('Could not identify the whiskey from that image. Try a clearer label photo.');
+      }
+    } catch (err: any) {
+      setError(err.message || 'Image lookup failed');
+    } finally {
+      setLookingUp(false);
+      // Reset file input so same file can be selected again
+      if (imageInputRef.current) imageInputRef.current.value = '';
+    }
+  }
+
+  function aiClass(fieldName: string): string {
+    return aiFields.has(fieldName) ? ' ai-suggested' : '';
   }
 
   return (
@@ -249,10 +318,58 @@ export function WhiskeyForm({ whiskey, onClose, onSuccess }: WhiskeyFormProps) {
                         id="name"
                         name="name"
                         type="text"
-                        className="form-control"
+                        className={`form-control${aiClass('name')}`}
                         value={formData.name}
                         onChange={handleChange}
                         required
+                      />
+                    </div>
+
+                    <div className="col-md-6 d-flex align-items-end gap-2">
+                      <button
+                        type="button"
+                        className="btn btn-outline-primary"
+                        onClick={handleTextLookup}
+                        disabled={lookingUp || !formData.name.trim()}
+                        title={
+                          !authUser?.has_api_key
+                            ? 'Add your Anthropic API key in Profile settings to enable AI lookups'
+                            : undefined
+                        }
+                      >
+                        {lookingUp ? (
+                          <>
+                            <span
+                              className="spinner-border spinner-border-sm me-1"
+                              role="status"
+                              aria-hidden="true"
+                            ></span>
+                            Looking up...
+                          </>
+                        ) : (
+                          'Look Up'
+                        )}
+                      </button>
+                      <button
+                        type="button"
+                        className="btn btn-outline-secondary"
+                        onClick={() => imageInputRef.current?.click()}
+                        disabled={lookingUp}
+                        title={
+                          !authUser?.has_api_key
+                            ? 'Add your Anthropic API key in Profile settings to enable AI lookups'
+                            : undefined
+                        }
+                      >
+                        Scan Label
+                      </button>
+                      <input
+                        ref={imageInputRef}
+                        type="file"
+                        accept="image/jpeg,image/png,image/webp"
+                        capture="environment"
+                        className="d-none"
+                        onChange={handleImageLookup}
                       />
                     </div>
 
@@ -263,7 +380,7 @@ export function WhiskeyForm({ whiskey, onClose, onSuccess }: WhiskeyFormProps) {
                       <select
                         id="type"
                         name="type"
-                        className="form-select"
+                        className={`form-select${aiClass('type')}`}
                         value={formData.type}
                         onChange={handleChange}
                         required
@@ -284,7 +401,7 @@ export function WhiskeyForm({ whiskey, onClose, onSuccess }: WhiskeyFormProps) {
                         id="distillery"
                         name="distillery"
                         type="text"
-                        className="form-control"
+                        className={`form-control${aiClass('distillery')}`}
                         value={formData.distillery}
                         onChange={handleChange}
                         required
@@ -299,7 +416,7 @@ export function WhiskeyForm({ whiskey, onClose, onSuccess }: WhiskeyFormProps) {
                         id="region"
                         name="region"
                         type="text"
-                        className="form-control"
+                        className={`form-control${aiClass('region')}`}
                         value={formData.region || ''}
                         onChange={handleChange}
                       />
@@ -313,7 +430,7 @@ export function WhiskeyForm({ whiskey, onClose, onSuccess }: WhiskeyFormProps) {
                         id="country"
                         name="country"
                         type="text"
-                        className="form-control"
+                        className={`form-control${aiClass('country')}`}
                         value={formData.country || ''}
                         onChange={handleChange}
                       />
@@ -328,7 +445,7 @@ export function WhiskeyForm({ whiskey, onClose, onSuccess }: WhiskeyFormProps) {
                         name="age"
                         type="number"
                         min="0"
-                        className="form-control"
+                        className={`form-control${aiClass('age')}`}
                         value={formData.age || ''}
                         onChange={handleChange}
                       />
@@ -345,7 +462,7 @@ export function WhiskeyForm({ whiskey, onClose, onSuccess }: WhiskeyFormProps) {
                         step="0.1"
                         min="0"
                         max="100"
-                        className="form-control"
+                        className={`form-control${aiClass('abv')}`}
                         value={formData.abv || ''}
                         onChange={handleChange}
                       />
@@ -361,7 +478,7 @@ export function WhiskeyForm({ whiskey, onClose, onSuccess }: WhiskeyFormProps) {
                         type="number"
                         step="0.1"
                         min="0"
-                        className="form-control"
+                        className={`form-control${aiClass('proof')}`}
                         value={formData.proof || ''}
                         onChange={handleChange}
                       />
@@ -376,7 +493,7 @@ export function WhiskeyForm({ whiskey, onClose, onSuccess }: WhiskeyFormProps) {
                         name="size"
                         type="text"
                         placeholder="e.g., 750ml, 1L"
-                        className="form-control"
+                        className={`form-control${aiClass('size')}`}
                         value={formData.size || ''}
                         onChange={handleChange}
                       />
@@ -408,7 +525,7 @@ export function WhiskeyForm({ whiskey, onClose, onSuccess }: WhiskeyFormProps) {
                         name="mash_bill"
                         type="text"
                         placeholder="e.g., 75% corn, 21% rye, 4% malted barley"
-                        className="form-control"
+                        className={`form-control${aiClass('mash_bill')}`}
                         value={formData.mash_bill || ''}
                         onChange={handleChange}
                       />
@@ -484,7 +601,7 @@ export function WhiskeyForm({ whiskey, onClose, onSuccess }: WhiskeyFormProps) {
                       <textarea
                         id="description"
                         name="description"
-                        className="form-control"
+                        className={`form-control${aiClass('description')}`}
                         value={formData.description || ''}
                         onChange={handleChange}
                         rows={3}
@@ -709,7 +826,7 @@ export function WhiskeyForm({ whiskey, onClose, onSuccess }: WhiskeyFormProps) {
                         name="cask_type"
                         type="text"
                         placeholder="e.g., Ex-bourbon, Sherry, Port"
-                        className="form-control"
+                        className={`form-control${aiClass('cask_type')}`}
                         value={formData.cask_type || ''}
                         onChange={handleChange}
                       />
@@ -724,7 +841,7 @@ export function WhiskeyForm({ whiskey, onClose, onSuccess }: WhiskeyFormProps) {
                         name="cask_finish"
                         type="text"
                         placeholder="Secondary cask finish"
-                        className="form-control"
+                        className={`form-control${aiClass('cask_finish')}`}
                         value={formData.cask_finish || ''}
                         onChange={handleChange}
                       />
@@ -818,7 +935,7 @@ export function WhiskeyForm({ whiskey, onClose, onSuccess }: WhiskeyFormProps) {
                         name="color"
                         type="text"
                         placeholder="e.g., Deep amber, Pale gold"
-                        className="form-control"
+                        className={`form-control${aiClass('color')}`}
                         value={formData.color || ''}
                         onChange={handleChange}
                       />
@@ -860,7 +977,7 @@ export function WhiskeyForm({ whiskey, onClose, onSuccess }: WhiskeyFormProps) {
                       <textarea
                         id="nose_notes"
                         name="nose_notes"
-                        className="form-control"
+                        className={`form-control${aiClass('nose_notes')}`}
                         placeholder="Aromas detected on the nose..."
                         value={formData.nose_notes || ''}
                         onChange={handleChange}
@@ -875,7 +992,7 @@ export function WhiskeyForm({ whiskey, onClose, onSuccess }: WhiskeyFormProps) {
                       <textarea
                         id="palate_notes"
                         name="palate_notes"
-                        className="form-control"
+                        className={`form-control${aiClass('palate_notes')}`}
                         placeholder="Flavors on the palate..."
                         value={formData.palate_notes || ''}
                         onChange={handleChange}
@@ -890,7 +1007,7 @@ export function WhiskeyForm({ whiskey, onClose, onSuccess }: WhiskeyFormProps) {
                       <textarea
                         id="finish_notes"
                         name="finish_notes"
-                        className="form-control"
+                        className={`form-control${aiClass('finish_notes')}`}
                         placeholder="The finish and aftertaste..."
                         value={formData.finish_notes || ''}
                         onChange={handleChange}
@@ -905,7 +1022,7 @@ export function WhiskeyForm({ whiskey, onClose, onSuccess }: WhiskeyFormProps) {
                       <textarea
                         id="tasting_notes"
                         name="tasting_notes"
-                        className="form-control"
+                        className={`form-control${aiClass('tasting_notes')}`}
                         placeholder="Overall tasting experience..."
                         value={formData.tasting_notes || ''}
                         onChange={handleChange}
@@ -920,7 +1037,7 @@ export function WhiskeyForm({ whiskey, onClose, onSuccess }: WhiskeyFormProps) {
                       <textarea
                         id="food_pairings"
                         name="food_pairings"
-                        className="form-control"
+                        className={`form-control${aiClass('food_pairings')}`}
                         placeholder="Recommended foods, cigars, etc."
                         value={formData.food_pairings || ''}
                         onChange={handleChange}

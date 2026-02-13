@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { whiskeyAPI, authAPI } from '../services/api';
+import { whiskeyAPI, authAPI, apiKeyAPI } from '../services/api';
 import { Footer } from '../components/Footer';
 import { getCsrfHeaders } from '../utils/csrf';
 import { PasswordStrengthIndicator } from '../components/PasswordStrengthIndicator';
@@ -49,6 +49,12 @@ export default function ProfilePage() {
   const [showPublicConfirm, setShowPublicConfirm] = useState(false);
   const [updatingVisibility, setUpdatingVisibility] = useState(false);
 
+  // AI API key state
+  const [apiKeyInput, setApiKeyInput] = useState('');
+  const [apiKeyLastFour, setApiKeyLastFour] = useState<string | null>(null);
+  const [hasApiKey, setHasApiKey] = useState(user?.has_api_key || false);
+  const [savingApiKey, setSavingApiKey] = useState(false);
+
   // Fetch collection count on mount
   useEffect(() => {
     async function fetchCollectionCount() {
@@ -61,6 +67,52 @@ export default function ProfilePage() {
     }
     fetchCollectionCount();
   }, []);
+
+  // Fetch API key status on mount
+  useEffect(() => {
+    async function fetchApiKeyStatus() {
+      try {
+        const { hasKey, lastFour } = await apiKeyAPI.getStatus();
+        setHasApiKey(hasKey);
+        setApiKeyLastFour(lastFour);
+      } catch {
+        // Ignore — user may not have one
+      }
+    }
+    fetchApiKeyStatus();
+  }, []);
+
+  const handleSaveApiKey = async () => {
+    if (!apiKeyInput.trim()) return;
+    setSavingApiKey(true);
+    setMessage(null);
+    try {
+      const result = await apiKeyAPI.save(apiKeyInput.trim());
+      setHasApiKey(true);
+      setApiKeyLastFour(result.lastFour);
+      setApiKeyInput('');
+      setMessage({ type: 'success', text: result.message });
+    } catch (error: any) {
+      setMessage({ type: 'error', text: error.message || 'Failed to save API key' });
+    } finally {
+      setSavingApiKey(false);
+    }
+  };
+
+  const handleDeleteApiKey = async () => {
+    setSavingApiKey(true);
+    setMessage(null);
+    try {
+      const result = await apiKeyAPI.delete();
+      setHasApiKey(false);
+      setApiKeyLastFour(null);
+      setMessage({ type: 'success', text: result.message });
+    } catch (error: any) {
+      setMessage({ type: 'error', text: error.message || 'Failed to delete API key' });
+    } finally {
+      setSavingApiKey(false);
+    }
+  };
 
   const handleClearCollection = async () => {
     if (clearConfirmText !== 'DELETE') {
@@ -496,6 +548,59 @@ export default function ProfilePage() {
                       Public
                     </button>
                   </div>
+                </div>
+              </div>
+
+              {/* AI Settings */}
+              <div className="profile-section mt-4">
+                <h2>AI Settings</h2>
+                <div className="info-group">
+                  <label>Anthropic API Key</label>
+                  <p className="text-muted mb-3" style={{ fontSize: '0.9rem' }}>
+                    Add your Anthropic API key to enable AI-powered whiskey lookups. Your key is
+                    encrypted and stored securely. Get a key at{' '}
+                    <a
+                      href="https://console.anthropic.com/settings/keys"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{ color: 'var(--amber-500)' }}
+                    >
+                      console.anthropic.com
+                    </a>
+                  </p>
+                  {hasApiKey ? (
+                    <div className="d-flex align-items-center gap-3">
+                      <span className="badge bg-success">
+                        <i className="bi bi-check-circle me-1"></i>
+                        Key configured (****{apiKeyLastFour})
+                      </span>
+                      <button
+                        className="btn btn-outline-danger btn-sm"
+                        onClick={handleDeleteApiKey}
+                        disabled={savingApiKey}
+                      >
+                        {savingApiKey ? 'Removing...' : 'Remove Key'}
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="d-flex gap-2">
+                      <input
+                        type="password"
+                        className="form-control"
+                        placeholder="sk-ant-..."
+                        value={apiKeyInput}
+                        onChange={(e) => setApiKeyInput(e.target.value)}
+                        style={{ maxWidth: '400px' }}
+                      />
+                      <button
+                        className="btn btn-primary"
+                        onClick={handleSaveApiKey}
+                        disabled={savingApiKey || !apiKeyInput.trim()}
+                      >
+                        {savingApiKey ? 'Validating...' : 'Save Key'}
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
 

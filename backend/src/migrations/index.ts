@@ -14,6 +14,7 @@ import { migration as m012 } from './012_add_image_fields';
 import { migration as m013 } from './013_add_social_fields';
 import { migration as m014 } from './014_add_backup_tables';
 import { migration as m015 } from './015_add_indexes';
+import { migration as m016 } from './016_add_anthropic_api_key';
 
 export const allMigrations: Migration[] = [
   m001,
@@ -31,4 +32,5 @@ export const allMigrations: Migration[] = [
   m013,
   m014,
   m015,
+  m016,
 ];

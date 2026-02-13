@@ -236,6 +236,51 @@ export const whiskeyAPI = {
   },
 };
 
+export interface LookupResponse {
+  found: boolean;
+  data?: Partial<CreateWhiskeyData>;
+}
+
+export const lookupAPI = {
+  lookupByName: (name: string): Promise<LookupResponse> =>
+    fetchAPI('/whiskeys/lookup', {
+      method: 'POST',
+      body: JSON.stringify({ name }),
+    }),
+
+  lookupByImage: async (file: File): Promise<LookupResponse> => {
+    const formData = new FormData();
+    formData.append('image', file);
+
+    const csrfHeaders = await getCsrfHeaders();
+    const response = await fetch(`${API_BASE}/whiskeys/lookup`, {
+      method: 'POST',
+      credentials: 'include',
+      headers: csrfHeaders,
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const data = await response.json();
+      throw new APIError(data.error || 'Lookup failed', response.status, data);
+    }
+
+    return response.json();
+  },
+};
+
+export const apiKeyAPI = {
+  getStatus: (): Promise<{ hasKey: boolean; lastFour: string | null }> => fetchAPI('/auth/api-key'),
+
+  save: (apiKey: string): Promise<{ message: string; lastFour: string }> =>
+    fetchAPI('/auth/api-key', {
+      method: 'PUT',
+      body: JSON.stringify({ apiKey }),
+    }),
+
+  delete: (): Promise<{ message: string }> => fetchAPI('/auth/api-key', { method: 'DELETE' }),
+};
+
 export const statisticsAPI = {
   getAll: () => fetchAPI('/statistics'),
 };

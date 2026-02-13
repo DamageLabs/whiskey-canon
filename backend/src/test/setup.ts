@@ -44,6 +44,8 @@ vi.mock('../utils/config', () => ({
     resendApiKey: null,
     resendFromEmail: 'noreply@whiskey-canon.com',
     contactEmail: 'noreply@whiskey-canon.com',
+    anthropicApiKey: null,
+    apiKeyEncryptionSecret: 'test-encryption-secret-min-32-chars!!',
   },
   validateConfig: vi.fn(),
 }));
@@ -62,6 +64,7 @@ vi.mock('../middleware/rateLimiter', () => ({
   passwordResetLimiter: (_req: any, _res: any, next: any) => next(),
   contactLimiter: (_req: any, _res: any, next: any) => next(),
   backupLimiter: (_req: any, _res: any, next: any) => next(),
+  lookupLimiter: (_req: any, _res: any, next: any) => next(),
 }));
 
 // Mock CSRF to pass through in tests — CSRF is tested in csrf.test.ts

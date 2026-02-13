@@ -82,10 +82,21 @@ describe('config', () => {
     );
   });
 
+  it('throws when API_KEY_ENCRYPTION_SECRET is missing in production', async () => {
+    process.env.NODE_ENV = 'production';
+    process.env.SESSION_SECRET = 'prod-secret';
+    process.env.FRONTEND_URL = 'https://example.com';
+
+    await expect(import('./config')).rejects.toThrow(
+      'Missing required environment variable: API_KEY_ENCRYPTION_SECRET'
+    );
+  });
+
   it('succeeds in production when required vars are set', async () => {
     process.env.NODE_ENV = 'production';
     process.env.SESSION_SECRET = 'prod-secret';
     process.env.FRONTEND_URL = 'https://example.com';
+    process.env.API_KEY_ENCRYPTION_SECRET = 'prod-encryption-secret-min-32-chars!!';
 
     const { config } = await import('./config');
 

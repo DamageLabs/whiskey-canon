@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 import ProfilePage from './ProfilePage';
-import { whiskeyAPI, authAPI } from '../services/api';
+import { whiskeyAPI, authAPI, apiKeyAPI } from '../services/api';
 import { Role } from '../types';
 
 // Mock the API
@@ -13,6 +13,11 @@ vi.mock('../services/api', () => ({
   },
   authAPI: {
     updateVisibility: vi.fn(),
+  },
+  apiKeyAPI: {
+    getStatus: vi.fn().mockResolvedValue({ hasKey: false, lastFour: null }),
+    save: vi.fn(),
+    delete: vi.fn(),
   },
 }));
 
@@ -771,6 +776,173 @@ describe('ProfilePage - Profile Visibility', () => {
         const alert = screen.getByRole('alert');
         expect(alert).toBeInTheDocument();
         expect(alert).toHaveTextContent('Server error');
+      });
+    });
+  });
+});
+
+describe('ProfilePage - AI Settings', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.mocked(whiskeyAPI.getAll).mockResolvedValue({ whiskeys: [] });
+  });
+
+  describe('AI Settings section', () => {
+    it('renders AI Settings section', async () => {
+      vi.mocked(apiKeyAPI.getStatus).mockResolvedValue({ hasKey: false, lastFour: null });
+
+      renderWithRouter();
+
+      await waitFor(() => {
+        expect(screen.getByText('AI Settings')).toBeInTheDocument();
+      });
+    });
+
+    it('renders API key input when no key is configured', async () => {
+      vi.mocked(apiKeyAPI.getStatus).mockResolvedValue({ hasKey: false, lastFour: null });
+
+      renderWithRouter();
+
+      await waitFor(() => {
+        expect(screen.getByPlaceholderText('sk-ant-...')).toBeInTheDocument();
+      });
+
+      expect(screen.getByRole('button', { name: /Save Key/i })).toBeInTheDocument();
+    });
+
+    it('disables Save Key button when input is empty', async () => {
+      vi.mocked(apiKeyAPI.getStatus).mockResolvedValue({ hasKey: false, lastFour: null });
+
+      renderWithRouter();
+
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: /Save Key/i })).toBeDisabled();
+      });
+    });
+
+    it('enables Save Key button when input has text', async () => {
+      vi.mocked(apiKeyAPI.getStatus).mockResolvedValue({ hasKey: false, lastFour: null });
+
+      renderWithRouter();
+
+      await waitFor(() => {
+        expect(screen.getByPlaceholderText('sk-ant-...')).toBeInTheDocument();
+      });
+
+      const input = screen.getByPlaceholderText('sk-ant-...');
+      fireEvent.change(input, { target: { value: 'sk-ant-test-key-123' } });
+
+      expect(screen.getByRole('button', { name: /Save Key/i })).not.toBeDisabled();
+    });
+
+    it('shows configured state when user has an API key', async () => {
+      vi.mocked(apiKeyAPI.getStatus).mockResolvedValue({ hasKey: true, lastFour: 'WXYZ' });
+
+      renderWithRouter();
+
+      await waitFor(() => {
+        expect(screen.getByText(/Key configured.*WXYZ/)).toBeInTheDocument();
+      });
+
+      expect(screen.getByRole('button', { name: /Remove Key/i })).toBeInTheDocument();
+    });
+  });
+
+  describe('Save API key', () => {
+    it('calls save API and shows success on save', async () => {
+      vi.mocked(apiKeyAPI.getStatus).mockResolvedValue({ hasKey: false, lastFour: null });
+      vi.mocked(apiKeyAPI.save).mockResolvedValue({
+        message: 'API key saved successfully',
+        lastFour: 'ABCD',
+      });
+
+      renderWithRouter();
+
+      await waitFor(() => {
+        expect(screen.getByPlaceholderText('sk-ant-...')).toBeInTheDocument();
+      });
+
+      const input = screen.getByPlaceholderText('sk-ant-...');
+      fireEvent.change(input, { target: { value: 'sk-ant-my-test-key' } });
+
+      fireEvent.click(screen.getByRole('button', { name: /Save Key/i }));
+
+      await waitFor(() => {
+        expect(apiKeyAPI.save).toHaveBeenCalledWith('sk-ant-my-test-key');
+      });
+
+      await waitFor(() => {
+        expect(screen.getByText('API key saved successfully')).toBeInTheDocument();
+      });
+
+      // Should now show configured state
+      await waitFor(() => {
+        expect(screen.getByText(/Key configured.*ABCD/)).toBeInTheDocument();
+      });
+    });
+
+    it('shows error when save fails', async () => {
+      vi.mocked(apiKeyAPI.getStatus).mockResolvedValue({ hasKey: false, lastFour: null });
+      vi.mocked(apiKeyAPI.save).mockRejectedValue(new Error('Invalid API key'));
+
+      renderWithRouter();
+
+      await waitFor(() => {
+        expect(screen.getByPlaceholderText('sk-ant-...')).toBeInTheDocument();
+      });
+
+      const input = screen.getByPlaceholderText('sk-ant-...');
+      fireEvent.change(input, { target: { value: 'sk-ant-bad-key' } });
+
+      fireEvent.click(screen.getByRole('button', { name: /Save Key/i }));
+
+      await waitFor(() => {
+        expect(screen.getByText('Invalid API key')).toBeInTheDocument();
+      });
+    });
+  });
+
+  describe('Delete API key', () => {
+    it('calls delete API and shows success', async () => {
+      vi.mocked(apiKeyAPI.getStatus).mockResolvedValue({ hasKey: true, lastFour: 'WXYZ' });
+      vi.mocked(apiKeyAPI.delete).mockResolvedValue({ message: 'API key removed' });
+
+      renderWithRouter();
+
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: /Remove Key/i })).toBeInTheDocument();
+      });
+
+      fireEvent.click(screen.getByRole('button', { name: /Remove Key/i }));
+
+      await waitFor(() => {
+        expect(apiKeyAPI.delete).toHaveBeenCalled();
+      });
+
+      await waitFor(() => {
+        expect(screen.getByText('API key removed')).toBeInTheDocument();
+      });
+
+      // Should now show the input form again
+      await waitFor(() => {
+        expect(screen.getByPlaceholderText('sk-ant-...')).toBeInTheDocument();
+      });
+    });
+
+    it('shows error when delete fails', async () => {
+      vi.mocked(apiKeyAPI.getStatus).mockResolvedValue({ hasKey: true, lastFour: 'WXYZ' });
+      vi.mocked(apiKeyAPI.delete).mockRejectedValue(new Error('Failed to delete'));
+
+      renderWithRouter();
+
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: /Remove Key/i })).toBeInTheDocument();
+      });
+
+      fireEvent.click(screen.getByRole('button', { name: /Remove Key/i }));
+
+      await waitFor(() => {
+        expect(screen.getByText('Failed to delete')).toBeInTheDocument();
       });
     });
   });

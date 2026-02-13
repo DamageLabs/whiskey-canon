@@ -12,6 +12,7 @@ export interface User {
   last_name?: string;
   profile_photo?: string;
   is_profile_public?: boolean;
+  has_api_key?: boolean;
   created_at: string;
   updated_at: string;
 }

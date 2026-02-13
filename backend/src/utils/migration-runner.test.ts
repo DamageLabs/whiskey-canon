@@ -195,14 +195,14 @@ describe('migration-runner', () => {
   });
 
   describe('real migrations', () => {
-    it('should build the full schema from all 15 migrations', async () => {
+    it('should build the full schema from all 16 migrations', async () => {
       const { allMigrations } = await import('../migrations');
 
       runMigrations(db, allMigrations);
 
-      // Verify all 15 migrations applied
+      // Verify all 16 migrations applied
       const applied = db.prepare('SELECT name FROM migrations').all() as { name: string }[];
-      expect(applied).toHaveLength(15);
+      expect(applied).toHaveLength(16);
 
       // Verify all 5 tables exist
       const tables = db
@@ -223,6 +223,7 @@ describe('migration-runner', () => {
       expect(userColNames).toContain('first_name');
       expect(userColNames).toContain('is_profile_public');
       expect(userColNames).toContain('password_reset_token');
+      expect(userColNames).toContain('anthropic_api_key');
 
       // Verify whiskeys table has all 58 columns
       const whiskeyCols = db.prepare('PRAGMA table_info(whiskeys)').all() as { name: string }[];

@@ -58,20 +58,22 @@ See [docs/security-hardening.md](docs/security-hardening.md) for the full deploy
 
 | # | Issue | Type | Area | Rationale |
 |---|-------|------|------|-----------|
-| 1 | [#88 — Implement lightweight custom migration runner](https://github.com/DamageLabs/whiskey-canon/issues/88) | Refactor | Backend | Replaces monolithic `initializeDatabase()` with numbered migration files and a `migrations` table. **Critical prerequisite** for #60, #72, #75, #71, #80, and #100. Supersedes #57. |
-| 2 | [#54 — Improve integration test infrastructure](https://github.com/DamageLabs/whiskey-canon/issues/54) | Testing | Backend | Isolated test database lifecycle with file-based test DB option; unblocks reliable test expansion. |
-| 3 | [#53 — Expand backend test coverage](https://github.com/DamageLabs/whiskey-canon/issues/53) | Testing | Backend | Auth flows, CRUD, and admin endpoints need deeper coverage. Depends on #54. |
-| 4 | [#55 — Add React Testing Library tests](https://github.com/DamageLabs/whiskey-canon/issues/55) | Testing | Frontend | Login, dashboard, WhiskeyForm, and analytics have zero test coverage. CI doesn't run frontend tests. |
-| 5 | [#48 — Add npm audit to CI](https://github.com/DamageLabs/whiskey-canon/issues/48) | Security | Full-stack | 9 known vulnerabilities (6 high, 3 moderate). Automated audit catches new ones before merge. |
-| 6 | [#50 — Add structured logging with request IDs](https://github.com/DamageLabs/whiskey-canon/issues/50) | Enhancement | Backend | 314 `console.log` calls across 28 files. Structured logging with request IDs enables production debugging. |
-| 7 | [#70 — Extract shared types into workspace package](https://github.com/DamageLabs/whiskey-canon/issues/70) | Refactor | Full-stack | Types duplicated between frontend/backend with silent discrepancies (e.g., frontend `Role` enum missing `VIEWER`). |
-| 8 | [#58 — Add Zod schemas for whiskey validation](https://github.com/DamageLabs/whiskey-canon/issues/58) | Enhancement | Full-stack | Only 13 of ~50 fields validated; 37+ fields pass through unvalidated. Shared schemas replace ad-hoc checks. Depends on #70. |
+| 1 | [#101 — Evaluate Prisma ORM as database layer](https://github.com/DamageLabs/whiskey-canon/issues/101) | Evaluation | Backend | Prisma would replace raw better-sqlite3 (193 sync calls), provide built-in migrations, generated types, and database-agnostic abstraction. **If adopted, supersedes #88, #57, and accelerates #68, #70, #58.** Evaluate first, then decide. |
+| 2 | [#88 — Implement lightweight custom migration runner](https://github.com/DamageLabs/whiskey-canon/issues/88) | Refactor | Backend | Replaces monolithic `initializeDatabase()` with numbered migration files and a `migrations` table. **Critical prerequisite** for #60, #72, #75, #71, #80, and #100. Supersedes #57. **May be superseded by #101 (Prisma).** |
+| 3 | [#54 — Improve integration test infrastructure](https://github.com/DamageLabs/whiskey-canon/issues/54) | Testing | Backend | Isolated test database lifecycle with file-based test DB option; unblocks reliable test expansion. |
+| 4 | [#53 — Expand backend test coverage](https://github.com/DamageLabs/whiskey-canon/issues/53) | Testing | Backend | Auth flows, CRUD, and admin endpoints need deeper coverage. Depends on #54. |
+| 5 | [#55 — Add React Testing Library tests](https://github.com/DamageLabs/whiskey-canon/issues/55) | Testing | Frontend | Login, dashboard, WhiskeyForm, and analytics have zero test coverage. CI doesn't run frontend tests. |
+| 6 | [#48 — Add npm audit to CI](https://github.com/DamageLabs/whiskey-canon/issues/48) | Security | Full-stack | 9 known vulnerabilities (6 high, 3 moderate). Automated audit catches new ones before merge. |
+| 7 | [#50 — Add structured logging with request IDs](https://github.com/DamageLabs/whiskey-canon/issues/50) | Enhancement | Backend | 314 `console.log` calls across 28 files. Structured logging with request IDs enables production debugging. |
+| 8 | [#70 — Extract shared types into workspace package](https://github.com/DamageLabs/whiskey-canon/issues/70) | Refactor | Full-stack | Types duplicated between frontend/backend with silent discrepancies (e.g., frontend `Role` enum missing `VIEWER`). **May be accelerated by #101 (Prisma generated types).** |
+| 9 | [#58 — Add Zod schemas for whiskey validation](https://github.com/DamageLabs/whiskey-canon/issues/58) | Enhancement | Full-stack | Only 13 of ~50 fields validated; 37+ fields pass through unvalidated. Shared schemas replace ad-hoc checks. Depends on #70. **May be accelerated by #101 (zod-prisma-types).** |
 
-**Scope:** 8 issues. Mix of testing, tooling, and refactoring. #88 is the highest-priority item in the entire roadmap due to downstream dependencies.
+**Scope:** 9 issues. Mix of testing, tooling, and refactoring. #101 is the first item to evaluate — its outcome determines whether #88 or Prisma Migrate handles the migration system.
 
 **Dependencies:**
 ```
-#88 (migration runner) → unlocks #60, #72, #75, #71, #80, #100
+#101 (Prisma evaluation) → decides fate of #88, #57
+#88 or #101 (migration system) → unlocks #60, #72, #75, #71, #80, #100
 #54 (test infra) → #53 (backend tests)
 #70 (shared types) → #58 (Zod schemas)
 ```
@@ -189,13 +191,15 @@ All cross-phase dependency chains:
 
 ```
 Phase 1:
-  #88 (migration runner) ──┬──→ #60 (soft deletes, Phase 3)
-                           ├──→ #100 (AI whiskey lookup, Phase 3)
-                           ├──→ #72 (tasting journal, Phase 4)
-                           ├──→ #75 (price history, Phase 4) → #71 (wishlist, Phase 4)
-                           └──→ #80 (API key auth, Phase 5) → #81 (bot) → #82 → #83 + #84
+  #101 (Prisma evaluation) ──→ decides: adopt Prisma (supersedes #88) or proceed with #88
+  #88 or Prisma ────────────┬──→ #60 (soft deletes, Phase 3)
+                            ├──→ #100 (AI whiskey lookup, Phase 3)
+                            ├──→ #72 (tasting journal, Phase 4)
+                            ├──→ #75 (price history, Phase 4) → #71 (wishlist, Phase 4)
+                            └──→ #80 (API key auth, Phase 5) → #81 (bot) → #82 → #83 + #84
   #54 (test infra) → #53 (backend tests)
   #70 (shared types) → #58 (Zod schemas)
+  #101 (if adopted) ──→ accelerates #70 (generated types) + #58 (zod-prisma-types)
 
 Phase 3:
   #100 (AI lookup) ←→ #65 (barcode scanning, Phase 4) — complementary features
@@ -214,7 +218,7 @@ Phase 6:
 
 | Category | Count | Issues |
 |----------|-------|--------|
-| Infrastructure / DX | 3 | #50, #70, #88 |
+| Infrastructure / DX | 4 | #50, #70, #88, #101 |
 | Testing | 3 | #53, #54, #55 |
 | Security | 2 | #48, #58 |
 | Performance | 3 | #59, #66, #67 |
@@ -225,7 +229,7 @@ Phase 6:
 | Platform | 2 | #64, #76 |
 | Discord Bot | 6 | #80, #81, #82, #83, #84, #85 |
 
-**Total open issues: 34** (down from 42; 9 closed, 1 new since last update)
+**Total open issues: 35** (down from 42; 9 closed, 2 new since last update)
 
 > Note: Some issues span multiple categories; each is counted once under its primary category.
 

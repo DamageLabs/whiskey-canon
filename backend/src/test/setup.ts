@@ -1,6 +1,7 @@
 import Database from 'better-sqlite3';
 import { beforeEach, afterAll } from 'vitest';
-import { createAllTables } from '../utils/schema';
+import { runMigrations } from '../utils/migration-runner';
+import { allMigrations } from '../migrations';
 
 // Create in-memory database for testing
 export const testDb = new Database(':memory:');
@@ -8,8 +9,8 @@ export const testDb = new Database(':memory:');
 // Enable foreign keys
 testDb.pragma('foreign_keys = ON');
 
-// Initialize schema from the shared source of truth
-createAllTables(testDb);
+// Initialize schema by running all migrations
+runMigrations(testDb, allMigrations);
 
 // Clear tables before each test
 beforeEach(() => {

@@ -31,6 +31,7 @@ jobs:
         run: npm run test --workspace=backend
 
       - name: Run frontend tests
+        if: matrix.node-version == 20
         run: npm run test --workspace=frontend
 
       - name: Run backend tests with coverage

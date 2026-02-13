@@ -6,7 +6,7 @@ export async function fetchCsrfToken(): Promise<string> {
   const res = await fetch('/api/auth/csrf-token', { credentials: 'include' });
   const data = await res.json();
   csrfToken = data.token as string;
-  return csrfToken!
+  return csrfToken!;
 }
 
 export async function ensureCsrfToken(): Promise<string> {

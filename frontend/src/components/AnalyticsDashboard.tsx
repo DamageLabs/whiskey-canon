@@ -172,7 +172,7 @@ export default function AnalyticsDashboard() {
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="name" angle={-45} textAnchor="end" height={100} fontSize={10} />
                   <YAxis />
-                  <Tooltip formatter={(value: number) => formatCurrency(value)} />
+                  <Tooltip formatter={(value?: number) => formatCurrency(value ?? 0)} />
                   <Legend />
                   <Bar dataKey="secondary_price" fill="#8884d8" name="Secondary Value" />
                 </BarChart>
@@ -234,7 +234,7 @@ export default function AnalyticsDashboard() {
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="name" angle={-45} textAnchor="end" height={100} fontSize={10} />
                   <YAxis label={{ value: 'ROI %', angle: -90, position: 'insideLeft' }} />
-                  <Tooltip formatter={(value: number) => `${value.toFixed(2)}%`} />
+                  <Tooltip formatter={(value?: number) => `${(value ?? 0).toFixed(2)}%`} />
                   <Bar dataKey="roi_percentage" fill="#00C49F" name="ROI %" />
                 </BarChart>
               </ResponsiveContainer>
@@ -367,7 +367,7 @@ export default function AnalyticsDashboard() {
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="type" />
                   <YAxis />
-                  <Tooltip formatter={(value: number) => formatCurrency(value)} />
+                  <Tooltip formatter={(value?: number) => formatCurrency(value ?? 0)} />
                   <Legend />
                   <Bar dataKey="total_value" fill="#8884d8" name="Total Value" />
                 </BarChart>

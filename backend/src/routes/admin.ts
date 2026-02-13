@@ -54,7 +54,7 @@ router.put(
     }
 
     try {
-      const userId = parseInt(req.params.id);
+      const userId = parseInt(req.params.id as string);
 
       // Prevent admin from changing their own role
       if (userId === req.user!.id) {
@@ -102,7 +102,7 @@ router.put(
     }
 
     try {
-      const userId = parseInt(req.params.id);
+      const userId = parseInt(req.params.id as string);
       const { email, username, firstName, lastName } = req.body;
 
       // Check if email is already in use by another user
@@ -155,7 +155,7 @@ router.delete(
   validate,
   (req: AuthRequest, res: Response) => {
     try {
-      const userId = parseInt(req.params.id);
+      const userId = parseInt(req.params.id as string);
 
       // Prevent admin from deleting themselves
       if (userId === req.user!.id) {
@@ -268,7 +268,7 @@ router.get(
   requirePermission(Permission.MANAGE_USERS),
   (req: AuthRequest, res: Response) => {
     try {
-      const { filename } = req.params;
+      const filename = req.params.filename as string;
 
       // Validate filename to prevent path traversal
       if (!/^full-backup-[\w-]+\.db$/.test(filename)) {
@@ -304,7 +304,7 @@ router.delete(
   requirePermission(Permission.MANAGE_USERS),
   (req: AuthRequest, res: Response) => {
     try {
-      const { filename } = req.params;
+      const filename = req.params.filename as string;
 
       if (!/^full-backup-[\w-]+\.db$/.test(filename)) {
         return res.status(400).json({ error: 'Invalid backup filename' });
@@ -338,7 +338,7 @@ router.post(
   requirePermission(Permission.MANAGE_USERS),
   (req: AuthRequest, res: Response) => {
     try {
-      const { filename } = req.params;
+      const filename = req.params.filename as string;
 
       if (!/^full-backup-[\w-]+\.db$/.test(filename)) {
         return res.status(400).json({ error: 'Invalid backup filename' });

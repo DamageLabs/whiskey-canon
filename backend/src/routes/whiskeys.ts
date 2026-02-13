@@ -570,7 +570,7 @@ router.get(
   validate,
   (req: AuthRequest, res: Response) => {
     try {
-      const whiskey = WhiskeyModel.findById(parseInt(req.params.id), req.user!.id);
+      const whiskey = WhiskeyModel.findById(parseInt(req.params.id as string), req.user!.id);
 
       if (!whiskey) {
         return res.status(404).json({ error: 'Whiskey not found' });
@@ -678,7 +678,7 @@ router.put(
       }
 
       console.log('Updating whiskey with data:', whiskeyData);
-      const whiskey = WhiskeyModel.update(parseInt(req.params.id), whiskeyData, req.user!.id);
+      const whiskey = WhiskeyModel.update(parseInt(req.params.id as string), whiskeyData, req.user!.id);
 
       if (!whiskey) {
         res
@@ -754,7 +754,7 @@ router.delete(
   validate,
   (req: AuthRequest, res: Response) => {
     try {
-      const deleted = WhiskeyModel.delete(parseInt(req.params.id), req.user!.id);
+      const deleted = WhiskeyModel.delete(parseInt(req.params.id as string), req.user!.id);
 
       if (!deleted) {
         return res

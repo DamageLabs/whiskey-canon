@@ -1,6 +1,7 @@
 import { db } from '../utils/database';
 import bcrypt from 'bcryptjs';
 import { User, Role, PublicProfile } from '../types';
+import { encrypt, decrypt } from '../utils/encryption';
 
 export class UserModel {
   static async create(
@@ -273,5 +274,37 @@ export class UserModel {
       ORDER BY created_at DESC
     `);
     return stmt.all() as PublicProfile[];
+  }
+
+  static saveApiKey(id: number, apiKey: string): void {
+    const encrypted = encrypt(apiKey);
+    const stmt = db.prepare(
+      'UPDATE users SET anthropic_api_key = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?'
+    );
+    stmt.run(encrypted, id);
+  }
+
+  static getApiKey(id: number): string | null {
+    const stmt = db.prepare('SELECT anthropic_api_key FROM users WHERE id = ?');
+    const row = stmt.get(id) as { anthropic_api_key: string | null } | undefined;
+    if (!row?.anthropic_api_key) return null;
+    try {
+      return decrypt(row.anthropic_api_key);
+    } catch {
+      return null;
+    }
+  }
+
+  static hasApiKey(id: number): boolean {
+    const stmt = db.prepare('SELECT anthropic_api_key FROM users WHERE id = ?');
+    const row = stmt.get(id) as { anthropic_api_key: string | null } | undefined;
+    return !!row?.anthropic_api_key;
+  }
+
+  static deleteApiKey(id: number): void {
+    const stmt = db.prepare(
+      'UPDATE users SET anthropic_api_key = NULL, updated_at = CURRENT_TIMESTAMP WHERE id = ?'
+    );
+    stmt.run(id);
   }
 }

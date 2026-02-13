@@ -387,8 +387,13 @@ router.get('/me', requireAuth, (req: AuthRequest, res) => {
     return res.status(401).json({ error: 'Not authenticated' });
   }
 
-  const { password: _, ...userWithoutPassword } = req.user;
-  res.json({ user: userWithoutPassword });
+  const { password: _, anthropic_api_key: _key, ...userWithoutSensitive } = req.user as any;
+  res.json({
+    user: {
+      ...userWithoutSensitive,
+      has_api_key: UserModel.hasApiKey(req.user.id),
+    },
+  });
 });
 
 // Update profile
@@ -607,6 +612,71 @@ router.delete('/profile/photo', requireAuth, async (req: AuthRequest, res) => {
     console.error('Profile photo delete error:', error);
     res.status(500).json({ error: 'Failed to delete profile photo' });
   }
+});
+
+// Get API key status
+router.get('/api-key', requireAuth, (req: AuthRequest, res: Response) => {
+  if (!req.user) {
+    return res.status(401).json({ error: 'Not authenticated' });
+  }
+  const hasKey = UserModel.hasApiKey(req.user.id);
+  let lastFour: string | null = null;
+  if (hasKey) {
+    const key = UserModel.getApiKey(req.user.id);
+    if (key) {
+      lastFour = key.slice(-4);
+    }
+  }
+  res.json({ hasKey, lastFour });
+});
+
+// Save API key
+router.put(
+  '/api-key',
+  requireAuth,
+  [body('apiKey').isString().isLength({ min: 10 }).withMessage('Invalid API key')],
+  validate,
+  async (req: AuthRequest, res: Response) => {
+    if (!req.user) {
+      return res.status(401).json({ error: 'Not authenticated' });
+    }
+
+    const { apiKey } = req.body;
+
+    // Validate the key by making a test call
+    try {
+      const Anthropic = (await import('@anthropic-ai/sdk')).default;
+      const client = new Anthropic({ apiKey });
+      await client.messages.create({
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 10,
+        messages: [{ role: 'user', content: 'Hi' }],
+      });
+    } catch (error: any) {
+      if (error?.status === 401 || error?.error?.type === 'authentication_error') {
+        return res.status(400).json({ error: 'Invalid API key. Please check and try again.' });
+      }
+      // Other errors (rate limit, etc.) mean the key is valid but something else went wrong
+      // We'll still save it in that case
+    }
+
+    try {
+      UserModel.saveApiKey(req.user.id, apiKey);
+      res.json({ message: 'API key saved successfully', lastFour: apiKey.slice(-4) });
+    } catch (error) {
+      console.error('Save API key error:', error);
+      res.status(500).json({ error: 'Failed to save API key' });
+    }
+  }
+);
+
+// Delete API key
+router.delete('/api-key', requireAuth, (req: AuthRequest, res: Response) => {
+  if (!req.user) {
+    return res.status(401).json({ error: 'Not authenticated' });
+  }
+  UserModel.deleteApiKey(req.user.id);
+  res.json({ message: 'API key deleted successfully' });
 });
 
 export default router;

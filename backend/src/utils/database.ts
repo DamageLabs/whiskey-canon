@@ -1,5 +1,6 @@
 import Database, { Database as DatabaseType } from 'better-sqlite3';
 import { config } from './config';
+import { createAllTables } from './schema';
 
 const dbPath = config.databasePath;
 
@@ -9,49 +10,8 @@ export const db: DatabaseType = new Database(dbPath);
 db.pragma('foreign_keys = ON');
 
 export function initializeDatabase() {
-  // Create users table
-  db.exec(`
-    CREATE TABLE IF NOT EXISTS users (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      username TEXT UNIQUE NOT NULL,
-      email TEXT UNIQUE NOT NULL,
-      password TEXT NOT NULL,
-      role TEXT NOT NULL CHECK(role IN ('admin', 'editor', 'viewer')),
-      first_name TEXT,
-      last_name TEXT,
-      profile_photo TEXT,
-      email_verified INTEGER DEFAULT 0,
-      verification_code TEXT,
-      verification_code_expires_at TEXT,
-      verification_code_attempts INTEGER DEFAULT 0,
-      password_reset_token TEXT,
-      password_reset_expires_at TEXT,
-      is_profile_public INTEGER DEFAULT 0,
-      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
-    )
-  `);
-
-  // Create whiskeys table
-  db.exec(`
-    CREATE TABLE IF NOT EXISTS whiskeys (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      name TEXT NOT NULL,
-      type TEXT NOT NULL CHECK(type IN ('bourbon', 'scotch', 'irish', 'japanese', 'rye', 'tennessee', 'canadian', 'other')),
-      distillery TEXT NOT NULL,
-      region TEXT,
-      age INTEGER,
-      abv REAL,
-      size TEXT,
-      description TEXT,
-      tasting_notes TEXT,
-      rating REAL CHECK(rating >= 0 AND rating <= 10),
-      created_by INTEGER NOT NULL,
-      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-      FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE CASCADE
-    )
-  `);
+  // Create all tables with the full schema (no-op for existing tables via IF NOT EXISTS)
+  createAllTables(db);
 
   // Add new columns to users table if they don't exist (for existing databases)
   try {
@@ -320,61 +280,6 @@ export function initializeDatabase() {
   } catch (error) {
     // Table doesn't exist yet, will be created above
   }
-
-  // Create whiskey_comments table
-  db.exec(`
-    CREATE TABLE IF NOT EXISTS whiskey_comments (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      whiskey_id INTEGER NOT NULL,
-      user_id INTEGER NOT NULL,
-      content TEXT NOT NULL,
-      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-      FOREIGN KEY (whiskey_id) REFERENCES whiskeys(id) ON DELETE CASCADE,
-      FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-    )
-  `);
-
-  // Create backup_schedules table
-  db.exec(`
-    CREATE TABLE IF NOT EXISTS backup_schedules (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      user_id INTEGER NOT NULL UNIQUE,
-      interval TEXT NOT NULL DEFAULT 'weekly',
-      format TEXT NOT NULL DEFAULT 'json',
-      retention_days INTEGER DEFAULT 30,
-      last_run_at DATETIME,
-      next_run_at DATETIME,
-      FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-    )
-  `);
-
-  // Create backups table
-  db.exec(`
-    CREATE TABLE IF NOT EXISTS backups (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      user_id INTEGER NOT NULL,
-      filename TEXT NOT NULL,
-      format TEXT NOT NULL,
-      trigger_type TEXT NOT NULL,
-      size_bytes INTEGER,
-      whiskey_count INTEGER,
-      comment_count INTEGER,
-      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-      FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-    )
-  `);
-
-  // Create indexes
-  db.exec(`
-    CREATE INDEX IF NOT EXISTS idx_whiskeys_type ON whiskeys(type);
-    CREATE INDEX IF NOT EXISTS idx_whiskeys_distillery ON whiskeys(distillery);
-    CREATE INDEX IF NOT EXISTS idx_whiskeys_created_by ON whiskeys(created_by);
-    CREATE INDEX IF NOT EXISTS idx_whiskey_comments_whiskey_id ON whiskey_comments(whiskey_id);
-    CREATE INDEX IF NOT EXISTS idx_whiskey_comments_user_id ON whiskey_comments(user_id);
-    CREATE INDEX IF NOT EXISTS idx_backups_user_id ON backups(user_id);
-    CREATE INDEX IF NOT EXISTS idx_backup_schedules_user_id ON backup_schedules(user_id);
-  `);
 
   console.log('Database initialized successfully');
 }

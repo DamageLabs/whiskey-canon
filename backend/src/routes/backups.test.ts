@@ -354,6 +354,165 @@ describe('Backup Routes', () => {
     });
   });
 
+  describe('POST /api/backups/upload', () => {
+    it('returns 401 for unauthenticated upload', async () => {
+      const response = await request(app)
+        .post('/api/backups/upload')
+        .attach('file', Buffer.from('{}'), 'backup.json');
+      expect(response.status).toBe(401);
+    });
+
+    it('uploads a valid JSON backup file', async () => {
+      const { agent, user } = await createAuthenticatedAgent(app);
+      createTestWhiskey(user.id, { name: 'Buffalo Trace', distillery: 'Buffalo Trace' });
+
+      // First create a backup to get valid data
+      const createResponse = await agent.post('/api/backups').send({ format: 'json' });
+      const backupId = createResponse.body.backup.id;
+      const downloadResponse = await agent.get(`/api/backups/${backupId}/download`);
+      const backupContent = JSON.stringify(downloadResponse.body);
+
+      const response = await agent
+        .post('/api/backups/upload')
+        .attach('file', Buffer.from(backupContent), 'my-backup.json');
+
+      expect(response.status).toBe(201);
+      expect(response.body.backup).toBeDefined();
+      expect(response.body.backup.format).toBe('json');
+      expect(response.body.backup.trigger_type).toBe('upload');
+      expect(response.body.backup.whiskey_count).toBe(1);
+      expect(response.body.message).toBe('Backup uploaded successfully');
+    });
+
+    it('can restore from an uploaded backup', async () => {
+      const { agent, user } = await createAuthenticatedAgent(app);
+      createTestWhiskey(user.id, { name: 'Buffalo Trace', distillery: 'Buffalo Trace' });
+
+      // Create and download a backup
+      const createResponse = await agent.post('/api/backups').send({ format: 'json' });
+      const backupId = createResponse.body.backup.id;
+      const downloadResponse = await agent.get(`/api/backups/${backupId}/download`);
+      const backupContent = JSON.stringify(downloadResponse.body);
+
+      // Upload the backup
+      const uploadResponse = await agent
+        .post('/api/backups/upload')
+        .attach('file', Buffer.from(backupContent), 'my-backup.json');
+      const uploadedId = uploadResponse.body.backup.id;
+
+      // Preview restore
+      const previewResponse = await agent
+        .post(`/api/backups/${uploadedId}/restore`)
+        .send({ dryRun: true });
+
+      expect(previewResponse.status).toBe(200);
+      expect(previewResponse.body.preview).toBeDefined();
+      expect(previewResponse.body.preview.whiskeyCount).toBe(1);
+    });
+
+    it('returns 400 for invalid JSON content', async () => {
+      const { agent } = await createAuthenticatedAgent(app);
+
+      const response = await agent
+        .post('/api/backups/upload')
+        .attach('file', Buffer.from('not valid json'), 'backup.json');
+
+      expect(response.status).toBe(400);
+      expect(response.body.error).toBe('Invalid JSON file');
+    });
+
+    it('returns 400 for JSON missing schemaVersion', async () => {
+      const { agent } = await createAuthenticatedAgent(app);
+      const content = JSON.stringify({ whiskeys: [], comments: [] });
+
+      const response = await agent
+        .post('/api/backups/upload')
+        .attach('file', Buffer.from(content), 'backup.json');
+
+      expect(response.status).toBe(400);
+      expect(response.body.error).toBe('Missing or invalid schemaVersion');
+    });
+
+    it('returns 400 for JSON missing whiskeys array', async () => {
+      const { agent } = await createAuthenticatedAgent(app);
+      const content = JSON.stringify({ schemaVersion: 1, comments: [] });
+
+      const response = await agent
+        .post('/api/backups/upload')
+        .attach('file', Buffer.from(content), 'backup.json');
+
+      expect(response.status).toBe(400);
+      expect(response.body.error).toBe('Missing or invalid whiskeys array');
+    });
+
+    it('returns 400 for JSON missing comments array', async () => {
+      const { agent } = await createAuthenticatedAgent(app);
+      const content = JSON.stringify({ schemaVersion: 1, whiskeys: [] });
+
+      const response = await agent
+        .post('/api/backups/upload')
+        .attach('file', Buffer.from(content), 'backup.json');
+
+      expect(response.status).toBe(400);
+      expect(response.body.error).toBe('Missing or invalid comments array');
+    });
+
+    it('returns 400 for non-JSON file', async () => {
+      const { agent } = await createAuthenticatedAgent(app);
+
+      const response = await agent
+        .post('/api/backups/upload')
+        .attach('file', Buffer.from('col1,col2\nval1,val2'), 'backup.csv');
+
+      expect(response.status).toBe(400);
+      expect(response.body.error).toBe('Only JSON files are allowed');
+    });
+
+    it('returns 400 when no file is provided', async () => {
+      const { agent } = await createAuthenticatedAgent(app);
+
+      const response = await agent.post('/api/backups/upload');
+
+      expect(response.status).toBe(400);
+      expect(response.body.error).toBe('No file uploaded');
+    });
+
+    it('uploaded backup appears in backup list', async () => {
+      const { agent } = await createAuthenticatedAgent(app);
+      const content = JSON.stringify({
+        schemaVersion: 1,
+        exportedAt: new Date().toISOString(),
+        user: {},
+        whiskeys: [],
+        comments: [],
+      });
+
+      await agent.post('/api/backups/upload').attach('file', Buffer.from(content), 'backup.json');
+
+      const listResponse = await agent.get('/api/backups');
+      expect(listResponse.body.backups).toHaveLength(1);
+      expect(listResponse.body.backups[0].trigger_type).toBe('upload');
+    });
+
+    it('other users cannot see uploaded backups', async () => {
+      const { agent: agent1 } = await createAuthenticatedAgent(app, 'user1', 'user1@test.com');
+      const { agent: agent2 } = await createAuthenticatedAgent(app, 'user2', 'user2@test.com');
+
+      const content = JSON.stringify({
+        schemaVersion: 1,
+        exportedAt: new Date().toISOString(),
+        user: {},
+        whiskeys: [],
+        comments: [],
+      });
+
+      await agent1.post('/api/backups/upload').attach('file', Buffer.from(content), 'backup.json');
+
+      const listResponse = await agent2.get('/api/backups');
+      expect(listResponse.body.backups).toHaveLength(0);
+    });
+  });
+
   describe('User Isolation', () => {
     it('users cannot access each other backups', async () => {
       const { agent: agent1 } = await createAuthenticatedAgent(app, 'user1', 'user1@test.com');

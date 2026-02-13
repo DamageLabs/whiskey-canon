@@ -4,22 +4,28 @@ import { createTestApp, createAuthenticatedAgent } from '../test/helpers';
 import { UserModel } from '../models/User';
 import type { Application } from 'express';
 
+// Shared mock for the messages.create method
+const mockCreate = vi.fn().mockResolvedValue({
+  content: [{ type: 'text', text: 'Hi' }],
+});
+
 // Mock the Anthropic SDK to prevent real API calls during key validation
-vi.mock('@anthropic-ai/sdk', () => ({
-  default: vi.fn().mockImplementation(() => ({
-    messages: {
-      create: vi.fn().mockResolvedValue({
-        content: [{ type: 'text', text: 'Hi' }],
-      }),
+vi.mock('@anthropic-ai/sdk', () => {
+  return {
+    default: class MockAnthropic {
+      messages = { create: mockCreate };
     },
-  })),
-}));
+  };
+});
 
 describe('API Key Routes', () => {
   let app: Application;
 
   beforeEach(() => {
     app = createTestApp();
+    mockCreate.mockReset().mockResolvedValue({
+      content: [{ type: 'text', text: 'Hi' }],
+    });
   });
 
   describe('GET /api/auth/api-key', () => {
@@ -70,6 +76,41 @@ describe('API Key Routes', () => {
       const { agent } = await createAuthenticatedAgent(app);
       const response = await agent.put('/api/auth/api-key').send({ apiKey: 'short' });
       expect(response.status).toBe(400);
+    });
+
+    it('returns 400 when Anthropic rejects the key as invalid', async () => {
+      // Simulate a 401 authentication error
+      mockCreate.mockRejectedValueOnce({
+        status: 401,
+        error: { type: 'authentication_error' },
+      });
+
+      const { agent } = await createAuthenticatedAgent(app);
+      const response = await agent
+        .put('/api/auth/api-key')
+        .send({ apiKey: 'sk-ant-api03-invalid-key-here' });
+
+      expect(response.status).toBe(400);
+      expect(response.body.error).toContain('Invalid API key');
+    });
+
+    it('still saves key when Anthropic returns a non-auth error', async () => {
+      // Simulate a rate limit error (not auth)
+      mockCreate.mockRejectedValueOnce({
+        status: 429,
+        error: { type: 'rate_limit_error' },
+      });
+
+      const { agent, user } = await createAuthenticatedAgent(app);
+      const response = await agent
+        .put('/api/auth/api-key')
+        .send({ apiKey: 'sk-ant-api03-ratelimited-key' });
+
+      expect(response.status).toBe(200);
+      expect(response.body.message).toContain('saved');
+
+      // Verify it's actually stored
+      expect(UserModel.getApiKey(user.id)).toBe('sk-ant-api03-ratelimited-key');
     });
   });
 

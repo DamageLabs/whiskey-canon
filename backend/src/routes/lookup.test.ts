@@ -125,6 +125,58 @@ describe('Lookup Routes', () => {
       });
     });
 
+    it('returns 400 for whitespace-only name', async () => {
+      const configMock = await import('../utils/config');
+      Object.defineProperty(configMock.config, 'anthropicApiKey', {
+        value: 'test-key',
+        writable: true,
+        configurable: true,
+      });
+
+      const { agent } = await createAuthenticatedAgent(app);
+      const response = await agent.post('/api/whiskeys/lookup').send({ name: '   ' });
+      expect(response.status).toBe(400);
+      expect(response.body.error).toContain('name');
+
+      Object.defineProperty(configMock.config, 'anthropicApiKey', {
+        value: null,
+        writable: true,
+        configurable: true,
+      });
+    });
+
+    it('uses user stored API key over server key', async () => {
+      const configMock = await import('../utils/config');
+      Object.defineProperty(configMock.config, 'anthropicApiKey', {
+        value: 'server-key',
+        writable: true,
+        configurable: true,
+      });
+
+      const { UserModel } = await import('../models/User');
+
+      mockLookupByName.mockResolvedValue({
+        name: 'Test Whiskey',
+        type: 'bourbon',
+      });
+
+      const { agent, user } = await createAuthenticatedAgent(app);
+      UserModel.saveApiKey(user.id, 'user-personal-key');
+
+      const response = await agent.post('/api/whiskeys/lookup').send({ name: 'Test' });
+
+      expect(response.status).toBe(200);
+      expect(mockLookupByName).toHaveBeenCalledWith('user-personal-key', 'Test');
+
+      // Cleanup
+      UserModel.deleteApiKey(user.id);
+      Object.defineProperty(configMock.config, 'anthropicApiKey', {
+        value: null,
+        writable: true,
+        configurable: true,
+      });
+    });
+
     it('handles API errors gracefully', async () => {
       const configMock = await import('../utils/config');
       Object.defineProperty(configMock.config, 'anthropicApiKey', {
@@ -184,6 +236,31 @@ describe('Lookup Routes', () => {
       expect(response.body.data.name).toBe('Lagavulin 16 Year Old');
       expect(response.body.data.type).toBe('scotch');
       expect(mockLookupByImage).toHaveBeenCalled();
+
+      Object.defineProperty(configMock.config, 'anthropicApiKey', {
+        value: null,
+        writable: true,
+        configurable: true,
+      });
+    });
+
+    it('rejects non-image file types', async () => {
+      const configMock = await import('../utils/config');
+      Object.defineProperty(configMock.config, 'anthropicApiKey', {
+        value: 'test-key',
+        writable: true,
+        configurable: true,
+      });
+
+      const { agent } = await createAuthenticatedAgent(app);
+      const textBuffer = Buffer.from('not an image');
+
+      const response = await agent
+        .post('/api/whiskeys/lookup')
+        .attach('image', textBuffer, { filename: 'file.txt', contentType: 'text/plain' });
+
+      expect(response.status).toBe(400);
+      expect(response.body.error).toContain('Only JPEG, PNG, and WebP');
 
       Object.defineProperty(configMock.config, 'anthropicApiKey', {
         value: null,

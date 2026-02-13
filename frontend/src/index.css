@@ -111,3 +111,9 @@ a:hover {
 .table > tbody > tr:hover {
   background-color: var(--zinc-700) !important;
 }
+
+/* AI-suggested field indicator */
+.ai-suggested {
+  border-color: #5B9BD5 !important;
+  background-color: rgba(91, 155, 213, 0.05) !important;
+}

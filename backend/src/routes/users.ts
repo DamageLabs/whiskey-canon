@@ -16,7 +16,7 @@ router.get(
   param('username').trim().notEmpty().isLength({ min: 3, max: 50 }).withMessage('Invalid username'),
   validate,
   (req: AuthRequest, res: Response) => {
-    const { username } = req.params;
+    const username = req.params.username as string;
 
     try {
       const profile = UserModel.getPublicProfile(username);
@@ -51,7 +51,7 @@ router.get(
   param('username').trim().notEmpty().isLength({ min: 3, max: 50 }).withMessage('Invalid username'),
   validate,
   (req: AuthRequest, res: Response) => {
-    const { username } = req.params;
+    const username = req.params.username as string;
 
     try {
       const profile = UserModel.getPublicProfile(username);

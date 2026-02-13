@@ -96,7 +96,7 @@ router.get(
   validate,
   (req: AuthRequest, res: Response) => {
     try {
-      const backupId = parseInt(req.params.id, 10);
+      const backupId = parseInt(req.params.id as string, 10);
       const record = BackupModel.findById(backupId, req.user!.id);
 
       if (!record) {
@@ -133,7 +133,7 @@ router.post(
   validate,
   (req: AuthRequest, res: Response) => {
     try {
-      const backupId = parseInt(req.params.id, 10);
+      const backupId = parseInt(req.params.id as string, 10);
       const { dryRun, conflictStrategy } = req.body;
 
       if (dryRun) {
@@ -166,7 +166,7 @@ router.delete(
   validate,
   (req: AuthRequest, res: Response) => {
     try {
-      const backupId = parseInt(req.params.id, 10);
+      const backupId = parseInt(req.params.id as string, 10);
       const record = BackupModel.findById(backupId, req.user!.id);
 
       if (!record) {

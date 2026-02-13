@@ -15,7 +15,7 @@ router.get(
   param('whiskeyId').isInt({ min: 1 }).withMessage('Whiskey ID must be a positive integer'),
   validate,
   async (req: AuthRequest, res: Response) => {
-    const whiskeyId = parseInt(req.params.whiskeyId);
+    const whiskeyId = parseInt(req.params.whiskeyId as string);
 
     try {
       // Check if user has access to this whiskey
@@ -45,7 +45,7 @@ router.get(
   param('whiskeyId').isInt({ min: 1 }).withMessage('Whiskey ID must be a positive integer'),
   validate,
   async (req: AuthRequest, res: Response) => {
-    const whiskeyId = parseInt(req.params.whiskeyId);
+    const whiskeyId = parseInt(req.params.whiskeyId as string);
 
     try {
       const count = CommentModel.countByWhiskeyId(whiskeyId);
@@ -74,7 +74,7 @@ router.post(
       return res.status(400).json({ errors: errors.array() });
     }
 
-    const whiskeyId = parseInt(req.params.whiskeyId);
+    const whiskeyId = parseInt(req.params.whiskeyId as string);
     const { content } = req.body;
 
     try {
@@ -115,7 +115,7 @@ router.put(
       return res.status(400).json({ errors: errors.array() });
     }
 
-    const commentId = parseInt(req.params.id);
+    const commentId = parseInt(req.params.id as string);
     const { content } = req.body;
 
     try {
@@ -144,7 +144,7 @@ router.delete(
   param('id').isInt({ min: 1 }).withMessage('Comment ID must be a positive integer'),
   validate,
   async (req: AuthRequest, res: Response) => {
-    const commentId = parseInt(req.params.id);
+    const commentId = parseInt(req.params.id as string);
 
     try {
       // Check if user owns the comment or is admin

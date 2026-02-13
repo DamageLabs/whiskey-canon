@@ -1,4 +1,5 @@
 import { Router, Response } from 'express';
+import multer from 'multer';
 import { body, param, query } from 'express-validator';
 import { requireAuth, AuthRequest } from '../middleware/auth';
 import { validate } from '../middleware/validate';
@@ -10,8 +11,22 @@ import {
   deleteBackupFile,
   restorePreview,
   restoreFromBackup,
+  validateAndStoreUpload,
 } from '../services/backup-service';
 import { backupLimiter } from '../middleware/rateLimiter';
+
+// Configure multer for JSON backup file uploads
+const backupUpload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 10 * 1024 * 1024 }, // 10MB limit
+  fileFilter: (_req, file, cb) => {
+    if (file.mimetype === 'application/json' || file.originalname.endsWith('.json')) {
+      cb(null, true);
+    } else {
+      cb(new Error('Only JSON files are allowed'));
+    }
+  },
+});
 
 const router = Router();
 
@@ -32,6 +47,44 @@ router.post(
     } catch (error) {
       console.error('Backup creation error:', error);
       res.status(500).json({ error: 'Failed to create backup' });
+    }
+  }
+);
+
+// POST /api/backups/upload - Upload an existing JSON backup file
+router.post(
+  '/upload',
+  backupLimiter,
+  (req: AuthRequest, res: Response, next) => {
+    backupUpload.single('file')(req, res, (err) => {
+      if (err instanceof multer.MulterError) {
+        return res.status(400).json({ error: err.message });
+      }
+      if (err) {
+        return res.status(400).json({ error: err.message });
+      }
+      next();
+    });
+  },
+  (req: AuthRequest, res: Response) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ error: 'No file uploaded' });
+      }
+
+      const { backup } = validateAndStoreUpload(
+        req.user!.id,
+        req.file.buffer,
+        req.file.originalname
+      );
+
+      res.status(201).json({ backup, message: 'Backup uploaded successfully' });
+    } catch (error: any) {
+      console.error('Backup upload error:', error);
+      if (error.message === 'Invalid JSON file' || error.message.startsWith('Missing or invalid')) {
+        return res.status(400).json({ error: error.message });
+      }
+      res.status(500).json({ error: 'Failed to upload backup' });
     }
   }
 );

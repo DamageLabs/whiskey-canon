@@ -54,7 +54,7 @@ All items below have been implemented. Verify they are active in your deployment
 - [ ] Error responses do not leak stack traces or internal details (automatic when `NODE_ENV=production`)
 - [ ] Nginx access and error logs are configured (`/var/log/nginx/whiskey-canon.*.log`)
 - [ ] Certbot auto-renewal is scheduled (daily at 3 AM via systemd timer or cron)
-- [ ] Dependencies are kept up to date — run `npm audit` regularly
+- [ ] Dependencies are kept up to date — `npm audit` runs automatically in CI (#48); Dependabot opens weekly PRs
 
 ---
 
@@ -127,7 +127,6 @@ The following security improvements are tracked but not yet implemented:
 
 | Issue | Description | Mitigation |
 |---|---|---|
-| [#48](https://github.com/DamageLabs/whiskey-canon/issues/48) | `npm audit` not yet integrated into CI | Run `npm audit` manually before deployments |
 | [#50](https://github.com/DamageLabs/whiskey-canon/issues/50) | No structured logging with request IDs | Nginx access logs provide basic request tracing |
 
 ### Additional Considerations

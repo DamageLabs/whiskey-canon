@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Per-user backup system with JSON and CSV export formats ([#89](https://github.com/DamageLabs/whiskey-canon/issues/89), [#77](https://github.com/DamageLabs/whiskey-canon/issues/77))
+- JSON import/export for collection backup and cross-instance migration ([#35](https://github.com/DamageLabs/whiskey-canon/issues/35))
 - Backup restore with dry-run preview and conflict resolution (skip/overwrite strategies)
 - Scheduled automatic backups with configurable intervals (daily/weekly/monthly) via node-cron
 - Admin full database backup using SQLite native `db.backup()` API
@@ -20,6 +21,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - 74 new backend tests: Backup model (13), BackupSchedule model (10), backup routes (31), admin backup routes (20)
 - `BACKUP_DIR` and `BACKUP_MAX_SIZE_MB` environment variables
 - Rate limiter for backup endpoints (5 requests per 15 minutes)
+
+### Issues Resolved
+
+- [#89](https://github.com/DamageLabs/whiskey-canon/issues/89) — Add scheduled automatic backups and on-demand manual backup/restore
+- [#77](https://github.com/DamageLabs/whiskey-canon/issues/77) — Add JSON import/export for collection backup and cross-instance migration
+- [#35](https://github.com/DamageLabs/whiskey-canon/issues/35) — Add user data export functionality for personal records and GDPR compliance
 
 ## [1.5.0] - 2026-02-08
 
@@ -41,6 +48,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Shared `validate` middleware to eliminate repeated validation boilerplate across routes
 - Security section in `CLAUDE.md` referencing the new security documentation
 
+### Issues Resolved
+
+- [#46](https://github.com/DamageLabs/whiskey-canon/issues/46) — Add Helmet middleware for HTTP security headers
+- [#43](https://github.com/DamageLabs/whiskey-canon/issues/43) — Add express-rate-limit to auth endpoints
+- [#45](https://github.com/DamageLabs/whiskey-canon/issues/45) — Add CSRF token validation for session-based authentication
+- [#47](https://github.com/DamageLabs/whiskey-canon/issues/47) — Add express-validator to all routes that accept user input
+- [#52](https://github.com/DamageLabs/whiskey-canon/issues/52) — Enforce stronger password policy with minimum complexity requirements
+- [#44](https://github.com/DamageLabs/whiskey-canon/issues/44) — Replace in-memory session store with persistent store
+- [#49](https://github.com/DamageLabs/whiskey-canon/issues/49) — Validate required environment variables at startup
+- [#51](https://github.com/DamageLabs/whiskey-canon/issues/51) — Create security hardening checklist for deployment
+
 ## [1.4.0] - 2026-02-07
 
 ### Added
@@ -57,6 +75,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Footer tagline capitalization ("Track, Taste, and Treasure your Whiskey collection")
 
+### Issues Resolved
+
+- [#86](https://github.com/DamageLabs/whiskey-canon/issues/86) — Add public profiles directory page
+
 ## [1.3.0] - 2026-02-06
 
 ### Added
@@ -70,6 +92,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Beta environment setup documentation
 - Prioritized development roadmap covering all open issues (ROADMAP.md)
 
+### Issues Resolved
+
+- [#40](https://github.com/DamageLabs/whiskey-canon/issues/40) — Wire up Contact Us form with Resend email
+
 ## [1.2.0] - 2026-02-05
 
 ### Added
@@ -78,6 +104,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Public profile pages accessible at `/u/:username`
 - Collection statistics on public profiles (total bottles, average rating, distilleries, countries, type breakdown)
 - Comprehensive test coverage for profile visibility feature (78 new tests)
+
+### Issues Resolved
+
+- [#34](https://github.com/DamageLabs/whiskey-canon/issues/34) — Add public/private visibility toggle for user profiles
 
 ## [1.1.0] - 2026-02-05
 
@@ -119,7 +149,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Nginx reverse proxy configuration with Let's Encrypt SSL support
+- Nginx reverse proxy configuration with Let's Encrypt SSL support ([#1](https://github.com/DamageLabs/whiskey-canon/issues/1))
 - `obtained_from` field to track who gifted a bottle
 - Comments system for whiskeys with full CRUD operations
 - Unit tests for comments and obtained_from field
@@ -128,6 +158,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Session cookies for production behind Nginx reverse proxy
 - WhiskeyModel.create() to insert all fields from seed data
+
+### Issues Resolved
+
+- [#1](https://github.com/DamageLabs/whiskey-canon/issues/1) — Add SSL/TLS Support for HTTPS Connection
 
 ## [1.0.3] - 2026-02-02
 
@@ -167,12 +201,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - New dark UI theme with amber accents
 - Landing page outlining site features
-- OnlyDrams CSV import support (PR #7)
+- OnlyDrams CSV import support ([#6](https://github.com/DamageLabs/whiskey-canon/issues/6))
 
 ### Changed
 
 - Updated header and footer design
 - Improved registration page styling
+
+### Issues Resolved
+
+- [#6](https://github.com/DamageLabs/whiskey-canon/issues/6) — OnlyDrams Import
 
 ## [1.0.0] - 2026-01-20
 

@@ -18,6 +18,11 @@ vi.mock('../components/Footer', () => ({
   Footer: () => <div data-testid="footer">Footer</div>,
 }));
 
+// Mock CSRF headers so the CSRF fetch doesn't consume the mocked Response body
+vi.mock('../utils/csrf', () => ({
+  getCsrfHeaders: vi.fn().mockResolvedValue({ 'x-csrf-token': 'test-token' }),
+}));
+
 const renderContactPage = () => {
   return render(
     <MemoryRouter>
@@ -67,7 +72,9 @@ describe('ContactPage', () => {
       renderContactPage();
       fillAndSubmitForm();
 
-      expect(screen.getByText('Sending...')).toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.getByText('Sending...')).toBeInTheDocument();
+      });
       expect(document.querySelector('.spinner-border')).toBeInTheDocument();
 
       // Resolve to clean up

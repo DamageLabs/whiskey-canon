@@ -27,6 +27,15 @@ export const contactLimiter = rateLimit({
   message: { error: 'Too many requests. Please try again later.' },
 });
 
+// AI whiskey lookup
+export const lookupLimiter = rateLimit({
+  windowMs: 60 * 1000, // 1 minute
+  max: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many lookup requests. Please try again later.' },
+});
+
 // Backup creation
 export const backupLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes

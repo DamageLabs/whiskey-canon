@@ -298,6 +298,27 @@ export const backupAPI = {
       body: JSON.stringify({ dryRun, conflictStrategy }),
     }),
 
+  upload: async (file: File): Promise<{ backup: BackupRecord; message: string }> => {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const csrfHeaders = await getCsrfHeaders();
+    const response = await fetch(`${API_BASE}/backups/upload`, {
+      method: 'POST',
+      credentials: 'include',
+      headers: csrfHeaders,
+      body: formData,
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error || 'Failed to upload backup');
+    }
+
+    return data;
+  },
+
   delete: (id: number): Promise<{ message: string }> =>
     fetchAPI(`/backups/${id}`, { method: 'DELETE' }),
 

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { backupAPI } from '../services/api';
 import { BackupRecord, BackupSchedule } from '../types';
 import { RestoreConfirmModal } from './RestoreConfirmModal';
@@ -31,6 +31,8 @@ export function BackupManager() {
   const [createFormat, setCreateFormat] = useState<string>('json');
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const [restoreBackupId, setRestoreBackupId] = useState<number | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const uploadInputRef = useRef<HTMLInputElement>(null);
   const [savingSchedule, setSavingSchedule] = useState(false);
   const [scheduleChanged, setScheduleChanged] = useState(false);
 
@@ -68,6 +70,28 @@ export function BackupManager() {
       setMessage({ type: 'error', text: err.message || 'Failed to create backup' });
     } finally {
       setCreating(false);
+    }
+  };
+
+  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Reset input so same file can be re-selected
+    if (uploadInputRef.current) uploadInputRef.current.value = '';
+
+    setUploading(true);
+    setMessage(null);
+    try {
+      const data = await backupAPI.upload(file);
+      setMessage({ type: 'success', text: 'Backup uploaded successfully' });
+      await loadBackups();
+      // Open restore modal for the uploaded backup
+      setRestoreBackupId(data.backup.id);
+    } catch (err: any) {
+      setMessage({ type: 'error', text: err.message || 'Failed to upload backup' });
+    } finally {
+      setUploading(false);
     }
   };
 
@@ -158,6 +182,30 @@ export function BackupManager() {
               </>
             )}
           </button>
+          <input
+            ref={uploadInputRef}
+            type="file"
+            accept=".json"
+            className="d-none"
+            onChange={handleUpload}
+          />
+          <button
+            className="btn btn-outline-primary"
+            onClick={() => uploadInputRef.current?.click()}
+            disabled={uploading}
+          >
+            {uploading ? (
+              <>
+                <span className="spinner-border spinner-border-sm me-1"></span>
+                Uploading...
+              </>
+            ) : (
+              <>
+                <i className="bi bi-upload me-1"></i>
+                Upload Backup
+              </>
+            )}
+          </button>
         </div>
       </div>
 
@@ -192,7 +240,7 @@ export function BackupManager() {
                     <td>{backup.whiskey_count ?? '—'}</td>
                     <td>
                       <span
-                        className={`badge bg-${backup.trigger_type === 'manual' ? 'primary' : 'success'}`}
+                        className={`badge bg-${backup.trigger_type === 'manual' ? 'primary' : backup.trigger_type === 'upload' ? 'warning' : 'success'}`}
                       >
                         {backup.trigger_type}
                       </span>

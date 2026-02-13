@@ -256,6 +256,51 @@ export function deleteBackupFile(userId: number, filename: string): boolean {
   return false;
 }
 
+export function validateAndStoreUpload(
+  userId: number,
+  buffer: Buffer,
+  originalFilename: string
+): { backup: ReturnType<typeof BackupModel.create>; data: BackupData } {
+  // Parse JSON
+  let data: BackupData;
+  try {
+    data = JSON.parse(buffer.toString('utf-8'));
+  } catch {
+    throw new Error('Invalid JSON file');
+  }
+
+  // Validate required fields
+  if (!data.schemaVersion || typeof data.schemaVersion !== 'number') {
+    throw new Error('Missing or invalid schemaVersion');
+  }
+  if (!Array.isArray(data.whiskeys)) {
+    throw new Error('Missing or invalid whiskeys array');
+  }
+  if (!Array.isArray(data.comments)) {
+    throw new Error('Missing or invalid comments array');
+  }
+
+  // Write file to user backup directory
+  const userDir = ensureBackupDir(userId);
+  const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+  const filename = `upload-${timestamp}.json`;
+  const filePath = path.join(userDir, filename);
+  fs.writeFileSync(filePath, buffer);
+
+  const sizeBytes = buffer.length;
+  const record = BackupModel.create(
+    userId,
+    filename,
+    'json',
+    'upload',
+    sizeBytes,
+    data.whiskeys.length,
+    data.comments.length
+  );
+
+  return { backup: record, data };
+}
+
 export function restorePreview(userId: number, backupId: number): RestorePreview {
   const record = BackupModel.findById(backupId, userId);
   if (!record) {

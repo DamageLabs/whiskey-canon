@@ -35,9 +35,7 @@ describe('Lookup Routes', () => {
     it('returns 400 when no API key configured', async () => {
       const { agent } = await createAuthenticatedAgent(app);
       // anthropicApiKey is null in test config by default
-      const response = await agent
-        .post('/api/whiskeys/lookup')
-        .send({ name: 'Buffalo Trace' });
+      const response = await agent.post('/api/whiskeys/lookup').send({ name: 'Buffalo Trace' });
       expect(response.status).toBe(400);
       expect(response.body.error).toContain('No API key configured');
     });
@@ -52,9 +50,7 @@ describe('Lookup Routes', () => {
       });
 
       const { agent } = await createAuthenticatedAgent(app);
-      const response = await agent
-        .post('/api/whiskeys/lookup')
-        .send({});
+      const response = await agent.post('/api/whiskeys/lookup').send({});
       expect(response.status).toBe(400);
       expect(response.body.error).toContain('name');
 
@@ -87,9 +83,7 @@ describe('Lookup Routes', () => {
       });
 
       const { agent } = await createAuthenticatedAgent(app);
-      const response = await agent
-        .post('/api/whiskeys/lookup')
-        .send({ name: 'Buffalo Trace' });
+      const response = await agent.post('/api/whiskeys/lookup').send({ name: 'Buffalo Trace' });
 
       expect(response.status).toBe(200);
       expect(response.body.found).toBe(true);
@@ -142,9 +136,7 @@ describe('Lookup Routes', () => {
       mockLookupByName.mockRejectedValue(new Error('API rate limit exceeded'));
 
       const { agent } = await createAuthenticatedAgent(app);
-      const response = await agent
-        .post('/api/whiskeys/lookup')
-        .send({ name: 'Buffalo Trace' });
+      const response = await agent.post('/api/whiskeys/lookup').send({ name: 'Buffalo Trace' });
 
       expect(response.status).toBe(500);
       expect(response.body.error).toContain('Lookup failed');
@@ -179,9 +171,8 @@ describe('Lookup Routes', () => {
       const { agent } = await createAuthenticatedAgent(app);
       // Create a minimal valid JPEG buffer (JPEG magic bytes)
       const jpegBuffer = Buffer.from([
-        0xff, 0xd8, 0xff, 0xe0, 0x00, 0x10, 0x4a, 0x46,
-        0x49, 0x46, 0x00, 0x01, 0x01, 0x00, 0x00, 0x01,
-        0x00, 0x01, 0x00, 0x00, 0xff, 0xd9,
+        0xff, 0xd8, 0xff, 0xe0, 0x00, 0x10, 0x4a, 0x46, 0x49, 0x46, 0x00, 0x01, 0x01, 0x00, 0x00,
+        0x01, 0x00, 0x01, 0x00, 0x00, 0xff, 0xd9,
       ]);
 
       const response = await agent
@@ -213,9 +204,8 @@ describe('Lookup Routes', () => {
 
       const { agent } = await createAuthenticatedAgent(app);
       const jpegBuffer = Buffer.from([
-        0xff, 0xd8, 0xff, 0xe0, 0x00, 0x10, 0x4a, 0x46,
-        0x49, 0x46, 0x00, 0x01, 0x01, 0x00, 0x00, 0x01,
-        0x00, 0x01, 0x00, 0x00, 0xff, 0xd9,
+        0xff, 0xd8, 0xff, 0xe0, 0x00, 0x10, 0x4a, 0x46, 0x49, 0x46, 0x00, 0x01, 0x01, 0x00, 0x00,
+        0x01, 0x00, 0x01, 0x00, 0x00, 0xff, 0xd9,
       ]);
 
       const response = await agent

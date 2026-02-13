@@ -557,9 +557,8 @@ export default function ProfilePage() {
                 <div className="info-group">
                   <label>Anthropic API Key</label>
                   <p className="text-muted mb-3" style={{ fontSize: '0.9rem' }}>
-                    Add your Anthropic API key to enable AI-powered whiskey lookups.
-                    Your key is encrypted and stored securely.
-                    Get a key at{' '}
+                    Add your Anthropic API key to enable AI-powered whiskey lookups. Your key is
+                    encrypted and stored securely. Get a key at{' '}
                     <a
                       href="https://console.anthropic.com/settings/keys"
                       target="_blank"

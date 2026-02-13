@@ -331,11 +331,19 @@ export function WhiskeyForm({ whiskey, onClose, onSuccess }: WhiskeyFormProps) {
                         className="btn btn-outline-primary"
                         onClick={handleTextLookup}
                         disabled={lookingUp || !formData.name.trim()}
-                        title={!authUser?.has_api_key ? 'Add your Anthropic API key in Profile settings to enable AI lookups' : undefined}
+                        title={
+                          !authUser?.has_api_key
+                            ? 'Add your Anthropic API key in Profile settings to enable AI lookups'
+                            : undefined
+                        }
                       >
                         {lookingUp ? (
                           <>
-                            <span className="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+                            <span
+                              className="spinner-border spinner-border-sm me-1"
+                              role="status"
+                              aria-hidden="true"
+                            ></span>
                             Looking up...
                           </>
                         ) : (
@@ -347,7 +355,11 @@ export function WhiskeyForm({ whiskey, onClose, onSuccess }: WhiskeyFormProps) {
                         className="btn btn-outline-secondary"
                         onClick={() => imageInputRef.current?.click()}
                         disabled={lookingUp}
-                        title={!authUser?.has_api_key ? 'Add your Anthropic API key in Profile settings to enable AI lookups' : undefined}
+                        title={
+                          !authUser?.has_api_key
+                            ? 'Add your Anthropic API key in Profile settings to enable AI lookups'
+                            : undefined
+                        }
                       >
                         Scan Label
                       </button>

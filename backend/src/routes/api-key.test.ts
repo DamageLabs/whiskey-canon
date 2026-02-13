@@ -48,9 +48,7 @@ describe('API Key Routes', () => {
 
   describe('PUT /api/auth/api-key', () => {
     it('returns 401 without auth', async () => {
-      const response = await request(app)
-        .put('/api/auth/api-key')
-        .send({ apiKey: 'sk-ant-test' });
+      const response = await request(app).put('/api/auth/api-key').send({ apiKey: 'sk-ant-test' });
       expect(response.status).toBe(401);
     });
 
@@ -70,9 +68,7 @@ describe('API Key Routes', () => {
 
     it('returns 400 for too-short key', async () => {
       const { agent } = await createAuthenticatedAgent(app);
-      const response = await agent
-        .put('/api/auth/api-key')
-        .send({ apiKey: 'short' });
+      const response = await agent.put('/api/auth/api-key').send({ apiKey: 'short' });
       expect(response.status).toBe(400);
     });
   });

@@ -270,8 +270,7 @@ export const lookupAPI = {
 };
 
 export const apiKeyAPI = {
-  getStatus: (): Promise<{ hasKey: boolean; lastFour: string | null }> =>
-    fetchAPI('/auth/api-key'),
+  getStatus: (): Promise<{ hasKey: boolean; lastFour: string | null }> => fetchAPI('/auth/api-key'),
 
   save: (apiKey: string): Promise<{ message: string; lastFour: string }> =>
     fetchAPI('/auth/api-key', {
@@ -279,8 +278,7 @@ export const apiKeyAPI = {
       body: JSON.stringify({ apiKey }),
     }),
 
-  delete: (): Promise<{ message: string }> =>
-    fetchAPI('/auth/api-key', { method: 'DELETE' }),
+  delete: (): Promise<{ message: string }> => fetchAPI('/auth/api-key', { method: 'DELETE' }),
 };
 
 export const statisticsAPI = {

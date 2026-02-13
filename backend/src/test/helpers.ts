@@ -10,6 +10,7 @@ import adminRoutes from '../routes/admin';
 import statisticsRoutes from '../routes/statistics';
 import commentRoutes from '../routes/comments';
 import backupRoutes from '../routes/backups';
+import lookupRoutes from '../routes/lookup';
 import { Role, WhiskeyType } from '../types';
 
 /**
@@ -35,6 +36,7 @@ export function createTestApp(): express.Application {
 
   app.use(attachUser);
   app.use('/api/auth', authRoutes);
+  app.use('/api/whiskeys', lookupRoutes);
   app.use('/api/whiskeys', whiskeyRoutes);
   app.use('/api/admin', adminRoutes);
   app.use('/api/statistics', statisticsRoutes);

@@ -678,7 +678,11 @@ router.put(
       }
 
       console.log('Updating whiskey with data:', whiskeyData);
-      const whiskey = WhiskeyModel.update(parseInt(req.params.id as string), whiskeyData, req.user!.id);
+      const whiskey = WhiskeyModel.update(
+        parseInt(req.params.id as string),
+        whiskeyData,
+        req.user!.id
+      );
 
       if (!whiskey) {
         res

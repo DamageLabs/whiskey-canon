@@ -20,8 +20,7 @@
     "db:update-msrp": "tsx src/utils/update-msrp.ts",
     "db:update-secondary": "tsx src/utils/update-secondary.ts",
     "db:update-quantity": "tsx src/utils/update-quantity.ts",
-    "db:update-remaining": "tsx src/utils/update-remaining-prices.ts",
-    "db:add-indexes": "tsx src/utils/add-indexes.ts"
+    "db:update-remaining": "tsx src/utils/update-remaining-prices.ts"
   },
   "dependencies": {
     "@types/multer": "^2.0.0",

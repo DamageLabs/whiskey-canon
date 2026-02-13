@@ -16,10 +16,11 @@ export default defineConfig({
         'src/index.ts',
         'src/seed*.ts',
         'src/utils/seed*.ts',
-        'src/utils/add-*.ts',
         'src/utils/update-*.ts',
         'src/utils/migrate.ts',
         'src/utils/database.ts',
+        'src/utils/migration-runner.ts',
+        'src/migrations/**/*',
         'src/utils/remove-duplicates.ts',
         // Email utilities - require external service mocking
         'src/utils/email.ts',

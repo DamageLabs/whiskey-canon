@@ -398,8 +398,21 @@ router.post(
 
         const restoreTransaction = db.transaction(() => {
           for (const table of tablesToRestore) {
+            // Get columns present in both backup and live table to handle schema differences
+            const backupCols = db
+              .prepare(`PRAGMA backup_db.table_info("${table}")`)
+              .all() as Array<{ name: string }>;
+            const mainCols = db
+              .prepare(`PRAGMA main.table_info("${table}")`)
+              .all() as Array<{ name: string }>;
+            const mainColNames = new Set(mainCols.map((c) => c.name));
+            const commonCols = backupCols.map((c) => c.name).filter((n) => mainColNames.has(n));
+
             db.exec(`DELETE FROM main."${table}"`);
-            db.exec(`INSERT INTO main."${table}" SELECT * FROM backup_db."${table}"`);
+            const colList = commonCols.map((c) => `"${c}"`).join(', ');
+            db.exec(
+              `INSERT INTO main."${table}" (${colList}) SELECT ${colList} FROM backup_db."${table}"`
+            );
           }
         });
 

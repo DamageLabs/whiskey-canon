@@ -610,8 +610,12 @@ export default function ProfilePage() {
                 </div>
 
                 {/* Anthropic API Key */}
-                <div className={`info-group mb-4${activeProvider === 'anthropic' ? ' border-start border-primary ps-3' : ''}`}>
-                  <label>Anthropic API Key{activeProvider === 'anthropic' ? ' (Active)' : ''}</label>
+                <div
+                  className={`info-group mb-4${activeProvider === 'anthropic' ? ' border-start border-primary ps-3' : ''}`}
+                >
+                  <label>
+                    Anthropic API Key{activeProvider === 'anthropic' ? ' (Active)' : ''}
+                  </label>
                   <p className="text-muted mb-3" style={{ fontSize: '0.9rem' }}>
                     Get a key at{' '}
                     <a
@@ -659,7 +663,9 @@ export default function ProfilePage() {
                 </div>
 
                 {/* OpenAI API Key */}
-                <div className={`info-group${activeProvider === 'openai' ? ' border-start border-primary ps-3' : ''}`}>
+                <div
+                  className={`info-group${activeProvider === 'openai' ? ' border-start border-primary ps-3' : ''}`}
+                >
                   <label>OpenAI API Key{activeProvider === 'openai' ? ' (Active)' : ''}</label>
                   <p className="text-muted mb-3" style={{ fontSize: '0.9rem' }}>
                     Get a key at{' '}

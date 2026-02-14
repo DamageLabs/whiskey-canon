@@ -143,9 +143,7 @@ describe('openai-lookup service', () => {
           messages: expect.arrayContaining([
             expect.objectContaining({
               role: 'user',
-              content: expect.arrayContaining([
-                expect.objectContaining({ type: 'image_url' }),
-              ]),
+              content: expect.arrayContaining([expect.objectContaining({ type: 'image_url' })]),
             }),
           ]),
         })

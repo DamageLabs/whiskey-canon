@@ -261,9 +261,7 @@ describe('API Key Routes', () => {
     });
 
     it('returns 401 without auth', async () => {
-      const response = await request(app)
-        .put('/api/auth/ai-provider')
-        .send({ provider: 'openai' });
+      const response = await request(app).put('/api/auth/ai-provider').send({ provider: 'openai' });
 
       expect(response.status).toBe(401);
     });

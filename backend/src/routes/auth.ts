@@ -387,7 +387,12 @@ router.get('/me', requireAuth, (req: AuthRequest, res) => {
     return res.status(401).json({ error: 'Not authenticated' });
   }
 
-  const { password: _, anthropic_api_key: _key, openai_api_key: _okey, ...userWithoutSensitive } = req.user as any;
+  const {
+    password: _,
+    anthropic_api_key: _key,
+    openai_api_key: _okey,
+    ...userWithoutSensitive
+  } = req.user as any;
   res.json({
     user: {
       ...userWithoutSensitive,

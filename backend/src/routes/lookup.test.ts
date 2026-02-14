@@ -16,7 +16,10 @@ vi.mock('../services/openai-lookup', () => ({
 }));
 
 import { lookupByName, lookupByImage } from '../services/whiskey-lookup';
-import { lookupByName as openaiLookupByName, lookupByImage as openaiLookupByImage } from '../services/openai-lookup';
+import {
+  lookupByName as openaiLookupByName,
+  lookupByImage as openaiLookupByImage,
+} from '../services/openai-lookup';
 
 const mockLookupByName = vi.mocked(lookupByName);
 const mockLookupByImage = vi.mocked(lookupByImage);

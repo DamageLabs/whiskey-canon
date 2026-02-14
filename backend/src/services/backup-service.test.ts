@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, afterEach } from 'vitest';
 import fs from 'fs';
 import path from 'path';
 import {
@@ -9,7 +9,6 @@ import {
   restorePreview,
   restoreFromBackup,
 } from './backup-service';
-import { BackupModel } from '../models/Backup';
 import { testDb } from '../test/setup';
 
 // Helper to create a user and whiskeys for testing
@@ -45,13 +44,13 @@ afterEach(() => {
   for (const f of createdFiles) {
     try {
       fs.unlinkSync(f);
-    } catch {}
+    } catch { /* cleanup - ignore missing files */ }
   }
   createdFiles.length = 0;
   for (const d of createdDirs.reverse()) {
     try {
       fs.rmdirSync(d);
-    } catch {}
+    } catch { /* cleanup - ignore missing dirs */ }
   }
   createdDirs.length = 0;
 });

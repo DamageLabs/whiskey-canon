@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 import ProfilePage from './ProfilePage';
-import { whiskeyAPI, authAPI, apiKeyAPI } from '../services/api';
+import { whiskeyAPI, authAPI, apiKeyAPI, ollamaAPI } from '../services/api';
 import { Role } from '../types';
 
 // Mock the API
@@ -19,6 +19,9 @@ vi.mock('../services/api', () => ({
     save: vi.fn(),
     delete: vi.fn(),
     setProvider: vi.fn().mockResolvedValue({ message: 'AI provider updated', provider: 'openai' }),
+  },
+  ollamaAPI: {
+    getStatus: vi.fn().mockResolvedValue({ available: false, models: [] }),
   },
 }));
 
@@ -789,7 +792,7 @@ describe('ProfilePage - AI Settings', () => {
   });
 
   describe('AI Settings section', () => {
-    it('renders AI Settings section with provider toggle', async () => {
+    it('renders AI Settings section with provider toggle including Ollama', async () => {
       vi.mocked(apiKeyAPI.getStatus).mockResolvedValue({ hasKey: false, lastFour: null });
 
       renderWithRouter();
@@ -800,6 +803,7 @@ describe('ProfilePage - AI Settings', () => {
       expect(screen.getByText('Active AI Provider')).toBeInTheDocument();
       expect(screen.getByRole('button', { name: 'Anthropic' })).toBeInTheDocument();
       expect(screen.getByRole('button', { name: 'OpenAI' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Ollama (Local)' })).toBeInTheDocument();
     });
 
     it('renders both Anthropic and OpenAI key sections', async () => {
@@ -880,6 +884,75 @@ describe('ProfilePage - AI Settings', () => {
 
       await waitFor(() => {
         expect(apiKeyAPI.setProvider).toHaveBeenCalledWith('openai');
+      });
+    });
+
+    it('calls setProvider when Ollama is clicked', async () => {
+      vi.mocked(apiKeyAPI.getStatus).mockResolvedValue({ hasKey: false, lastFour: null });
+      vi.mocked(apiKeyAPI.setProvider).mockResolvedValue({
+        message: 'AI provider updated',
+        provider: 'ollama',
+      });
+      vi.mocked(ollamaAPI.getStatus).mockResolvedValue({
+        available: true,
+        models: ['llama3.1:8b'],
+      });
+
+      renderWithRouter();
+
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: 'Ollama (Local)' })).toBeInTheDocument();
+      });
+
+      fireEvent.click(screen.getByRole('button', { name: 'Ollama (Local)' }));
+
+      await waitFor(() => {
+        expect(apiKeyAPI.setProvider).toHaveBeenCalledWith('ollama');
+      });
+    });
+
+    it('shows Ollama status when Ollama provider is active', async () => {
+      vi.mocked(apiKeyAPI.getStatus).mockResolvedValue({ hasKey: false, lastFour: null });
+      vi.mocked(apiKeyAPI.setProvider).mockResolvedValue({
+        message: 'AI provider updated',
+        provider: 'ollama',
+      });
+      vi.mocked(ollamaAPI.getStatus).mockResolvedValue({
+        available: true,
+        models: ['llama3.1:8b', 'llama3.2-vision:11b'],
+      });
+
+      renderWithRouter();
+
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: 'Ollama (Local)' })).toBeInTheDocument();
+      });
+
+      fireEvent.click(screen.getByRole('button', { name: 'Ollama (Local)' }));
+
+      await waitFor(() => {
+        expect(screen.getByText('Ollama is running')).toBeInTheDocument();
+      });
+    });
+
+    it('shows Ollama not running when connection fails', async () => {
+      vi.mocked(apiKeyAPI.getStatus).mockResolvedValue({ hasKey: false, lastFour: null });
+      vi.mocked(apiKeyAPI.setProvider).mockResolvedValue({
+        message: 'AI provider updated',
+        provider: 'ollama',
+      });
+      vi.mocked(ollamaAPI.getStatus).mockResolvedValue({ available: false, models: [] });
+
+      renderWithRouter();
+
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: 'Ollama (Local)' })).toBeInTheDocument();
+      });
+
+      fireEvent.click(screen.getByRole('button', { name: 'Ollama (Local)' }));
+
+      await waitFor(() => {
+        expect(screen.getByText('Ollama is not running')).toBeInTheDocument();
       });
     });
   });

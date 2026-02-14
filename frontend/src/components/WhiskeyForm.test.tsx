@@ -256,6 +256,24 @@ describe('WhiskeyForm - AI Lookup', () => {
       mockUser.has_api_key = originalHasApiKey;
       mockUser.has_openai_key = originalHasOpenaiKey;
     });
+
+    it('does not show tooltip when Ollama is the active provider', () => {
+      const originalHasApiKey = mockUser.has_api_key;
+      const originalHasOpenaiKey = mockUser.has_openai_key;
+      const originalAiProvider = (mockUser as any).ai_provider;
+      mockUser.has_api_key = false;
+      mockUser.has_openai_key = false;
+      (mockUser as any).ai_provider = 'ollama';
+
+      render(<WhiskeyForm {...defaultProps} />);
+
+      const lookUpBtn = screen.getByRole('button', { name: /Look Up/i });
+      expect(lookUpBtn).not.toHaveAttribute('title');
+
+      mockUser.has_api_key = originalHasApiKey;
+      mockUser.has_openai_key = originalHasOpenaiKey;
+      (mockUser as any).ai_provider = originalAiProvider;
+    });
   });
 
   describe('Scan Label (image lookup)', () => {

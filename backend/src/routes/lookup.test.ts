@@ -15,16 +15,28 @@ vi.mock('../services/openai-lookup', () => ({
   lookupByImage: vi.fn(),
 }));
 
+// Mock the ollama-lookup service
+vi.mock('../services/ollama-lookup', () => ({
+  lookupByName: vi.fn(),
+  lookupByImage: vi.fn(),
+}));
+
 import { lookupByName, lookupByImage } from '../services/whiskey-lookup';
 import {
   lookupByName as openaiLookupByName,
   lookupByImage as openaiLookupByImage,
 } from '../services/openai-lookup';
+import {
+  lookupByName as ollamaLookupByName,
+  lookupByImage as ollamaLookupByImage,
+} from '../services/ollama-lookup';
 
 const mockLookupByName = vi.mocked(lookupByName);
 const mockLookupByImage = vi.mocked(lookupByImage);
 const mockOpenaiLookupByName = vi.mocked(openaiLookupByName);
 const mockOpenaiLookupByImage = vi.mocked(openaiLookupByImage);
+const mockOllamaLookupByName = vi.mocked(ollamaLookupByName);
+const mockOllamaLookupByImage = vi.mocked(ollamaLookupByImage);
 
 describe('Lookup Routes', () => {
   let app: Application;
@@ -403,6 +415,63 @@ describe('Lookup Routes', () => {
         writable: true,
         configurable: true,
       });
+    });
+  });
+
+  describe('Ollama dispatch', () => {
+    it('uses Ollama service when user ai_provider is ollama', async () => {
+      const { UserModel } = await import('../models/User');
+
+      mockOllamaLookupByName.mockResolvedValue({
+        name: 'Buffalo Trace',
+        type: 'bourbon',
+      });
+
+      const { agent, user } = await createAuthenticatedAgent(app);
+      UserModel.setAiProvider(user.id, 'ollama');
+
+      const response = await agent.post('/api/whiskeys/lookup').send({ name: 'Buffalo Trace' });
+
+      expect(response.status).toBe(200);
+      expect(response.body.found).toBe(true);
+      // Ollama lookupByName takes only the name, no API key
+      expect(mockOllamaLookupByName).toHaveBeenCalledWith('Buffalo Trace');
+      expect(mockLookupByName).not.toHaveBeenCalled();
+      expect(mockOpenaiLookupByName).not.toHaveBeenCalled();
+    });
+
+    it('does not require an API key for Ollama provider', async () => {
+      const { UserModel } = await import('../models/User');
+
+      mockOllamaLookupByName.mockResolvedValue({
+        name: 'Test Whiskey',
+        type: 'bourbon',
+      });
+
+      const { agent, user } = await createAuthenticatedAgent(app);
+      UserModel.setAiProvider(user.id, 'ollama');
+      // No API key configured at all — should still work
+
+      const response = await agent.post('/api/whiskeys/lookup').send({ name: 'Test' });
+
+      expect(response.status).toBe(200);
+      expect(mockOllamaLookupByName).toHaveBeenCalledWith('Test');
+    });
+
+    it('returns 503 when Ollama connection is refused', async () => {
+      const { UserModel } = await import('../models/User');
+
+      const connError = new Error('Connection refused');
+      (connError as any).code = 'ECONNREFUSED';
+      mockOllamaLookupByName.mockRejectedValue(connError);
+
+      const { agent, user } = await createAuthenticatedAgent(app);
+      UserModel.setAiProvider(user.id, 'ollama');
+
+      const response = await agent.post('/api/whiskeys/lookup').send({ name: 'Test' });
+
+      expect(response.status).toBe(503);
+      expect(response.body.error).toContain('Ollama');
     });
   });
 });

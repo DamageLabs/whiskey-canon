@@ -407,8 +407,10 @@ server {
 
     # Backend API proxy
     location /api {
+        client_max_body_size 10M;
         proxy_pass http://localhost:3000;
         proxy_http_version 1.1;
+        proxy_read_timeout 300s;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection 'upgrade';
         proxy_set_header Host $host;
@@ -418,8 +420,12 @@ server {
         proxy_cache_bypass $http_upgrade;
     }
 
-    # Increase max upload size (for future image uploads)
-    client_max_body_size 10M;
+    # Serve uploaded files (profile photos, etc.) directly
+    location /uploads/ {
+        alias /home/YOUR_USERNAME/apps/whiskey-canon/backend/uploads/;
+        expires 7d;
+        access_log off;
+    }
 }
 ```
 

@@ -36,6 +36,9 @@ export const config = {
   backupMaxSizeMb: parseInt(optional('BACKUP_MAX_SIZE_MB', '50'), 10),
   anthropicApiKey: process.env.ANTHROPIC_API_KEY || null,
   openaiApiKey: process.env.OPENAI_API_KEY || null,
+  ollamaBaseUrl: optional('OLLAMA_BASE_URL', 'http://localhost:11434'),
+  ollamaTextModel: optional('OLLAMA_TEXT_MODEL', 'llama3.1:8b'),
+  ollamaVisionModel: optional('OLLAMA_VISION_MODEL', 'minicpm-v'),
   apiKeyEncryptionSecret: isProduction
     ? required('API_KEY_ENCRYPTION_SECRET')
     : optional('API_KEY_ENCRYPTION_SECRET', 'dev-encryption-secret-min-32-chars!!'),

@@ -14,6 +14,7 @@ import {
   validateAndStoreUpload,
 } from '../services/backup-service';
 import { backupLimiter } from '../middleware/rateLimiter';
+import fs from 'fs';
 
 // Configure multer for JSON backup file uploads
 const backupUpload = multer({
@@ -162,9 +163,12 @@ router.get(
       }
 
       const contentType = record.format === 'json' ? 'application/json' : 'text/csv';
+      const stat = fs.statSync(filePath);
       res.setHeader('Content-Type', contentType);
+      res.setHeader('Content-Length', stat.size);
       res.setHeader('Content-Disposition', `attachment; filename="${record.filename}"`);
-      res.sendFile(filePath);
+      const stream = fs.createReadStream(filePath);
+      stream.pipe(res);
     } catch (error) {
       console.error('Backup download error:', error);
       res.status(500).json({ error: 'Failed to download backup' });

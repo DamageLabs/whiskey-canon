@@ -140,6 +140,17 @@ Comprehensive data visualization with interactive charts powered by Recharts:
   - Sort by any column
   - Track total collection statistics
 
+### 🤖 AI-Powered Whiskey Lookup
+- **Label scanning**: Snap a photo of a bottle label to auto-fill all fields
+- **Text lookup**: Type a whiskey name to get structured data (distillery, region, ABV, tasting notes, etc.)
+- **Three AI providers**:
+  - **Anthropic Claude** — cloud API, bring your own key (BYOK)
+  - **OpenAI** — cloud API, BYOK
+  - **Ollama** — fully local/offline, no API key required
+- **Provider selection** on Profile page with per-provider API key management
+- **Ollama status indicator** showing connection state and available models
+- Configurable Ollama models via `OLLAMA_TEXT_MODEL` and `OLLAMA_VISION_MODEL` environment variables
+
 ### 🔍 Search & Filter
 - Search by whiskey name
 - Filter by whiskey type
@@ -231,6 +242,11 @@ whiskey-canon/
 │   │   ├── models/            # Data models
 │   │   │   ├── User.ts        # User model & CRUD
 │   │   │   └── Whiskey.ts     # Whiskey model & CRUD
+│   │   ├── services/          # Business logic
+│   │   │   ├── whiskey-lookup.ts    # Anthropic Claude lookup
+│   │   │   ├── openai-lookup.ts     # OpenAI lookup
+│   │   │   ├── ollama-lookup.ts     # Ollama local lookup
+│   │   │   └── lookup-shared.ts     # Shared prompt & parser
 │   │   ├── middleware/        # Express middleware
 │   │   │   ├── auth.ts        # Authentication middleware
 │   │   │   └── rbac.ts        # RBAC authorization
@@ -343,6 +359,10 @@ CREATE TABLE users (
 - `POST /api/auth/login` - Login
 - `POST /api/auth/logout` - Logout
 - `GET /api/auth/me` - Get current user
+- `GET /api/auth/api-key?provider=` - Check API key status for a provider
+- `PUT /api/auth/api-key` - Save an AI provider API key (validates with provider)
+- `DELETE /api/auth/api-key?provider=` - Delete an AI provider API key
+- `PUT /api/auth/ai-provider` - Set active AI provider (anthropic/openai/ollama)
 
 ### Whiskeys (All require authentication)
 - `GET /api/whiskeys` - Get all whiskeys (user's collection only)
@@ -351,6 +371,8 @@ CREATE TABLE users (
 - `POST /api/whiskeys` - Create whiskey (Editor+ permission)
 - `PUT /api/whiskeys/:id` - Update whiskey (Editor+ permission, own whiskey only)
 - `DELETE /api/whiskeys/:id` - Delete whiskey (Editor+ permission, own whiskey only)
+- `POST /api/whiskeys/lookup` - AI whiskey lookup by name or label image
+- `GET /api/whiskeys/ollama/status` - Check Ollama availability and models
 
 ### Admin (Require admin role)
 - `GET /api/admin/users` - Get all users
@@ -469,6 +491,10 @@ See **[DEPLOYMENT.md](./DEPLOYMENT.md)** for comprehensive deployment instructio
 - **SQL injection protection** via parameterized queries
 - **CORS configuration** for credential handling
 - **Foreign key constraints** for referential integrity
+- **CSRF protection** via double-submit cookie pattern (csrf-csrf)
+- **Helmet** with strict CSP and HSTS headers
+- **Rate limiting** on auth, password reset, contact, and AI lookup endpoints
+- **API key encryption** — user-provided AI keys encrypted at rest with AES-256
 
 ## 🛠️ Technology Stack
 
@@ -481,6 +507,8 @@ See **[DEPLOYMENT.md](./DEPLOYMENT.md)** for comprehensive deployment instructio
 - **bcryptjs** - Password hashing
 - **express-validator** - Request validation
 - **cors** - Cross-origin resource sharing
+- **@anthropic-ai/sdk** - Anthropic Claude API for AI whiskey lookup
+- **openai** - OpenAI API and Ollama-compatible local AI lookup
 
 ### Frontend
 - **React 18** - UI library
@@ -525,6 +553,15 @@ See **[DEPLOYMENT.md](./DEPLOYMENT.md)** for comprehensive deployment instructio
 - **100% data quality**: All ratings standardized to 2 decimals, no duplicates
 
 ## 📝 Recent Updates
+
+### February 2026 - AI-Powered Whiskey Lookup
+
+- **AI label scanning & text lookup** — snap a photo of a bottle label or type a name to auto-fill all 57 fields ([#100](https://github.com/DamageLabs/whiskey-canon/issues/100))
+- **Multi-provider support** — choose between Anthropic Claude, OpenAI, or Ollama (local) as your AI provider ([#126](https://github.com/DamageLabs/whiskey-canon/issues/126))
+- **Ollama local AI** — run whiskey lookups entirely offline using local models, no API key needed ([#128](https://github.com/DamageLabs/whiskey-canon/issues/128))
+- **BYOK (Bring Your Own Key)** — save and manage API keys per provider on the Profile page with server-side encryption
+- **Provider selection UI** — toggle between providers with real-time Ollama status and model listing
+- **Configurable models** — set Ollama text/vision models via environment variables (defaults: `llama3.1:8b`, `minicpm-v`)
 
 ### November 2024 - Analytics Dashboard & Performance Enhancements
 

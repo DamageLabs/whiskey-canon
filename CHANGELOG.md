@@ -5,6 +5,30 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.7.0] - 2026-02-14
+
+### Added
+
+- AI-powered whiskey field auto-completion via label photo scan or text lookup ([#100](https://github.com/DamageLabs/whiskey-canon/issues/100))
+- Bring Your Own Key (BYOK) support for Anthropic Claude and OpenAI APIs ([#126](https://github.com/DamageLabs/whiskey-canon/issues/126))
+- Ollama local AI provider for fully offline whiskey lookups with no API key required ([#128](https://github.com/DamageLabs/whiskey-canon/issues/128))
+- Provider selection UI on Profile page (Anthropic / OpenAI / Ollama) with per-provider API key management
+- Ollama status indicator showing connection state and available models
+- `OLLAMA_BASE_URL`, `OLLAMA_TEXT_MODEL`, and `OLLAMA_VISION_MODEL` environment variables for Ollama configuration
+- 18 new backend tests for Ollama lookup service and route dispatch
+- 4 new frontend tests for Ollama provider UI and status display
+
+### Fixed
+
+- Admin backup restore handling schema mismatches between backup and current database ([#125](https://github.com/DamageLabs/whiskey-canon/issues/125))
+
+### Issues Resolved
+
+- [#100](https://github.com/DamageLabs/whiskey-canon/issues/100) — Add AI-powered whiskey field auto-completion
+- [#125](https://github.com/DamageLabs/whiskey-canon/issues/125) — Handle schema mismatches in admin backup restore
+- [#126](https://github.com/DamageLabs/whiskey-canon/issues/126) — Add OpenAI API support for AI whiskey lookup (BYOK)
+- [#128](https://github.com/DamageLabs/whiskey-canon/issues/128) — Add Ollama as local AI provider for whiskey lookup
+
 ## [1.6.0] - 2026-02-09
 
 ### Added

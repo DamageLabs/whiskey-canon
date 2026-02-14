@@ -253,6 +253,15 @@ describe('API Key Routes', () => {
       expect(UserModel.getAiProvider(user.id)).toBe('anthropic');
     });
 
+    it('sets AI provider to ollama', async () => {
+      const { agent, user } = await createAuthenticatedAgent(app);
+      const response = await agent.put('/api/auth/ai-provider').send({ provider: 'ollama' });
+
+      expect(response.status).toBe(200);
+      expect(response.body.provider).toBe('ollama');
+      expect(UserModel.getAiProvider(user.id)).toBe('ollama');
+    });
+
     it('returns 400 for invalid provider', async () => {
       const { agent } = await createAuthenticatedAgent(app);
       const response = await agent.put('/api/auth/ai-provider').send({ provider: 'invalid' });

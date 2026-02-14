@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { whiskeyAPI, authAPI, apiKeyAPI } from '../services/api';
+import { whiskeyAPI, authAPI, apiKeyAPI, ollamaAPI } from '../services/api';
 import { Footer } from '../components/Footer';
 import { getCsrfHeaders } from '../utils/csrf';
 import { PasswordStrengthIndicator } from '../components/PasswordStrengthIndicator';
@@ -57,6 +57,8 @@ export default function ProfilePage() {
   const [openaiKeyLastFour, setOpenaiKeyLastFour] = useState<string | null>(null);
   const [hasOpenaiKey, setHasOpenaiKey] = useState(user?.has_openai_key || false);
   const [activeProvider, setActiveProvider] = useState<string>(user?.ai_provider || 'anthropic');
+  const [ollamaAvailable, setOllamaAvailable] = useState<boolean | null>(null);
+  const [ollamaModels, setOllamaModels] = useState<string[]>([]);
   const [savingApiKey, setSavingApiKey] = useState(false);
 
   // Fetch collection count on mount
@@ -90,6 +92,22 @@ export default function ProfilePage() {
     }
     fetchApiKeyStatus();
   }, []);
+
+  // Fetch Ollama status when provider is ollama
+  useEffect(() => {
+    if (activeProvider === 'ollama') {
+      ollamaAPI
+        .getStatus()
+        .then((status) => {
+          setOllamaAvailable(status.available);
+          setOllamaModels(status.models);
+        })
+        .catch(() => {
+          setOllamaAvailable(false);
+          setOllamaModels([]);
+        });
+    }
+  }, [activeProvider]);
 
   const handleSaveApiKey = async (provider: string) => {
     const input = provider === 'openai' ? openaiKeyInput : anthropicKeyInput;
@@ -606,6 +624,13 @@ export default function ProfilePage() {
                     >
                       OpenAI
                     </button>
+                    <button
+                      type="button"
+                      className={`btn ${activeProvider === 'ollama' ? 'btn-primary' : 'btn-outline-primary'}`}
+                      onClick={() => handleProviderChange('ollama')}
+                    >
+                      Ollama (Local)
+                    </button>
                   </div>
                 </div>
 
@@ -661,6 +686,45 @@ export default function ProfilePage() {
                     </div>
                   )}
                 </div>
+
+                {/* Ollama (Local) */}
+                {activeProvider === 'ollama' && (
+                  <div className="info-group mb-4 border-start border-primary ps-3">
+                    <label>Ollama (Local) (Active)</label>
+                    <p className="text-muted mb-3" style={{ fontSize: '0.9rem' }}>
+                      Runs AI lookups locally using{' '}
+                      <a
+                        href="https://ollama.com/"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{ color: 'var(--amber-500)' }}
+                      >
+                        Ollama
+                      </a>
+                      . No API key required. Results may be less detailed than cloud providers.
+                    </p>
+                    {ollamaAvailable === null ? (
+                      <span className="text-muted">Checking Ollama connection...</span>
+                    ) : ollamaAvailable ? (
+                      <div>
+                        <span className="badge bg-success">
+                          <i className="bi bi-check-circle me-1"></i>
+                          Ollama is running
+                        </span>
+                        {ollamaModels.length > 0 && (
+                          <p className="text-muted mt-2 mb-0" style={{ fontSize: '0.85rem' }}>
+                            Available models: {ollamaModels.join(', ')}
+                          </p>
+                        )}
+                      </div>
+                    ) : (
+                      <span className="badge bg-danger">
+                        <i className="bi bi-x-circle me-1"></i>
+                        Ollama is not running
+                      </span>
+                    )}
+                  </div>
+                )}
 
                 {/* OpenAI API Key */}
                 <div

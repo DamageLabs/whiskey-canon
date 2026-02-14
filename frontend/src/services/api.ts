@@ -289,6 +289,11 @@ export const apiKeyAPI = {
     }),
 };
 
+export const ollamaAPI = {
+  getStatus: (): Promise<{ available: boolean; models: string[] }> =>
+    fetchAPI('/whiskeys/ollama/status'),
+};
+
 export const statisticsAPI = {
   getAll: () => fetchAPI('/statistics'),
 };

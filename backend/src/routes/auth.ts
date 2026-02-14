@@ -387,11 +387,13 @@ router.get('/me', requireAuth, (req: AuthRequest, res) => {
     return res.status(401).json({ error: 'Not authenticated' });
   }
 
-  const { password: _, anthropic_api_key: _key, ...userWithoutSensitive } = req.user as any;
+  const { password: _, anthropic_api_key: _key, openai_api_key: _okey, ...userWithoutSensitive } = req.user as any;
   res.json({
     user: {
       ...userWithoutSensitive,
-      has_api_key: UserModel.hasApiKey(req.user.id),
+      has_api_key: UserModel.hasApiKey(req.user.id, 'anthropic'),
+      has_openai_key: UserModel.hasApiKey(req.user.id, 'openai'),
+      ai_provider: UserModel.getAiProvider(req.user.id),
     },
   });
 });
@@ -619,10 +621,11 @@ router.get('/api-key', requireAuth, (req: AuthRequest, res: Response) => {
   if (!req.user) {
     return res.status(401).json({ error: 'Not authenticated' });
   }
-  const hasKey = UserModel.hasApiKey(req.user.id);
+  const provider = (req.query.provider as string) || 'anthropic';
+  const hasKey = UserModel.hasApiKey(req.user.id, provider);
   let lastFour: string | null = null;
   if (hasKey) {
-    const key = UserModel.getApiKey(req.user.id);
+    const key = UserModel.getApiKey(req.user.id, provider);
     if (key) {
       lastFour = key.slice(-4);
     }
@@ -641,17 +644,27 @@ router.put(
       return res.status(401).json({ error: 'Not authenticated' });
     }
 
-    const { apiKey } = req.body;
+    const { apiKey, provider = 'anthropic' } = req.body;
 
     // Validate the key by making a test call
     try {
-      const Anthropic = (await import('@anthropic-ai/sdk')).default;
-      const client = new Anthropic({ apiKey });
-      await client.messages.create({
-        model: 'claude-haiku-4-5-20251001',
-        max_tokens: 10,
-        messages: [{ role: 'user', content: 'Hi' }],
-      });
+      if (provider === 'openai') {
+        const OpenAI = (await import('openai')).default;
+        const client = new OpenAI({ apiKey });
+        await client.chat.completions.create({
+          model: 'gpt-4o-mini',
+          max_tokens: 10,
+          messages: [{ role: 'user', content: 'Hi' }],
+        });
+      } else {
+        const Anthropic = (await import('@anthropic-ai/sdk')).default;
+        const client = new Anthropic({ apiKey });
+        await client.messages.create({
+          model: 'claude-haiku-4-5-20251001',
+          max_tokens: 10,
+          messages: [{ role: 'user', content: 'Hi' }],
+        });
+      }
     } catch (error: any) {
       if (error?.status === 401 || error?.error?.type === 'authentication_error') {
         return res.status(400).json({ error: 'Invalid API key. Please check and try again.' });
@@ -661,7 +674,7 @@ router.put(
     }
 
     try {
-      UserModel.saveApiKey(req.user.id, apiKey);
+      UserModel.saveApiKey(req.user.id, apiKey, provider);
       res.json({ message: 'API key saved successfully', lastFour: apiKey.slice(-4) });
     } catch (error) {
       console.error('Save API key error:', error);
@@ -675,8 +688,25 @@ router.delete('/api-key', requireAuth, (req: AuthRequest, res: Response) => {
   if (!req.user) {
     return res.status(401).json({ error: 'Not authenticated' });
   }
-  UserModel.deleteApiKey(req.user.id);
+  const provider = (req.query.provider as string) || 'anthropic';
+  UserModel.deleteApiKey(req.user.id, provider);
   res.json({ message: 'API key deleted successfully' });
 });
+
+// Set AI provider preference
+router.put(
+  '/ai-provider',
+  requireAuth,
+  [body('provider').isIn(['anthropic', 'openai']).withMessage('Invalid provider')],
+  validate,
+  (req: AuthRequest, res: Response) => {
+    if (!req.user) {
+      return res.status(401).json({ error: 'Not authenticated' });
+    }
+    const { provider } = req.body;
+    UserModel.setAiProvider(req.user.id, provider);
+    res.json({ message: 'AI provider updated', provider });
+  }
+);
 
 export default router;

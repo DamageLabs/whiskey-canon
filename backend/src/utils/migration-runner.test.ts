@@ -195,14 +195,14 @@ describe('migration-runner', () => {
   });
 
   describe('real migrations', () => {
-    it('should build the full schema from all 16 migrations', async () => {
+    it('should build the full schema from all 17 migrations', async () => {
       const { allMigrations } = await import('../migrations');
 
       runMigrations(db, allMigrations);
 
-      // Verify all 16 migrations applied
+      // Verify all 17 migrations applied
       const applied = db.prepare('SELECT name FROM migrations').all() as { name: string }[];
-      expect(applied).toHaveLength(16);
+      expect(applied).toHaveLength(17);
 
       // Verify all 5 tables exist
       const tables = db

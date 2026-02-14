@@ -276,35 +276,57 @@ export class UserModel {
     return stmt.all() as PublicProfile[];
   }
 
-  static saveApiKey(id: number, apiKey: string): void {
+  static apiKeyColumn(provider: string = 'anthropic'): string {
+    if (provider === 'openai') return 'openai_api_key';
+    return 'anthropic_api_key';
+  }
+
+  static saveApiKey(id: number, apiKey: string, provider: string = 'anthropic'): void {
+    const col = this.apiKeyColumn(provider);
     const encrypted = encrypt(apiKey);
     const stmt = db.prepare(
-      'UPDATE users SET anthropic_api_key = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?'
+      `UPDATE users SET ${col} = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?`
     );
     stmt.run(encrypted, id);
   }
 
-  static getApiKey(id: number): string | null {
-    const stmt = db.prepare('SELECT anthropic_api_key FROM users WHERE id = ?');
-    const row = stmt.get(id) as { anthropic_api_key: string | null } | undefined;
-    if (!row?.anthropic_api_key) return null;
+  static getApiKey(id: number, provider: string = 'anthropic'): string | null {
+    const col = this.apiKeyColumn(provider);
+    const stmt = db.prepare(`SELECT ${col} FROM users WHERE id = ?`);
+    const row = stmt.get(id) as Record<string, string | null> | undefined;
+    if (!row?.[col]) return null;
     try {
-      return decrypt(row.anthropic_api_key);
+      return decrypt(row[col]!);
     } catch {
       return null;
     }
   }
 
-  static hasApiKey(id: number): boolean {
-    const stmt = db.prepare('SELECT anthropic_api_key FROM users WHERE id = ?');
-    const row = stmt.get(id) as { anthropic_api_key: string | null } | undefined;
-    return !!row?.anthropic_api_key;
+  static hasApiKey(id: number, provider: string = 'anthropic'): boolean {
+    const col = this.apiKeyColumn(provider);
+    const stmt = db.prepare(`SELECT ${col} FROM users WHERE id = ?`);
+    const row = stmt.get(id) as Record<string, string | null> | undefined;
+    return !!row?.[col];
   }
 
-  static deleteApiKey(id: number): void {
+  static deleteApiKey(id: number, provider: string = 'anthropic'): void {
+    const col = this.apiKeyColumn(provider);
     const stmt = db.prepare(
-      'UPDATE users SET anthropic_api_key = NULL, updated_at = CURRENT_TIMESTAMP WHERE id = ?'
+      `UPDATE users SET ${col} = NULL, updated_at = CURRENT_TIMESTAMP WHERE id = ?`
     );
     stmt.run(id);
+  }
+
+  static getAiProvider(id: number): string {
+    const stmt = db.prepare('SELECT ai_provider FROM users WHERE id = ?');
+    const row = stmt.get(id) as { ai_provider: string | null } | undefined;
+    return row?.ai_provider || 'anthropic';
+  }
+
+  static setAiProvider(id: number, provider: string): void {
+    const stmt = db.prepare(
+      'UPDATE users SET ai_provider = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?'
+    );
+    stmt.run(provider, id);
   }
 }

@@ -332,8 +332,8 @@ export function WhiskeyForm({ whiskey, onClose, onSuccess }: WhiskeyFormProps) {
                         onClick={handleTextLookup}
                         disabled={lookingUp || !formData.name.trim()}
                         title={
-                          !authUser?.has_api_key
-                            ? 'Add your Anthropic API key in Profile settings to enable AI lookups'
+                          !(authUser?.has_api_key || authUser?.has_openai_key)
+                            ? 'Add an AI API key in Profile settings to enable lookups'
                             : undefined
                         }
                       >
@@ -356,8 +356,8 @@ export function WhiskeyForm({ whiskey, onClose, onSuccess }: WhiskeyFormProps) {
                         onClick={() => imageInputRef.current?.click()}
                         disabled={lookingUp}
                         title={
-                          !authUser?.has_api_key
-                            ? 'Add your Anthropic API key in Profile settings to enable AI lookups'
+                          !(authUser?.has_api_key || authUser?.has_openai_key)
+                            ? 'Add an AI API key in Profile settings to enable lookups'
                             : undefined
                         }
                       >

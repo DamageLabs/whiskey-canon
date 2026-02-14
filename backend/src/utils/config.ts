@@ -35,6 +35,7 @@ export const config = {
   backupDir: optional('BACKUP_DIR', path.join(__dirname, '../../backups')),
   backupMaxSizeMb: parseInt(optional('BACKUP_MAX_SIZE_MB', '50'), 10),
   anthropicApiKey: process.env.ANTHROPIC_API_KEY || null,
+  openaiApiKey: process.env.OPENAI_API_KEY || null,
   apiKeyEncryptionSecret: isProduction
     ? required('API_KEY_ENCRYPTION_SECRET')
     : optional('API_KEY_ENCRYPTION_SECRET', 'dev-encryption-secret-min-32-chars!!'),

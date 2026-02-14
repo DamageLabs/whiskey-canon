@@ -33,7 +33,7 @@ export interface RestorePreview {
 
 function getBackupDir(): string {
   const backupDir = config.backupDir || path.join(__dirname, '../../backups');
-  return backupDir;
+  return path.resolve(backupDir);
 }
 
 function ensureBackupDir(userId: number): string {

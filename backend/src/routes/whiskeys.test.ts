@@ -796,6 +796,192 @@ Valid2,scotch,Distillery2
       expect(response.body.imported).toHaveLength(2);
       expect(response.body.skipped).toHaveLength(1);
     });
+
+    it('imports all extended CSV fields', async () => {
+      const { agent } = await createAuthenticatedAgent(app);
+
+      const csvContent = `Name,Type,Distillery,Region,Country,Age,ABV,Proof,Size,Quantity,MSRP,Secondary Price,Purchase Date,Purchase Price,Purchase Location,Bottle Code,Rating,Description,Tasting Notes,Status,Is Opened,Date Opened,Remaining Volume,Storage Location,Cask Type,Cask Finish,Barrel Number,Bottle Number,Vintage Year,Bottled Date,Color,Nose Notes,Palate Notes,Finish Notes,Times Tasted,Last Tasted Date,Food Pairings,Current Market Value,Value Gain/Loss,Is Investment Bottle,Mash Bill,Awards,Limited Edition,Chill Filtered,Natural Color,Is For Sale,Asking Price,Is For Trade,Shared With,Private Notes
+Full Field Test,bourbon,Test Dist,Kentucky,USA,12,45.5,91,750ml,2,50,120,2024-01-01,45.99,Local Store,BC001,9.2,A great bourbon,Rich and smooth,In Collection,Yes,2024-02-01,75,Wine Cellar,American Oak,Sherry,42,100,2012,2024-06-01,Amber,Vanilla and caramel,Spicy and sweet,Long and warm,5,2024-03-01,Steak and cheese,130,80,Yes,"75% corn, 13% rye, 12% malt",Gold Medal,Yes,No,Yes,No,200,No,John,Personal favorite`;
+
+      const response = await agent
+        .post('/api/whiskeys/import/csv')
+        .attach('file', Buffer.from(csvContent), 'whiskeys.csv');
+
+      expect(response.status).toBe(200);
+      expect(response.body.summary.imported).toBe(1);
+
+      const listResponse = await agent.get('/api/whiskeys');
+      const w = listResponse.body.whiskeys.find((w: any) => w.name === 'Full Field Test');
+
+      expect(w).toBeDefined();
+      // Fields persisted by WhiskeyModel.create
+      expect(w.region).toBe('Kentucky');
+      expect(w.country).toBe('USA');
+      expect(w.age).toBe(12);
+      expect(w.proof).toBe(91);
+      expect(w.quantity).toBe(2);
+      expect(w.secondary_price).toBe(120);
+      expect(w.purchase_date).toBe('2024-01-01');
+      expect(w.purchase_price).toBe(45.99);
+      expect(w.purchase_location).toBe('Local Store');
+      expect(w.bottle_code).toBe('BC001');
+      expect(w.storage_location).toBe('Wine Cellar');
+      expect(w.nose_notes).toBe('Vanilla and caramel');
+      expect(w.palate_notes).toBe('Spicy and sweet');
+      expect(w.finish_notes).toBe('Long and warm');
+      expect(w.current_market_value).toBe(130);
+      expect(w.status).toBe('In Collection');
+    });
+
+    it('maps OnlyDrams Subcategory to type', async () => {
+      const { agent } = await createAuthenticatedAgent(app);
+
+      const csvContent = `Name,Subcategory,Distillery
+OnlyDrams Bourbon,Bourbon,Buffalo Trace
+OnlyDrams Scotch,Single Malt,Macallan
+OnlyDrams Rye,Rye,WhistlePig`;
+
+      const response = await agent
+        .post('/api/whiskeys/import/csv')
+        .attach('file', Buffer.from(csvContent), 'whiskeys.csv');
+
+      expect(response.status).toBe(200);
+      expect(response.body.summary.imported).toBe(3);
+
+      const listResponse = await agent.get('/api/whiskeys');
+      const whiskeys = listResponse.body.whiskeys;
+      expect(whiskeys.find((w: any) => w.name === 'OnlyDrams Bourbon').type).toBe('bourbon');
+      expect(whiskeys.find((w: any) => w.name === 'OnlyDrams Scotch').type).toBe('scotch');
+      expect(whiskeys.find((w: any) => w.name === 'OnlyDrams Rye').type).toBe('rye');
+    });
+
+    it('maps OnlyDrams Paid and Secondary fields', async () => {
+      const { agent } = await createAuthenticatedAgent(app);
+
+      const csvContent = `Name,Type,Distillery,Paid,Secondary
+OnlyDrams Priced,bourbon,Test,55.99,120`;
+
+      const response = await agent
+        .post('/api/whiskeys/import/csv')
+        .attach('file', Buffer.from(csvContent), 'whiskeys.csv');
+
+      expect(response.status).toBe(200);
+      const listResponse = await agent.get('/api/whiskeys');
+      const w = listResponse.body.whiskeys[0];
+      expect(w.purchase_price).toBe(55.99);
+      expect(w.secondary_price).toBe(120);
+    });
+
+    it('imports OnlyDrams Rarity and Notes fields without error', async () => {
+      const { agent } = await createAuthenticatedAgent(app);
+
+      const csvContent = `Name,Type,Distillery,Rarity,Notes
+Rare Bottle,bourbon,Test,Ultra Rare,Bought at auction`;
+
+      const response = await agent
+        .post('/api/whiskeys/import/csv')
+        .attach('file', Buffer.from(csvContent), 'whiskeys.csv');
+
+      // Rarity/Notes are parsed into whiskeyData.private_notes by the CSV parser
+      // even though WhiskeyModel.create doesn't persist private_notes
+      expect(response.status).toBe(200);
+      expect(response.body.summary.imported).toBe(1);
+    });
+
+    it('calculates ABV from Proof when ABV is not provided', async () => {
+      const { agent } = await createAuthenticatedAgent(app);
+
+      const csvContent = `Name,Type,Distillery,Proof
+Proof Only,bourbon,Test,100`;
+
+      const response = await agent
+        .post('/api/whiskeys/import/csv')
+        .attach('file', Buffer.from(csvContent), 'whiskeys.csv');
+
+      expect(response.status).toBe(200);
+      const listResponse = await agent.get('/api/whiskeys');
+      const w = listResponse.body.whiskeys[0];
+      expect(w.abv).toBe(50);
+    });
+
+    it('converts OnlyDrams Status to is_opened', async () => {
+      const { agent } = await createAuthenticatedAgent(app);
+
+      const csvContent = `Name,Type,Distillery,Status
+Unopened Bottle,bourbon,Test1,unopened
+Opened Bottle,bourbon,Test2,opened`;
+
+      const response = await agent
+        .post('/api/whiskeys/import/csv')
+        .attach('file', Buffer.from(csvContent), 'whiskeys.csv');
+
+      expect(response.status).toBe(200);
+      expect(response.body.summary.imported).toBe(2);
+
+      const listResponse = await agent.get('/api/whiskeys');
+      const unopened = listResponse.body.whiskeys.find((w: any) => w.name === 'Unopened Bottle');
+      const opened = listResponse.body.whiskeys.find((w: any) => w.name === 'Opened Bottle');
+      expect(unopened.is_opened).toBeFalsy();
+      expect(opened.is_opened).toBeTruthy();
+    });
+
+    it('skips rows with invalid whiskey type', async () => {
+      const { agent } = await createAuthenticatedAgent(app);
+
+      const csvContent = `Name,Type,Distillery
+Bad Type,invalidtype,Test`;
+
+      const response = await agent
+        .post('/api/whiskeys/import/csv')
+        .attach('file', Buffer.from(csvContent), 'whiskeys.csv');
+
+      expect(response.status).toBe(200);
+      expect(response.body.summary.imported).toBe(0);
+      expect(response.body.summary.skipped).toBe(1);
+      expect(response.body.skipped[0]).toContain('Invalid whiskey type');
+    });
+
+    it('handles CSV with escaped quotes', async () => {
+      const { agent } = await createAuthenticatedAgent(app);
+
+      const csvContent = `Name,Type,Distillery,Description
+"Maker's ""46""",bourbon,Maker's Mark,"A ""special"" edition"`;
+
+      const response = await agent
+        .post('/api/whiskeys/import/csv')
+        .attach('file', Buffer.from(csvContent), 'whiskeys.csv');
+
+      expect(response.status).toBe(200);
+      expect(response.body.summary.imported).toBe(1);
+
+      const listResponse = await agent.get('/api/whiskeys');
+      const w = listResponse.body.whiskeys[0];
+      // The CSV parser de-quotes, then the value processor strips leading/trailing quotes
+      expect(w.name).toContain("Maker's");
+      expect(w.name).toContain('46');
+      expect(w.description).toBe('A "special" edition');
+    });
+
+    it('sets quantity to 1 for guntharp user when quantity is 0', async () => {
+      const { agent } = await createAuthenticatedAgent(
+        app,
+        'guntharp',
+        'guntharp@test.com',
+        'Wh1sk3yTest!!'
+      );
+
+      const csvContent = `Name,Type,Distillery,Quantity
+Guntharp Bottle,bourbon,Test,0`;
+
+      const response = await agent
+        .post('/api/whiskeys/import/csv')
+        .attach('file', Buffer.from(csvContent), 'whiskeys.csv');
+
+      expect(response.status).toBe(200);
+      const listResponse = await agent.get('/api/whiskeys');
+      const w = listResponse.body.whiskeys[0];
+      expect(w.quantity).toBe(1);
+    });
   });
 
   describe('DELETE /api/whiskeys/bulk', () => {

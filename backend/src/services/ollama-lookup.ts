@@ -1,6 +1,6 @@
 import OpenAI from 'openai';
 import { config } from '../utils/config';
-import { LookupResult, SYSTEM_PROMPT, parseResponse } from './lookup-shared';
+import { LookupResult, SYSTEM_PROMPT, parseResponse, compressImage } from './lookup-shared';
 
 export type { LookupResult };
 
@@ -35,7 +35,8 @@ export async function lookupByImage(
   mimeType: string
 ): Promise<LookupResult | null> {
   const client = getClient();
-  const base64 = imageBuffer.toString('base64');
+  const compressed = await compressImage(imageBuffer, mimeType);
+  const base64 = compressed.buffer.toString('base64');
 
   const response = await client.chat.completions.create({
     model: config.ollamaVisionModel,
@@ -51,7 +52,7 @@ export async function lookupByImage(
           },
           {
             type: 'image_url',
-            image_url: { url: `data:${mimeType};base64,${base64}` },
+            image_url: { url: `data:${compressed.mimeType};base64,${base64}` },
           },
         ],
       },

@@ -702,7 +702,7 @@ router.delete('/api-key', requireAuth, (req: AuthRequest, res: Response) => {
 router.put(
   '/ai-provider',
   requireAuth,
-  [body('provider').isIn(['anthropic', 'openai']).withMessage('Invalid provider')],
+  [body('provider').isIn(['anthropic', 'openai', 'ollama']).withMessage('Invalid provider')],
   validate,
   (req: AuthRequest, res: Response) => {
     if (!req.user) {

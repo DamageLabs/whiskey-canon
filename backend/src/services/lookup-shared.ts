@@ -1,3 +1,36 @@
+import sharp from 'sharp';
+
+// Anthropic's limit is 5MB base64. Base64 expands by 4/3, so raw must be under ~3.75MB.
+const MAX_IMAGE_BYTES = 3.5 * 1024 * 1024;
+
+export async function compressImage(
+  buffer: Buffer,
+  mimeType: string
+): Promise<{ buffer: Buffer; mimeType: string }> {
+  // If already small enough, return as-is
+  if (buffer.length <= MAX_IMAGE_BYTES) {
+    return { buffer, mimeType };
+  }
+
+  // Resize and compress to JPEG
+  const compressed = await sharp(buffer)
+    .resize(1600, 1600, { fit: 'inside', withoutEnlargement: true })
+    .jpeg({ quality: 80 })
+    .toBuffer();
+
+  if (compressed.length <= MAX_IMAGE_BYTES) {
+    return { buffer: compressed, mimeType: 'image/jpeg' };
+  }
+
+  // If still too large, reduce quality further
+  const smaller = await sharp(buffer)
+    .resize(1200, 1200, { fit: 'inside', withoutEnlargement: true })
+    .jpeg({ quality: 60 })
+    .toBuffer();
+
+  return { buffer: smaller, mimeType: 'image/jpeg' };
+}
+
 export interface LookupResult {
   name?: string;
   type?: string;

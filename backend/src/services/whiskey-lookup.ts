@@ -1,5 +1,5 @@
 import Anthropic from '@anthropic-ai/sdk';
-import { LookupResult, SYSTEM_PROMPT, parseResponse } from './lookup-shared';
+import { LookupResult, SYSTEM_PROMPT, parseResponse, compressImage } from './lookup-shared';
 
 export type { LookupResult };
 
@@ -34,7 +34,8 @@ export async function lookupByImage(
   mimeType: string
 ): Promise<LookupResult | null> {
   const client = getClient(apiKey);
-  const base64 = imageBuffer.toString('base64');
+  const compressed = await compressImage(imageBuffer, mimeType);
+  const base64 = compressed.buffer.toString('base64');
 
   const message = await client.messages.create({
     model: 'claude-sonnet-4-5-20250929',
@@ -48,7 +49,7 @@ export async function lookupByImage(
             type: 'image',
             source: {
               type: 'base64',
-              media_type: mimeType as 'image/jpeg' | 'image/png' | 'image/webp' | 'image/gif',
+              media_type: compressed.mimeType as 'image/jpeg' | 'image/png' | 'image/webp' | 'image/gif',
               data: base64,
             },
           },

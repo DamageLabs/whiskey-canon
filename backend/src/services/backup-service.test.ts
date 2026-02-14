@@ -44,13 +44,17 @@ afterEach(() => {
   for (const f of createdFiles) {
     try {
       fs.unlinkSync(f);
-    } catch { /* cleanup - ignore missing files */ }
+    } catch {
+      /* cleanup - ignore missing files */
+    }
   }
   createdFiles.length = 0;
   for (const d of createdDirs.reverse()) {
     try {
       fs.rmdirSync(d);
-    } catch { /* cleanup - ignore missing dirs */ }
+    } catch {
+      /* cleanup - ignore missing dirs */
+    }
   }
   createdDirs.length = 0;
 });

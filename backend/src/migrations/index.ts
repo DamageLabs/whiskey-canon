@@ -15,6 +15,7 @@ import { migration as m013 } from './013_add_social_fields';
 import { migration as m014 } from './014_add_backup_tables';
 import { migration as m015 } from './015_add_indexes';
 import { migration as m016 } from './016_add_anthropic_api_key';
+import { migration as m017 } from './017_add_openai_support';
 
 export const allMigrations: Migration[] = [
   m001,
@@ -33,4 +34,5 @@ export const allMigrations: Migration[] = [
   m014,
   m015,
   m016,
+  m017,
 ];

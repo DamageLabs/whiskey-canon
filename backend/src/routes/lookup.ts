@@ -4,7 +4,8 @@ import { requireAuth, AuthRequest } from '../middleware/auth';
 import { lookupLimiter } from '../middleware/rateLimiter';
 import { config } from '../utils/config';
 import { UserModel } from '../models/User';
-import { lookupByName, lookupByImage } from '../services/whiskey-lookup';
+import * as anthropicLookup from '../services/whiskey-lookup';
+import * as openaiLookup from '../services/openai-lookup';
 
 const imageUpload = multer({
   storage: multer.memoryStorage(),
@@ -62,13 +63,16 @@ router.post(
     }
   },
   async (req: AuthRequest, res: Response) => {
-    // Resolve API key: user's stored key first, then server fallback
-    const userApiKey = UserModel.getApiKey(req.user!.id);
-    const apiKey = userApiKey || config.anthropicApiKey;
+    // Determine provider and resolve API key
+    const provider = UserModel.getAiProvider(req.user!.id);
+    let apiKey = UserModel.getApiKey(req.user!.id, provider);
+    if (!apiKey) {
+      apiKey = provider === 'openai' ? config.openaiApiKey : config.anthropicApiKey;
+    }
 
     if (!apiKey) {
       return res.status(400).json({
-        error: 'No API key configured. Add your Anthropic API key in Profile settings.',
+        error: 'No API key configured. Add your AI API key in Profile settings.',
       });
     }
 
@@ -77,10 +81,12 @@ router.post(
       return res.status(429).json({ error: 'Daily lookup limit reached. Try again tomorrow.' });
     }
 
+    const lookup = provider === 'openai' ? openaiLookup : anthropicLookup;
+
     try {
       // Image lookup
       if (req.file) {
-        const result = await lookupByImage(apiKey, req.file.buffer, req.file.mimetype);
+        const result = await lookup.lookupByImage(apiKey, req.file.buffer, req.file.mimetype);
         if (!result) {
           return res.json({ found: false });
         }
@@ -93,7 +99,7 @@ router.post(
         return res.status(400).json({ error: 'Provide a whiskey name or upload a label image.' });
       }
 
-      const result = await lookupByName(apiKey, name.trim());
+      const result = await lookup.lookupByName(apiKey, name.trim());
       if (!result) {
         return res.json({ found: false });
       }

@@ -270,15 +270,23 @@ export const lookupAPI = {
 };
 
 export const apiKeyAPI = {
-  getStatus: (): Promise<{ hasKey: boolean; lastFour: string | null }> => fetchAPI('/auth/api-key'),
+  getStatus: (provider?: string): Promise<{ hasKey: boolean; lastFour: string | null }> =>
+    fetchAPI(`/auth/api-key${provider ? `?provider=${provider}` : ''}`),
 
-  save: (apiKey: string): Promise<{ message: string; lastFour: string }> =>
+  save: (apiKey: string, provider?: string): Promise<{ message: string; lastFour: string }> =>
     fetchAPI('/auth/api-key', {
       method: 'PUT',
-      body: JSON.stringify({ apiKey }),
+      body: JSON.stringify({ apiKey, provider }),
     }),
 
-  delete: (): Promise<{ message: string }> => fetchAPI('/auth/api-key', { method: 'DELETE' }),
+  delete: (provider?: string): Promise<{ message: string }> =>
+    fetchAPI(`/auth/api-key${provider ? `?provider=${provider}` : ''}`, { method: 'DELETE' }),
+
+  setProvider: (provider: string): Promise<{ message: string; provider: string }> =>
+    fetchAPI('/auth/ai-provider', {
+      method: 'PUT',
+      body: JSON.stringify({ provider }),
+    }),
 };
 
 export const statisticsAPI = {

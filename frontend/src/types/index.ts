@@ -13,6 +13,8 @@ export interface User {
   profile_photo?: string;
   is_profile_public?: boolean;
   has_api_key?: boolean;
+  has_openai_key?: boolean;
+  ai_provider?: string;
   created_at: string;
   updated_at: string;
 }

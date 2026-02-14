@@ -20,6 +20,7 @@ const mockUser = {
   id: 1,
   username: 'testuser',
   has_api_key: true,
+  has_openai_key: false,
 };
 
 vi.mock('../context/AuthContext', () => ({
@@ -217,6 +218,43 @@ describe('WhiskeyForm - AI Lookup', () => {
       });
 
       expect(distilleryInput.className).not.toContain('ai-suggested');
+    });
+  });
+
+  describe('API key tooltip', () => {
+    it('shows generic message when no key from either provider', () => {
+      // Temporarily override mockUser to have no keys
+      const originalHasApiKey = mockUser.has_api_key;
+      const originalHasOpenaiKey = mockUser.has_openai_key;
+      mockUser.has_api_key = false;
+      mockUser.has_openai_key = false;
+
+      render(<WhiskeyForm {...defaultProps} />);
+
+      const lookUpBtn = screen.getByRole('button', { name: /Look Up/i });
+      expect(lookUpBtn).toHaveAttribute(
+        'title',
+        'Add an AI API key in Profile settings to enable lookups'
+      );
+
+      // Restore
+      mockUser.has_api_key = originalHasApiKey;
+      mockUser.has_openai_key = originalHasOpenaiKey;
+    });
+
+    it('does not show tooltip when OpenAI key exists but no Anthropic key', () => {
+      const originalHasApiKey = mockUser.has_api_key;
+      const originalHasOpenaiKey = mockUser.has_openai_key;
+      mockUser.has_api_key = false;
+      mockUser.has_openai_key = true;
+
+      render(<WhiskeyForm {...defaultProps} />);
+
+      const lookUpBtn = screen.getByRole('button', { name: /Look Up/i });
+      expect(lookUpBtn).not.toHaveAttribute('title');
+
+      mockUser.has_api_key = originalHasApiKey;
+      mockUser.has_openai_key = originalHasOpenaiKey;
     });
   });
 

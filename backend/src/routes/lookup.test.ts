@@ -3,16 +3,28 @@ import request from 'supertest';
 import { createTestApp, createAuthenticatedAgent } from '../test/helpers';
 import type { Application } from 'express';
 
-// Mock the whiskey-lookup service
+// Mock the whiskey-lookup service (Anthropic)
 vi.mock('../services/whiskey-lookup', () => ({
   lookupByName: vi.fn(),
   lookupByImage: vi.fn(),
 }));
 
+// Mock the openai-lookup service
+vi.mock('../services/openai-lookup', () => ({
+  lookupByName: vi.fn(),
+  lookupByImage: vi.fn(),
+}));
+
 import { lookupByName, lookupByImage } from '../services/whiskey-lookup';
+import {
+  lookupByName as openaiLookupByName,
+  lookupByImage as openaiLookupByImage,
+} from '../services/openai-lookup';
 
 const mockLookupByName = vi.mocked(lookupByName);
 const mockLookupByImage = vi.mocked(lookupByImage);
+const mockOpenaiLookupByName = vi.mocked(openaiLookupByName);
+const mockOpenaiLookupByImage = vi.mocked(openaiLookupByImage);
 
 describe('Lookup Routes', () => {
   let app: Application;
@@ -293,6 +305,100 @@ describe('Lookup Routes', () => {
       expect(response.body.found).toBe(false);
 
       Object.defineProperty(configMock.config, 'anthropicApiKey', {
+        value: null,
+        writable: true,
+        configurable: true,
+      });
+    });
+  });
+
+  describe('Provider dispatch', () => {
+    it('uses OpenAI service when user ai_provider is openai', async () => {
+      const configMock = await import('../utils/config');
+      Object.defineProperty(configMock.config, 'openaiApiKey', {
+        value: 'openai-server-key',
+        writable: true,
+        configurable: true,
+      });
+
+      const { UserModel } = await import('../models/User');
+
+      mockOpenaiLookupByName.mockResolvedValue({
+        name: 'Buffalo Trace',
+        type: 'bourbon',
+      });
+
+      const { agent, user } = await createAuthenticatedAgent(app);
+      UserModel.setAiProvider(user.id, 'openai');
+
+      const response = await agent.post('/api/whiskeys/lookup').send({ name: 'Buffalo Trace' });
+
+      expect(response.status).toBe(200);
+      expect(mockOpenaiLookupByName).toHaveBeenCalledWith('openai-server-key', 'Buffalo Trace');
+      expect(mockLookupByName).not.toHaveBeenCalled();
+
+      Object.defineProperty(configMock.config, 'openaiApiKey', {
+        value: null,
+        writable: true,
+        configurable: true,
+      });
+    });
+
+    it('resolves OpenAI server key fallback when user has no stored key', async () => {
+      const configMock = await import('../utils/config');
+      Object.defineProperty(configMock.config, 'openaiApiKey', {
+        value: 'openai-fallback-key',
+        writable: true,
+        configurable: true,
+      });
+
+      const { UserModel } = await import('../models/User');
+
+      mockOpenaiLookupByName.mockResolvedValue({
+        name: 'Test Whiskey',
+        type: 'bourbon',
+      });
+
+      const { agent, user } = await createAuthenticatedAgent(app);
+      UserModel.setAiProvider(user.id, 'openai');
+
+      await agent.post('/api/whiskeys/lookup').send({ name: 'Test' });
+
+      expect(mockOpenaiLookupByName).toHaveBeenCalledWith('openai-fallback-key', 'Test');
+
+      Object.defineProperty(configMock.config, 'openaiApiKey', {
+        value: null,
+        writable: true,
+        configurable: true,
+      });
+    });
+
+    it('uses user stored OpenAI key over server key', async () => {
+      const configMock = await import('../utils/config');
+      Object.defineProperty(configMock.config, 'openaiApiKey', {
+        value: 'server-openai-key',
+        writable: true,
+        configurable: true,
+      });
+
+      const { UserModel } = await import('../models/User');
+
+      mockOpenaiLookupByName.mockResolvedValue({
+        name: 'Test Whiskey',
+        type: 'bourbon',
+      });
+
+      const { agent, user } = await createAuthenticatedAgent(app);
+      UserModel.setAiProvider(user.id, 'openai');
+      UserModel.saveApiKey(user.id, 'user-openai-key', 'openai');
+
+      await agent.post('/api/whiskeys/lookup').send({ name: 'Test' });
+
+      expect(mockOpenaiLookupByName).toHaveBeenCalledWith('user-openai-key', 'Test');
+
+      // Cleanup
+      UserModel.deleteApiKey(user.id, 'openai');
+      Object.defineProperty(configMock.config, 'openaiApiKey', {
         value: null,
         writable: true,
         configurable: true,

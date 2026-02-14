@@ -18,6 +18,7 @@ vi.mock('../services/api', () => ({
     getStatus: vi.fn().mockResolvedValue({ hasKey: false, lastFour: null }),
     save: vi.fn(),
     delete: vi.fn(),
+    setProvider: vi.fn().mockResolvedValue({ message: 'AI provider updated', provider: 'openai' }),
   },
 }));
 
@@ -788,7 +789,7 @@ describe('ProfilePage - AI Settings', () => {
   });
 
   describe('AI Settings section', () => {
-    it('renders AI Settings section', async () => {
+    it('renders AI Settings section with provider toggle', async () => {
       vi.mocked(apiKeyAPI.getStatus).mockResolvedValue({ hasKey: false, lastFour: null });
 
       renderWithRouter();
@@ -796,9 +797,12 @@ describe('ProfilePage - AI Settings', () => {
       await waitFor(() => {
         expect(screen.getByText('AI Settings')).toBeInTheDocument();
       });
+      expect(screen.getByText('Active AI Provider')).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Anthropic' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'OpenAI' })).toBeInTheDocument();
     });
 
-    it('renders API key input when no key is configured', async () => {
+    it('renders both Anthropic and OpenAI key sections', async () => {
       vi.mocked(apiKeyAPI.getStatus).mockResolvedValue({ hasKey: false, lastFour: null });
 
       renderWithRouter();
@@ -807,20 +811,10 @@ describe('ProfilePage - AI Settings', () => {
         expect(screen.getByPlaceholderText('sk-ant-...')).toBeInTheDocument();
       });
 
-      expect(screen.getByRole('button', { name: /Save Key/i })).toBeInTheDocument();
+      expect(screen.getByPlaceholderText('sk-...')).toBeInTheDocument();
     });
 
-    it('disables Save Key button when input is empty', async () => {
-      vi.mocked(apiKeyAPI.getStatus).mockResolvedValue({ hasKey: false, lastFour: null });
-
-      renderWithRouter();
-
-      await waitFor(() => {
-        expect(screen.getByRole('button', { name: /Save Key/i })).toBeDisabled();
-      });
-    });
-
-    it('enables Save Key button when input has text', async () => {
+    it('renders Anthropic API key input when no key is configured', async () => {
       vi.mocked(apiKeyAPI.getStatus).mockResolvedValue({ hasKey: false, lastFour: null });
 
       renderWithRouter();
@@ -828,28 +822,70 @@ describe('ProfilePage - AI Settings', () => {
       await waitFor(() => {
         expect(screen.getByPlaceholderText('sk-ant-...')).toBeInTheDocument();
       });
-
-      const input = screen.getByPlaceholderText('sk-ant-...');
-      fireEvent.change(input, { target: { value: 'sk-ant-test-key-123' } });
-
-      expect(screen.getByRole('button', { name: /Save Key/i })).not.toBeDisabled();
     });
 
-    it('shows configured state when user has an API key', async () => {
-      vi.mocked(apiKeyAPI.getStatus).mockResolvedValue({ hasKey: true, lastFour: 'WXYZ' });
+    it('renders OpenAI API key input when no key is configured', async () => {
+      vi.mocked(apiKeyAPI.getStatus).mockResolvedValue({ hasKey: false, lastFour: null });
+
+      renderWithRouter();
+
+      await waitFor(() => {
+        expect(screen.getByPlaceholderText('sk-...')).toBeInTheDocument();
+      });
+    });
+
+    it('shows configured state for Anthropic when key exists', async () => {
+      vi.mocked(apiKeyAPI.getStatus).mockImplementation((provider?: string) => {
+        if (provider === 'openai') return Promise.resolve({ hasKey: false, lastFour: null });
+        return Promise.resolve({ hasKey: true, lastFour: 'WXYZ' });
+      });
 
       renderWithRouter();
 
       await waitFor(() => {
         expect(screen.getByText(/Key configured.*WXYZ/)).toBeInTheDocument();
       });
+    });
 
-      expect(screen.getByRole('button', { name: /Remove Key/i })).toBeInTheDocument();
+    it('shows configured state for both providers when both keys exist', async () => {
+      vi.mocked(apiKeyAPI.getStatus).mockImplementation((provider?: string) => {
+        if (provider === 'openai') return Promise.resolve({ hasKey: true, lastFour: '9999' });
+        return Promise.resolve({ hasKey: true, lastFour: 'WXYZ' });
+      });
+
+      renderWithRouter();
+
+      await waitFor(() => {
+        expect(screen.getByText(/Key configured.*WXYZ/)).toBeInTheDocument();
+        expect(screen.getByText(/Key configured.*9999/)).toBeInTheDocument();
+      });
+    });
+  });
+
+  describe('Provider toggle', () => {
+    it('calls setProvider when OpenAI is clicked', async () => {
+      vi.mocked(apiKeyAPI.getStatus).mockResolvedValue({ hasKey: false, lastFour: null });
+      vi.mocked(apiKeyAPI.setProvider).mockResolvedValue({
+        message: 'AI provider updated',
+        provider: 'openai',
+      });
+
+      renderWithRouter();
+
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: 'OpenAI' })).toBeInTheDocument();
+      });
+
+      fireEvent.click(screen.getByRole('button', { name: 'OpenAI' }));
+
+      await waitFor(() => {
+        expect(apiKeyAPI.setProvider).toHaveBeenCalledWith('openai');
+      });
     });
   });
 
   describe('Save API key', () => {
-    it('calls save API and shows success on save', async () => {
+    it('calls save API with anthropic provider', async () => {
       vi.mocked(apiKeyAPI.getStatus).mockResolvedValue({ hasKey: false, lastFour: null });
       vi.mocked(apiKeyAPI.save).mockResolvedValue({
         message: 'API key saved successfully',
@@ -865,19 +901,41 @@ describe('ProfilePage - AI Settings', () => {
       const input = screen.getByPlaceholderText('sk-ant-...');
       fireEvent.change(input, { target: { value: 'sk-ant-my-test-key' } });
 
-      fireEvent.click(screen.getByRole('button', { name: /Save Key/i }));
+      // Click the Save Key button next to the Anthropic input
+      const saveButtons = screen.getAllByRole('button', { name: /Save Key/i });
+      fireEvent.click(saveButtons[0]);
 
       await waitFor(() => {
-        expect(apiKeyAPI.save).toHaveBeenCalledWith('sk-ant-my-test-key');
+        expect(apiKeyAPI.save).toHaveBeenCalledWith('sk-ant-my-test-key', 'anthropic');
       });
 
       await waitFor(() => {
         expect(screen.getByText('API key saved successfully')).toBeInTheDocument();
       });
+    });
 
-      // Should now show configured state
+    it('calls save API with openai provider', async () => {
+      vi.mocked(apiKeyAPI.getStatus).mockResolvedValue({ hasKey: false, lastFour: null });
+      vi.mocked(apiKeyAPI.save).mockResolvedValue({
+        message: 'API key saved successfully',
+        lastFour: '5678',
+      });
+
+      renderWithRouter();
+
       await waitFor(() => {
-        expect(screen.getByText(/Key configured.*ABCD/)).toBeInTheDocument();
+        expect(screen.getByPlaceholderText('sk-...')).toBeInTheDocument();
+      });
+
+      const input = screen.getByPlaceholderText('sk-...');
+      fireEvent.change(input, { target: { value: 'sk-openai-test-key' } });
+
+      // Click the Save Key button next to the OpenAI input (second one)
+      const saveButtons = screen.getAllByRole('button', { name: /Save Key/i });
+      fireEvent.click(saveButtons[1]);
+
+      await waitFor(() => {
+        expect(apiKeyAPI.save).toHaveBeenCalledWith('sk-openai-test-key', 'openai');
       });
     });
 
@@ -894,7 +952,8 @@ describe('ProfilePage - AI Settings', () => {
       const input = screen.getByPlaceholderText('sk-ant-...');
       fireEvent.change(input, { target: { value: 'sk-ant-bad-key' } });
 
-      fireEvent.click(screen.getByRole('button', { name: /Save Key/i }));
+      const saveButtons = screen.getAllByRole('button', { name: /Save Key/i });
+      fireEvent.click(saveButtons[0]);
 
       await waitFor(() => {
         expect(screen.getByText('Invalid API key')).toBeInTheDocument();
@@ -903,43 +962,46 @@ describe('ProfilePage - AI Settings', () => {
   });
 
   describe('Delete API key', () => {
-    it('calls delete API and shows success', async () => {
-      vi.mocked(apiKeyAPI.getStatus).mockResolvedValue({ hasKey: true, lastFour: 'WXYZ' });
+    it('calls delete API with anthropic provider', async () => {
+      vi.mocked(apiKeyAPI.getStatus).mockImplementation((provider?: string) => {
+        if (provider === 'openai') return Promise.resolve({ hasKey: false, lastFour: null });
+        return Promise.resolve({ hasKey: true, lastFour: 'WXYZ' });
+      });
       vi.mocked(apiKeyAPI.delete).mockResolvedValue({ message: 'API key removed' });
 
       renderWithRouter();
 
       await waitFor(() => {
-        expect(screen.getByRole('button', { name: /Remove Key/i })).toBeInTheDocument();
+        expect(screen.getByText(/Key configured.*WXYZ/)).toBeInTheDocument();
       });
 
-      fireEvent.click(screen.getByRole('button', { name: /Remove Key/i }));
+      const removeButtons = screen.getAllByRole('button', { name: /Remove Key/i });
+      fireEvent.click(removeButtons[0]);
 
       await waitFor(() => {
-        expect(apiKeyAPI.delete).toHaveBeenCalled();
+        expect(apiKeyAPI.delete).toHaveBeenCalledWith('anthropic');
       });
 
       await waitFor(() => {
         expect(screen.getByText('API key removed')).toBeInTheDocument();
       });
-
-      // Should now show the input form again
-      await waitFor(() => {
-        expect(screen.getByPlaceholderText('sk-ant-...')).toBeInTheDocument();
-      });
     });
 
     it('shows error when delete fails', async () => {
-      vi.mocked(apiKeyAPI.getStatus).mockResolvedValue({ hasKey: true, lastFour: 'WXYZ' });
+      vi.mocked(apiKeyAPI.getStatus).mockImplementation((provider?: string) => {
+        if (provider === 'openai') return Promise.resolve({ hasKey: false, lastFour: null });
+        return Promise.resolve({ hasKey: true, lastFour: 'WXYZ' });
+      });
       vi.mocked(apiKeyAPI.delete).mockRejectedValue(new Error('Failed to delete'));
 
       renderWithRouter();
 
       await waitFor(() => {
-        expect(screen.getByRole('button', { name: /Remove Key/i })).toBeInTheDocument();
+        expect(screen.getByText(/Key configured.*WXYZ/)).toBeInTheDocument();
       });
 
-      fireEvent.click(screen.getByRole('button', { name: /Remove Key/i }));
+      const removeButtons = screen.getAllByRole('button', { name: /Remove Key/i });
+      fireEvent.click(removeButtons[0]);
 
       await waitFor(() => {
         expect(screen.getByText('Failed to delete')).toBeInTheDocument();

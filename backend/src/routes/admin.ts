@@ -402,9 +402,9 @@ router.post(
             const backupCols = db
               .prepare(`PRAGMA backup_db.table_info("${table}")`)
               .all() as Array<{ name: string }>;
-            const mainCols = db
-              .prepare(`PRAGMA main.table_info("${table}")`)
-              .all() as Array<{ name: string }>;
+            const mainCols = db.prepare(`PRAGMA main.table_info("${table}")`).all() as Array<{
+              name: string;
+            }>;
             const mainColNames = new Set(mainCols.map((c) => c.name));
             const commonCols = backupCols.map((c) => c.name).filter((n) => mainColNames.has(n));
 

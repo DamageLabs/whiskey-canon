@@ -45,6 +45,7 @@ vi.mock('../utils/config', () => ({
     resendFromEmail: 'noreply@whiskey-canon.com',
     contactEmail: 'noreply@whiskey-canon.com',
     anthropicApiKey: null,
+    openaiApiKey: null,
     apiKeyEncryptionSecret: 'test-encryption-secret-min-32-chars!!',
   },
   validateConfig: vi.fn(),

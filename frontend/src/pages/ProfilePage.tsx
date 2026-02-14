@@ -49,10 +49,14 @@ export default function ProfilePage() {
   const [showPublicConfirm, setShowPublicConfirm] = useState(false);
   const [updatingVisibility, setUpdatingVisibility] = useState(false);
 
-  // AI API key state
-  const [apiKeyInput, setApiKeyInput] = useState('');
-  const [apiKeyLastFour, setApiKeyLastFour] = useState<string | null>(null);
-  const [hasApiKey, setHasApiKey] = useState(user?.has_api_key || false);
+  // AI API key state — per-provider
+  const [anthropicKeyInput, setAnthropicKeyInput] = useState('');
+  const [anthropicKeyLastFour, setAnthropicKeyLastFour] = useState<string | null>(null);
+  const [hasAnthropicKey, setHasAnthropicKey] = useState(user?.has_api_key || false);
+  const [openaiKeyInput, setOpenaiKeyInput] = useState('');
+  const [openaiKeyLastFour, setOpenaiKeyLastFour] = useState<string | null>(null);
+  const [hasOpenaiKey, setHasOpenaiKey] = useState(user?.has_openai_key || false);
+  const [activeProvider, setActiveProvider] = useState<string>(user?.ai_provider || 'anthropic');
   const [savingApiKey, setSavingApiKey] = useState(false);
 
   // Fetch collection count on mount
@@ -68,29 +72,41 @@ export default function ProfilePage() {
     fetchCollectionCount();
   }, []);
 
-  // Fetch API key status on mount
+  // Fetch API key status for both providers on mount
   useEffect(() => {
     async function fetchApiKeyStatus() {
       try {
-        const { hasKey, lastFour } = await apiKeyAPI.getStatus();
-        setHasApiKey(hasKey);
-        setApiKeyLastFour(lastFour);
+        const [anthropicStatus, openaiStatus] = await Promise.all([
+          apiKeyAPI.getStatus('anthropic'),
+          apiKeyAPI.getStatus('openai'),
+        ]);
+        setHasAnthropicKey(anthropicStatus.hasKey);
+        setAnthropicKeyLastFour(anthropicStatus.lastFour);
+        setHasOpenaiKey(openaiStatus.hasKey);
+        setOpenaiKeyLastFour(openaiStatus.lastFour);
       } catch {
-        // Ignore — user may not have one
+        // Ignore — user may not have keys
       }
     }
     fetchApiKeyStatus();
   }, []);
 
-  const handleSaveApiKey = async () => {
-    if (!apiKeyInput.trim()) return;
+  const handleSaveApiKey = async (provider: string) => {
+    const input = provider === 'openai' ? openaiKeyInput : anthropicKeyInput;
+    if (!input.trim()) return;
     setSavingApiKey(true);
     setMessage(null);
     try {
-      const result = await apiKeyAPI.save(apiKeyInput.trim());
-      setHasApiKey(true);
-      setApiKeyLastFour(result.lastFour);
-      setApiKeyInput('');
+      const result = await apiKeyAPI.save(input.trim(), provider);
+      if (provider === 'openai') {
+        setHasOpenaiKey(true);
+        setOpenaiKeyLastFour(result.lastFour);
+        setOpenaiKeyInput('');
+      } else {
+        setHasAnthropicKey(true);
+        setAnthropicKeyLastFour(result.lastFour);
+        setAnthropicKeyInput('');
+      }
       setMessage({ type: 'success', text: result.message });
     } catch (error: any) {
       setMessage({ type: 'error', text: error.message || 'Failed to save API key' });
@@ -99,18 +115,32 @@ export default function ProfilePage() {
     }
   };
 
-  const handleDeleteApiKey = async () => {
+  const handleDeleteApiKey = async (provider: string) => {
     setSavingApiKey(true);
     setMessage(null);
     try {
-      const result = await apiKeyAPI.delete();
-      setHasApiKey(false);
-      setApiKeyLastFour(null);
+      const result = await apiKeyAPI.delete(provider);
+      if (provider === 'openai') {
+        setHasOpenaiKey(false);
+        setOpenaiKeyLastFour(null);
+      } else {
+        setHasAnthropicKey(false);
+        setAnthropicKeyLastFour(null);
+      }
       setMessage({ type: 'success', text: result.message });
     } catch (error: any) {
       setMessage({ type: 'error', text: error.message || 'Failed to delete API key' });
     } finally {
       setSavingApiKey(false);
+    }
+  };
+
+  const handleProviderChange = async (provider: string) => {
+    try {
+      await apiKeyAPI.setProvider(provider);
+      setActiveProvider(provider);
+    } catch (error: any) {
+      setMessage({ type: 'error', text: error.message || 'Failed to update provider' });
     }
   };
 
@@ -554,11 +584,40 @@ export default function ProfilePage() {
               {/* AI Settings */}
               <div className="profile-section mt-4">
                 <h2>AI Settings</h2>
-                <div className="info-group">
-                  <label>Anthropic API Key</label>
+
+                {/* Provider Toggle */}
+                <div className="info-group mb-4">
+                  <label>Active AI Provider</label>
+                  <p className="text-muted mb-2" style={{ fontSize: '0.9rem' }}>
+                    Choose which AI provider to use for whiskey lookups.
+                  </p>
+                  <div className="btn-group" role="group" aria-label="AI Provider">
+                    <button
+                      type="button"
+                      className={`btn ${activeProvider === 'anthropic' ? 'btn-primary' : 'btn-outline-primary'}`}
+                      onClick={() => handleProviderChange('anthropic')}
+                    >
+                      Anthropic
+                    </button>
+                    <button
+                      type="button"
+                      className={`btn ${activeProvider === 'openai' ? 'btn-primary' : 'btn-outline-primary'}`}
+                      onClick={() => handleProviderChange('openai')}
+                    >
+                      OpenAI
+                    </button>
+                  </div>
+                </div>
+
+                {/* Anthropic API Key */}
+                <div
+                  className={`info-group mb-4${activeProvider === 'anthropic' ? ' border-start border-primary ps-3' : ''}`}
+                >
+                  <label>
+                    Anthropic API Key{activeProvider === 'anthropic' ? ' (Active)' : ''}
+                  </label>
                   <p className="text-muted mb-3" style={{ fontSize: '0.9rem' }}>
-                    Add your Anthropic API key to enable AI-powered whiskey lookups. Your key is
-                    encrypted and stored securely. Get a key at{' '}
+                    Get a key at{' '}
                     <a
                       href="https://console.anthropic.com/settings/keys"
                       target="_blank"
@@ -568,15 +627,15 @@ export default function ProfilePage() {
                       console.anthropic.com
                     </a>
                   </p>
-                  {hasApiKey ? (
+                  {hasAnthropicKey ? (
                     <div className="d-flex align-items-center gap-3">
                       <span className="badge bg-success">
                         <i className="bi bi-check-circle me-1"></i>
-                        Key configured (****{apiKeyLastFour})
+                        Key configured (****{anthropicKeyLastFour})
                       </span>
                       <button
                         className="btn btn-outline-danger btn-sm"
-                        onClick={handleDeleteApiKey}
+                        onClick={() => handleDeleteApiKey('anthropic')}
                         disabled={savingApiKey}
                       >
                         {savingApiKey ? 'Removing...' : 'Remove Key'}
@@ -588,14 +647,65 @@ export default function ProfilePage() {
                         type="password"
                         className="form-control"
                         placeholder="sk-ant-..."
-                        value={apiKeyInput}
-                        onChange={(e) => setApiKeyInput(e.target.value)}
+                        value={anthropicKeyInput}
+                        onChange={(e) => setAnthropicKeyInput(e.target.value)}
                         style={{ maxWidth: '400px' }}
                       />
                       <button
                         className="btn btn-primary"
-                        onClick={handleSaveApiKey}
-                        disabled={savingApiKey || !apiKeyInput.trim()}
+                        onClick={() => handleSaveApiKey('anthropic')}
+                        disabled={savingApiKey || !anthropicKeyInput.trim()}
+                      >
+                        {savingApiKey ? 'Validating...' : 'Save Key'}
+                      </button>
+                    </div>
+                  )}
+                </div>
+
+                {/* OpenAI API Key */}
+                <div
+                  className={`info-group${activeProvider === 'openai' ? ' border-start border-primary ps-3' : ''}`}
+                >
+                  <label>OpenAI API Key{activeProvider === 'openai' ? ' (Active)' : ''}</label>
+                  <p className="text-muted mb-3" style={{ fontSize: '0.9rem' }}>
+                    Get a key at{' '}
+                    <a
+                      href="https://platform.openai.com/api-keys"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{ color: 'var(--amber-500)' }}
+                    >
+                      platform.openai.com
+                    </a>
+                  </p>
+                  {hasOpenaiKey ? (
+                    <div className="d-flex align-items-center gap-3">
+                      <span className="badge bg-success">
+                        <i className="bi bi-check-circle me-1"></i>
+                        Key configured (****{openaiKeyLastFour})
+                      </span>
+                      <button
+                        className="btn btn-outline-danger btn-sm"
+                        onClick={() => handleDeleteApiKey('openai')}
+                        disabled={savingApiKey}
+                      >
+                        {savingApiKey ? 'Removing...' : 'Remove Key'}
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="d-flex gap-2">
+                      <input
+                        type="password"
+                        className="form-control"
+                        placeholder="sk-..."
+                        value={openaiKeyInput}
+                        onChange={(e) => setOpenaiKeyInput(e.target.value)}
+                        style={{ maxWidth: '400px' }}
+                      />
+                      <button
+                        className="btn btn-primary"
+                        onClick={() => handleSaveApiKey('openai')}
+                        disabled={savingApiKey || !openaiKeyInput.trim()}
                       >
                         {savingApiKey ? 'Validating...' : 'Save Key'}
                       </button>

@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.8.0] - 2026-02-16
+
+### Added
+
+- Offset-based pagination for whiskey list endpoints with `page` and `limit` query parameters ([#59](https://github.com/DamageLabs/whiskey-canon/issues/59))
+- Pagination controls on DashboardPage with page size selector (10/25/50/100) and page navigation
+- `PaginationMeta` response metadata (`page`, `limit`, `total`, `totalPages`) on `GET /api/whiskeys`, `GET /api/whiskeys/search`, and `GET /api/admin/whiskeys`
+- Database index on `whiskeys.created_at` for efficient paginated queries (migration 018)
+- 10 new backend tests for pagination across models and routes
+
+### Fixed
+
+- `@eslint/js` peer dependency conflict with eslint 9.x causing CI failures
+- Backup schedule interval validation test using a now-valid value (`hourly`)
+
+### Issues Resolved
+
+- [#59](https://github.com/DamageLabs/whiskey-canon/issues/59) — Add pagination to whiskey list endpoints
+
 ## [1.7.0] - 2026-02-14
 
 ### Added

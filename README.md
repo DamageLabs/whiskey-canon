@@ -151,11 +151,18 @@ Comprehensive data visualization with interactive charts powered by Recharts:
 - **Ollama status indicator** showing connection state and available models
 - Configurable Ollama models via `OLLAMA_TEXT_MODEL` and `OLLAMA_VISION_MODEL` environment variables
 
+### 📄 Pagination
+- **Server-side pagination** on all whiskey list endpoints with configurable page size (10/25/50/100)
+- **Pagination controls** on Dashboard with First/Prev/Next/Last navigation and page number display
+- **Pagination metadata** returned in API responses (`page`, `limit`, `total`, `totalPages`)
+- Backward-compatible: responses without `limit` parameter return all results as before
+
 ### 🔍 Search & Filter
 - Search by whiskey name
 - Filter by whiskey type
 - Filter by distillery
 - Sort by name, type, rating, age, ABV, and more
+- Paginated search results
 - Admin: Filter collections by user
 
 ### 🎲 Demo Data & Data Quality
@@ -365,8 +372,8 @@ CREATE TABLE users (
 - `PUT /api/auth/ai-provider` - Set active AI provider (anthropic/openai/ollama)
 
 ### Whiskeys (All require authentication)
-- `GET /api/whiskeys` - Get all whiskeys (user's collection only)
-- `GET /api/whiskeys/search?q=query` - Search user's whiskeys
+- `GET /api/whiskeys?page=1&limit=25` - Get whiskeys with optional pagination (user's collection only)
+- `GET /api/whiskeys/search?q=query&page=1&limit=25` - Search user's whiskeys with optional pagination
 - `GET /api/whiskeys/:id` - Get single whiskey (if owned by user)
 - `POST /api/whiskeys` - Create whiskey (Editor+ permission)
 - `PUT /api/whiskeys/:id` - Update whiskey (Editor+ permission, own whiskey only)
@@ -376,7 +383,7 @@ CREATE TABLE users (
 
 ### Admin (Require admin role)
 - `GET /api/admin/users` - Get all users
-- `GET /api/admin/whiskeys` - Get all whiskeys with owner information
+- `GET /api/admin/whiskeys?page=1&limit=25` - Get all whiskeys with owner information (supports pagination)
 - `PUT /api/admin/users/:id/role` - Update user role
 - `DELETE /api/admin/users/:id` - Delete user
 
@@ -539,7 +546,7 @@ See **[DEPLOYMENT.md](./DEPLOYMENT.md)** for comprehensive deployment instructio
 ## 📈 Statistics
 
 - **10+ interactive charts** in the analytics dashboard (Recharts)
-- **10 database indexes** for performance optimization
+- **11 database indexes** for performance optimization (including `created_at` for pagination)
 - **57 database columns** for comprehensive tracking
 - **41 new fields** added beyond basic whiskey info
 - **7 organized tabs** in the form interface
@@ -554,8 +561,9 @@ See **[DEPLOYMENT.md](./DEPLOYMENT.md)** for comprehensive deployment instructio
 
 ## 📝 Recent Updates
 
-### February 2026 - AI-Powered Whiskey Lookup
+### February 2026 - Pagination & AI-Powered Whiskey Lookup
 
+- **Server-side pagination** — paginate whiskey lists with configurable page sizes and full navigation controls ([#59](https://github.com/DamageLabs/whiskey-canon/issues/59))
 - **AI label scanning & text lookup** — snap a photo of a bottle label or type a name to auto-fill all 57 fields ([#100](https://github.com/DamageLabs/whiskey-canon/issues/100))
 - **Multi-provider support** — choose between Anthropic Claude, OpenAI, or Ollama (local) as your AI provider ([#126](https://github.com/DamageLabs/whiskey-canon/issues/126))
 - **Ollama local AI** — run whiskey lookups entirely offline using local models, no API key needed ([#128](https://github.com/DamageLabs/whiskey-canon/issues/128))
@@ -582,9 +590,9 @@ See **[DEPLOYMENT.md](./DEPLOYMENT.md)** for comprehensive deployment instructio
 - Special items tracking: Limited editions, single barrels, award winners
 
 **Performance Optimization**
-- Added 10 database indexes for faster queries on large collections
-- Indexed fields: user, type, rating, name, distillery, purchase_date, status, is_opened
-- Significant performance improvement for filtering, sorting, and searching
+- Added 11 database indexes for faster queries on large collections
+- Indexed fields: user, type, rating, name, distillery, purchase_date, status, is_opened, created_at
+- Significant performance improvement for filtering, sorting, searching, and paginated queries
 - Login and user lookup optimizations with username and email indexes
 
 **Data Quality & Demo System**

@@ -54,6 +54,21 @@ export default tseslint.config(
     },
   },
 
+  // Seed/CLI scripts — allow console for user-facing output
+  {
+    files: [
+      'backend/src/seed*.ts',
+      'backend/src/utils/seed*.ts',
+      'backend/src/utils/update-*.ts',
+      'backend/src/utils/migrate.ts',
+      'backend/src/utils/remove-duplicates.ts',
+      'backend/src/utils/add-bourbons.ts',
+    ],
+    rules: {
+      'no-console': 'off',
+    },
+  },
+
   // Config files — relaxed rules
   {
     files: ['*.config.{ts,js,mjs}', '**/*.config.{ts,js,mjs}'],

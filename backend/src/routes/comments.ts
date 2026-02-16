@@ -32,8 +32,8 @@ router.get(
       const comments = CommentModel.findByWhiskeyId(whiskeyId);
       res.json({ comments });
     } catch (error) {
-      console.error('Error fetching comments:', error);
-      res.status(500).json({ error: 'Failed to fetch comments' });
+      req.log.error({ err: error }, 'Error fetching comments');
+      res.status(500).json({ error: 'Failed to fetch comments', requestId: req.id });
     }
   }
 );
@@ -51,8 +51,8 @@ router.get(
       const count = CommentModel.countByWhiskeyId(whiskeyId);
       res.json({ count });
     } catch (error) {
-      console.error('Error fetching comment count:', error);
-      res.status(500).json({ error: 'Failed to fetch comment count' });
+      req.log.error({ err: error }, 'Error fetching comment count');
+      res.status(500).json({ error: 'Failed to fetch comment count', requestId: req.id });
     }
   }
 );
@@ -92,8 +92,8 @@ router.post(
       const comment = CommentModel.create(whiskeyId, req.user!.id, content);
       res.status(201).json({ comment, message: 'Comment added successfully' });
     } catch (error) {
-      console.error('Error creating comment:', error);
-      res.status(500).json({ error: 'Failed to create comment' });
+      req.log.error({ err: error }, 'Error creating comment');
+      res.status(500).json({ error: 'Failed to create comment', requestId: req.id });
     }
   }
 );
@@ -131,8 +131,8 @@ router.put(
 
       res.json({ comment, message: 'Comment updated successfully' });
     } catch (error) {
-      console.error('Error updating comment:', error);
-      res.status(500).json({ error: 'Failed to update comment' });
+      req.log.error({ err: error }, 'Error updating comment');
+      res.status(500).json({ error: 'Failed to update comment', requestId: req.id });
     }
   }
 );
@@ -159,8 +159,8 @@ router.delete(
 
       res.json({ message: 'Comment deleted successfully' });
     } catch (error) {
-      console.error('Error deleting comment:', error);
-      res.status(500).json({ error: 'Failed to delete comment' });
+      req.log.error({ err: error }, 'Error deleting comment');
+      res.status(500).json({ error: 'Failed to delete comment', requestId: req.id });
     }
   }
 );

@@ -37,8 +37,8 @@ router.get(
       const stats = WhiskeyModel.getPublicStats(profile.id);
       res.json({ stats });
     } catch (error) {
-      console.error('Get public stats error:', error);
-      res.status(500).json({ error: 'Failed to fetch stats' });
+      req.log.error({ err: error }, 'Get public stats failed');
+      res.status(500).json({ error: 'Failed to fetch stats', requestId: req.id });
     }
   }
 );
@@ -75,8 +75,8 @@ router.get(
 
       res.json({ profile });
     } catch (error) {
-      console.error('Get public profile error:', error);
-      res.status(500).json({ error: 'Failed to fetch profile' });
+      req.log.error({ err: error }, 'Get public profile failed');
+      res.status(500).json({ error: 'Failed to fetch profile', requestId: req.id });
     }
   }
 );
@@ -87,8 +87,8 @@ router.get('/', (req: AuthRequest, res: Response) => {
     const profiles = UserModel.findPublicProfiles();
     res.json({ profiles });
   } catch (error) {
-    console.error('List public profiles error:', error);
-    res.status(500).json({ error: 'Failed to fetch profiles' });
+    req.log.error({ err: error }, 'List public profiles failed');
+    res.status(500).json({ error: 'Failed to fetch profiles', requestId: req.id });
   }
 });
 

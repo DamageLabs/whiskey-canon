@@ -82,7 +82,7 @@ router.post(
       const emailSent = await sendVerificationEmail(email, verificationCode);
 
       if (!emailSent) {
-        console.error('Failed to send verification email to:', email);
+        req.log.error({ email }, 'Failed to send verification email');
       }
 
       res.status(201).json({
@@ -91,8 +91,8 @@ router.post(
         email: email,
       });
     } catch (error) {
-      console.error('Registration error:', error);
-      res.status(500).json({ error: 'Failed to create user' });
+      req.log.error({ err: error }, 'Registration failed');
+      res.status(500).json({ error: 'Failed to create user', requestId: req.id });
     }
   }
 );
@@ -146,8 +146,8 @@ router.post(
         user: userWithoutPassword,
       });
     } catch (error) {
-      console.error('Login error:', error);
-      res.status(500).json({ error: 'Failed to login' });
+      req.log.error({ err: error }, 'Login failed');
+      res.status(500).json({ error: 'Failed to login', requestId: req.id });
     }
   }
 );
@@ -223,8 +223,8 @@ router.post(
 
       res.json({ message: 'Email verified successfully' });
     } catch (error) {
-      console.error('Email verification error:', error);
-      res.status(500).json({ error: 'Failed to verify email' });
+      req.log.error({ err: error }, 'Email verification failed');
+      res.status(500).json({ error: 'Failed to verify email', requestId: req.id });
     }
   }
 );
@@ -282,8 +282,8 @@ router.post(
 
       res.json({ message: 'Verification code sent successfully' });
     } catch (error) {
-      console.error('Resend verification error:', error);
-      res.status(500).json({ error: 'Failed to resend verification email' });
+      req.log.error({ err: error }, 'Resend verification failed');
+      res.status(500).json({ error: 'Failed to resend verification email', requestId: req.id });
     }
   }
 );
@@ -320,15 +320,17 @@ router.post(
       const emailSent = await sendPasswordResetEmail(email, resetToken);
 
       if (!emailSent) {
-        console.error('Failed to send password reset email to:', email);
+        req.log.error({ email }, 'Failed to send password reset email');
       }
 
       res.json({
         message: 'If an account exists with this email, a password reset link has been sent.',
       });
     } catch (error) {
-      console.error('Forgot password error:', error);
-      res.status(500).json({ error: 'Failed to process password reset request' });
+      req.log.error({ err: error }, 'Forgot password failed');
+      res
+        .status(500)
+        .json({ error: 'Failed to process password reset request', requestId: req.id });
     }
   }
 );
@@ -375,8 +377,8 @@ router.post(
 
       res.json({ message: 'Password has been reset successfully' });
     } catch (error) {
-      console.error('Reset password error:', error);
-      res.status(500).json({ error: 'Failed to reset password' });
+      req.log.error({ err: error }, 'Reset password failed');
+      res.status(500).json({ error: 'Failed to reset password', requestId: req.id });
     }
   }
 );
@@ -478,8 +480,8 @@ router.put(
         user: userWithoutPassword,
       });
     } catch (error) {
-      console.error('Profile update error:', error);
-      res.status(500).json({ error: 'Failed to update profile' });
+      req.log.error({ err: error }, 'Profile update failed');
+      res.status(500).json({ error: 'Failed to update profile', requestId: req.id });
     }
   }
 );
@@ -527,7 +529,7 @@ router.post(
         user: userWithoutPassword,
       });
     } catch (error: any) {
-      console.error('Profile photo upload error:', error);
+      req.log.error({ err: error }, 'Profile photo upload failed');
 
       // Delete uploaded file if there was an error
       if (req.file) {
@@ -541,7 +543,7 @@ router.post(
         return res.status(400).json({ error: error.message });
       }
 
-      res.status(500).json({ error: 'Failed to upload profile photo' });
+      res.status(500).json({ error: 'Failed to upload profile photo', requestId: req.id });
     }
   }
 );
@@ -574,8 +576,8 @@ router.patch(
         user: userWithoutPassword,
       });
     } catch (error) {
-      console.error('Visibility update error:', error);
-      res.status(500).json({ error: 'Failed to update visibility' });
+      req.log.error({ err: error }, 'Visibility update failed');
+      res.status(500).json({ error: 'Failed to update visibility', requestId: req.id });
     }
   }
 );
@@ -616,8 +618,8 @@ router.delete('/profile/photo', requireAuth, async (req: AuthRequest, res) => {
       user: userWithoutPassword,
     });
   } catch (error) {
-    console.error('Profile photo delete error:', error);
-    res.status(500).json({ error: 'Failed to delete profile photo' });
+    req.log.error({ err: error }, 'Profile photo delete failed');
+    res.status(500).json({ error: 'Failed to delete profile photo', requestId: req.id });
   }
 });
 
@@ -682,8 +684,8 @@ router.put(
       UserModel.saveApiKey(req.user.id, apiKey, provider);
       res.json({ message: 'API key saved successfully', lastFour: apiKey.slice(-4) });
     } catch (error) {
-      console.error('Save API key error:', error);
-      res.status(500).json({ error: 'Failed to save API key' });
+      req.log.error({ err: error }, 'Save API key failed');
+      res.status(500).json({ error: 'Failed to save API key', requestId: req.id });
     }
   }
 );

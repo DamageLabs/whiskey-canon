@@ -46,8 +46,8 @@ router.post(
       const record = generateBackup(req.user!.id, format, 'manual');
       res.status(201).json({ backup: record, message: 'Backup created successfully' });
     } catch (error) {
-      console.error('Backup creation error:', error);
-      res.status(500).json({ error: 'Failed to create backup' });
+      req.log.error({ err: error }, 'Backup creation failed');
+      res.status(500).json({ error: 'Failed to create backup', requestId: req.id });
     }
   }
 );
@@ -81,11 +81,11 @@ router.post(
 
       res.status(201).json({ backup, message: 'Backup uploaded successfully' });
     } catch (error: any) {
-      console.error('Backup upload error:', error);
+      req.log.error({ err: error }, 'Backup upload failed');
       if (error.message === 'Invalid JSON file' || error.message.startsWith('Missing or invalid')) {
         return res.status(400).json({ error: error.message });
       }
-      res.status(500).json({ error: 'Failed to upload backup' });
+      res.status(500).json({ error: 'Failed to upload backup', requestId: req.id });
     }
   }
 );
@@ -96,8 +96,8 @@ router.get('/', (req: AuthRequest, res: Response) => {
     const backups = BackupModel.findByUserId(req.user!.id);
     res.json({ backups });
   } catch (error) {
-    console.error('Backup list error:', error);
-    res.status(500).json({ error: 'Failed to list backups' });
+    req.log.error({ err: error }, 'Backup list failed');
+    res.status(500).json({ error: 'Failed to list backups', requestId: req.id });
   }
 });
 
@@ -113,8 +113,8 @@ router.get('/schedule', (req: AuthRequest, res: Response) => {
       },
     });
   } catch (error) {
-    console.error('Schedule fetch error:', error);
-    res.status(500).json({ error: 'Failed to get backup schedule' });
+    req.log.error({ err: error }, 'Schedule fetch failed');
+    res.status(500).json({ error: 'Failed to get backup schedule', requestId: req.id });
   }
 });
 
@@ -137,8 +137,8 @@ router.put(
       const schedule = BackupScheduleModel.upsert(req.user!.id, interval, format, retentionDays);
       res.json({ schedule, message: 'Backup schedule updated' });
     } catch (error) {
-      console.error('Schedule update error:', error);
-      res.status(500).json({ error: 'Failed to update backup schedule' });
+      req.log.error({ err: error }, 'Schedule update failed');
+      res.status(500).json({ error: 'Failed to update backup schedule', requestId: req.id });
     }
   }
 );
@@ -170,8 +170,8 @@ router.get(
       const stream = fs.createReadStream(filePath);
       stream.pipe(res);
     } catch (error) {
-      console.error('Backup download error:', error);
-      res.status(500).json({ error: 'Failed to download backup' });
+      req.log.error({ err: error }, 'Backup download failed');
+      res.status(500).json({ error: 'Failed to download backup', requestId: req.id });
     }
   }
 );
@@ -201,7 +201,7 @@ router.post(
       const result = restoreFromBackup(req.user!.id, backupId, conflictStrategy || 'skip');
       res.json({ result, message: 'Backup restored successfully' });
     } catch (error: any) {
-      console.error('Backup restore error:', error);
+      req.log.error({ err: error }, 'Backup restore failed');
       if (error.message === 'Backup not found' || error.message === 'Backup file not found') {
         return res.status(404).json({ error: error.message });
       }
@@ -211,7 +211,7 @@ router.post(
       ) {
         return res.status(400).json({ error: error.message });
       }
-      res.status(500).json({ error: 'Failed to restore backup' });
+      res.status(500).json({ error: 'Failed to restore backup', requestId: req.id });
     }
   }
 );
@@ -238,8 +238,8 @@ router.delete(
 
       res.json({ message: 'Backup deleted successfully' });
     } catch (error) {
-      console.error('Backup delete error:', error);
-      res.status(500).json({ error: 'Failed to delete backup' });
+      req.log.error({ err: error }, 'Backup delete failed');
+      res.status(500).json({ error: 'Failed to delete backup', requestId: req.id });
     }
   }
 );

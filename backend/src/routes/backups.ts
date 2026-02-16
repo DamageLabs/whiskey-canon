@@ -123,8 +123,8 @@ router.put(
   '/schedule',
   [
     body('interval')
-      .isIn(['disabled', 'daily', 'weekly', 'monthly'])
-      .withMessage('Interval must be disabled, daily, weekly, or monthly'),
+      .isIn(['disabled', 'hourly', 'daily', 'weekly', 'monthly'])
+      .withMessage('Interval must be disabled, hourly, daily, weekly, or monthly'),
     body('format').isIn(['json', 'csv']).withMessage('Format must be json or csv'),
     body('retentionDays')
       .isInt({ min: 1, max: 365 })

@@ -67,6 +67,10 @@ export class BackupScheduleModel {
   private static calculateNextRun(interval: string): string | null {
     const now = new Date();
     switch (interval) {
+      case 'hourly':
+        now.setMinutes(0, 0, 0);
+        now.setHours(now.getHours() + 1);
+        break;
       case 'daily':
         now.setDate(now.getDate() + 1);
         break;

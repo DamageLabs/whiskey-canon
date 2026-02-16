@@ -296,6 +296,7 @@ export function BackupManager() {
               }}
             >
               <option value="disabled">Disabled</option>
+              <option value="hourly">Hourly</option>
               <option value="daily">Daily</option>
               <option value="weekly">Weekly</option>
               <option value="monthly">Monthly</option>

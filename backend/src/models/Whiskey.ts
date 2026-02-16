@@ -1,5 +1,5 @@
+import type { Whiskey, WhiskeyStatus, WhiskeyType } from '../types';
 import { db } from '../utils/database';
-import { Whiskey, WhiskeyType, WhiskeyStatus } from '../types';
 
 export interface CreateWhiskeyData {
   // Required fields
@@ -206,7 +206,7 @@ export class WhiskeyModel {
       data.created_by
     );
 
-    return this.findById(result.lastInsertRowid as number)!;
+    return WhiskeyModel.findById(result.lastInsertRowid as number)!;
   }
 
   static findById(id: number, userId?: number): Whiskey | undefined {
@@ -226,29 +226,46 @@ export class WhiskeyModel {
     type?: WhiskeyType;
     distillery?: string;
     userId?: number;
-  }): Whiskey[] {
-    let query = 'SELECT * FROM whiskeys WHERE 1=1';
+    page?: number;
+    limit?: number;
+  }): { data: Whiskey[]; total: number } {
+    let whereClause = 'WHERE 1=1';
     const params: any[] = [];
 
     if (filters?.userId !== undefined) {
-      query += ' AND created_by = ?';
+      whereClause += ' AND created_by = ?';
       params.push(filters.userId);
     }
 
     if (filters?.type) {
-      query += ' AND type = ?';
+      whereClause += ' AND type = ?';
       params.push(filters.type);
     }
 
     if (filters?.distillery) {
-      query += ' AND distillery LIKE ?';
+      whereClause += ' AND distillery LIKE ?';
       params.push(`%${filters.distillery}%`);
     }
 
-    query += ' ORDER BY created_at DESC';
+    // Get total count
+    const countStmt = db.prepare(`SELECT COUNT(*) as count FROM whiskeys ${whereClause}`);
+    const { count: total } = countStmt.get(...params) as { count: number };
+
+    // Build paginated query
+    let query = `SELECT * FROM whiskeys ${whereClause} ORDER BY created_at DESC`;
+
+    if (filters?.limit) {
+      const limit = Math.min(Math.max(1, filters.limit), 100);
+      const page = Math.max(1, filters.page || 1);
+      const offset = (page - 1) * limit;
+      query += ' LIMIT ? OFFSET ?';
+      params.push(limit, offset);
+    }
 
     const stmt = db.prepare(query);
-    return stmt.all(...params) as Whiskey[];
+    const data = stmt.all(...params) as Whiskey[];
+
+    return { data, total };
   }
 
   static update(id: number, data: UpdateWhiskeyData, userId?: number): Whiskey | undefined {
@@ -270,7 +287,7 @@ export class WhiskeyModel {
     });
 
     if (updates.length === 0) {
-      return this.findById(id, userId);
+      return WhiskeyModel.findById(id, userId);
     }
 
     updates.push('updated_at = CURRENT_TIMESTAMP');
@@ -295,7 +312,7 @@ export class WhiskeyModel {
       return undefined;
     }
 
-    return this.findById(id, userId);
+    return WhiskeyModel.findById(id, userId);
   }
 
   static delete(id: number, userId?: number): boolean {
@@ -312,40 +329,73 @@ export class WhiskeyModel {
     return result.changes > 0;
   }
 
-  static search(searchTerm: string, userId?: number): Whiskey[] {
-    let query = `
-      SELECT * FROM whiskeys
-      WHERE (name LIKE ? OR distillery LIKE ? OR description LIKE ?)
-    `;
+  static search(
+    searchTerm: string,
+    userId?: number,
+    pagination?: { page?: number; limit?: number }
+  ): { data: Whiskey[]; total: number } {
+    let whereClause = `WHERE (name LIKE ? OR distillery LIKE ? OR description LIKE ?)`;
     const params: any[] = [];
     const term = `%${searchTerm}%`;
     params.push(term, term, term);
 
     if (userId !== undefined) {
-      query += ' AND created_by = ?';
+      whereClause += ' AND created_by = ?';
       params.push(userId);
     }
 
-    query += ' ORDER BY created_at DESC';
+    // Get total count
+    const countStmt = db.prepare(`SELECT COUNT(*) as count FROM whiskeys ${whereClause}`);
+    const { count: total } = countStmt.get(...params) as { count: number };
+
+    // Build paginated query
+    let query = `SELECT * FROM whiskeys ${whereClause} ORDER BY created_at DESC`;
+
+    if (pagination?.limit) {
+      const limit = Math.min(Math.max(1, pagination.limit), 100);
+      const page = Math.max(1, pagination.page || 1);
+      const offset = (page - 1) * limit;
+      query += ' LIMIT ? OFFSET ?';
+      params.push(limit, offset);
+    }
 
     const stmt = db.prepare(query);
-    return stmt.all(...params) as Whiskey[];
+    const data = stmt.all(...params) as Whiskey[];
+
+    return { data, total };
   }
 
-  static findAllWithOwners(): any[] {
-    const query = `
+  static findAllWithOwners(pagination?: { page?: number; limit?: number }): {
+    data: any[];
+    total: number;
+  } {
+    const baseFrom = `FROM whiskeys w JOIN users u ON w.created_by = u.id`;
+
+    // Get total count
+    const countStmt = db.prepare(`SELECT COUNT(*) as count ${baseFrom}`);
+    const { count: total } = countStmt.get() as { count: number };
+
+    let query = `
       SELECT
         w.*,
         u.username as owner_username,
         u.email as owner_email,
         u.role as owner_role
-      FROM whiskeys w
-      JOIN users u ON w.created_by = u.id
+      ${baseFrom}
       ORDER BY u.username ASC, w.created_at DESC
     `;
 
+    const params: any[] = [];
+    if (pagination?.limit) {
+      const limit = Math.min(Math.max(1, pagination.limit), 100);
+      const page = Math.max(1, pagination.page || 1);
+      const offset = (page - 1) * limit;
+      query += ' LIMIT ? OFFSET ?';
+      params.push(limit, offset);
+    }
+
     const stmt = db.prepare(query);
-    return stmt.all();
+    return { data: stmt.all(...params), total };
   }
 
   static deleteMany(ids: number[], userId: number): number {
@@ -384,13 +434,18 @@ export class WhiskeyModel {
       GROUP BY type
       ORDER BY count DESC
     `);
-    const typeBreakdown = typeStmt.all(userId) as { type: string; count: number }[];
+    const typeBreakdown = typeStmt.all(userId) as {
+      type: string;
+      count: number;
+    }[];
 
     // Total unique distilleries
     const totalDistilleriesStmt = db.prepare(
       'SELECT COUNT(DISTINCT distillery) as count FROM whiskeys WHERE created_by = ?'
     );
-    const totalDistilleriesResult = totalDistilleriesStmt.get(userId) as { count: number };
+    const totalDistilleriesResult = totalDistilleriesStmt.get(userId) as {
+      count: number;
+    };
 
     // Top 5 distilleries
     const distilleryStmt = db.prepare(`
@@ -401,7 +456,10 @@ export class WhiskeyModel {
       ORDER BY count DESC
       LIMIT 5
     `);
-    const topDistilleries = distilleryStmt.all(userId) as { distillery: string; count: number }[];
+    const topDistilleries = distilleryStmt.all(userId) as {
+      distillery: string;
+      count: number;
+    }[];
 
     // Average rating (only count rated whiskeys)
     const ratingStmt = db.prepare(`
@@ -409,7 +467,9 @@ export class WhiskeyModel {
       FROM whiskeys
       WHERE created_by = ? AND rating IS NOT NULL
     `);
-    const ratingResult = ratingStmt.get(userId) as { avg_rating: number | null };
+    const ratingResult = ratingStmt.get(userId) as {
+      avg_rating: number | null;
+    };
     const averageRating = ratingResult.avg_rating
       ? Math.round(ratingResult.avg_rating * 10) / 10
       : null;

@@ -1,14 +1,15 @@
-import {
-  User,
-  Whiskey,
-  CreateWhiskeyData,
-  WhiskeyType,
-  PublicProfile,
+import type {
   BackupRecord,
   BackupSchedule,
+  CreateWhiskeyData,
+  PaginationMeta,
+  PublicProfile,
   RestorePreview,
+  User,
+  Whiskey,
+  WhiskeyType,
 } from '../types';
-import { getCsrfHeaders, fetchCsrfToken } from '../utils/csrf';
+import { fetchCsrfToken, getCsrfHeaders } from '../utils/csrf';
 
 const API_BASE = '/api';
 
@@ -85,7 +86,14 @@ export const authAPI = {
   ) =>
     fetchAPI('/auth/register', {
       method: 'POST',
-      body: JSON.stringify({ username, email, password, role, firstName, lastName }),
+      body: JSON.stringify({
+        username,
+        email,
+        password,
+        role,
+        firstName,
+        lastName,
+      }),
     }),
 
   login: (username: string, password: string) =>
@@ -133,10 +141,14 @@ export const whiskeyAPI = {
   getAll: (filters?: {
     type?: WhiskeyType;
     distillery?: string;
-  }): Promise<{ whiskeys: Whiskey[] }> => {
+    page?: number;
+    limit?: number;
+  }): Promise<{ whiskeys: Whiskey[]; pagination?: PaginationMeta }> => {
     const params = new URLSearchParams();
     if (filters?.type) params.append('type', filters.type);
     if (filters?.distillery) params.append('distillery', filters.distillery);
+    if (filters?.page) params.append('page', String(filters.page));
+    if (filters?.limit) params.append('limit', String(filters.limit));
 
     const query = params.toString();
     return fetchAPI(`/whiskeys${query ? `?${query}` : ''}`);
@@ -144,8 +156,16 @@ export const whiskeyAPI = {
 
   getById: (id: number): Promise<{ whiskey: Whiskey }> => fetchAPI(`/whiskeys/${id}`),
 
-  search: (query: string): Promise<{ whiskeys: Whiskey[] }> =>
-    fetchAPI(`/whiskeys/search?q=${encodeURIComponent(query)}`),
+  search: (
+    query: string,
+    pagination?: { page?: number; limit?: number }
+  ): Promise<{ whiskeys: Whiskey[]; pagination?: PaginationMeta }> => {
+    const params = new URLSearchParams();
+    params.append('q', query);
+    if (pagination?.page) params.append('page', String(pagination.page));
+    if (pagination?.limit) params.append('limit', String(pagination.limit));
+    return fetchAPI(`/whiskeys/search?${params.toString()}`);
+  },
 
   create: (data: CreateWhiskeyData): Promise<{ whiskey: Whiskey; message: string }> =>
     fetchAPI('/whiskeys', {
@@ -280,7 +300,9 @@ export const apiKeyAPI = {
     }),
 
   delete: (provider?: string): Promise<{ message: string }> =>
-    fetchAPI(`/auth/api-key${provider ? `?provider=${provider}` : ''}`, { method: 'DELETE' }),
+    fetchAPI(`/auth/api-key${provider ? `?provider=${provider}` : ''}`, {
+      method: 'DELETE',
+    }),
 
   setProvider: (provider: string): Promise<{ message: string; provider: string }> =>
     fetchAPI('/auth/ai-provider', {
@@ -348,7 +370,11 @@ export const backupAPI = {
     conflictStrategy?: string
   ): Promise<{
     preview?: RestorePreview;
-    result?: { whiskeysRestored: number; commentsRestored: number; skipped: number };
+    result?: {
+      whiskeysRestored: number;
+      commentsRestored: number;
+      skipped: number;
+    };
     message?: string;
   }> =>
     fetchAPI(`/backups/${id}/restore`, {

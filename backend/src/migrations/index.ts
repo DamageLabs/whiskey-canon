@@ -1,4 +1,4 @@
-import { Migration } from '../utils/migration-runner';
+import type { Migration } from '../utils/migration-runner';
 import { migration as m001 } from './001_initial_tables';
 import { migration as m002 } from './002_add_user_profile_fields';
 import { migration as m003 } from './003_add_email_verification';
@@ -16,6 +16,7 @@ import { migration as m014 } from './014_add_backup_tables';
 import { migration as m015 } from './015_add_indexes';
 import { migration as m016 } from './016_add_anthropic_api_key';
 import { migration as m017 } from './017_add_openai_support';
+import { migration as m018 } from './018_add_created_at_index';
 
 export const allMigrations: Migration[] = [
   m001,
@@ -35,4 +36,5 @@ export const allMigrations: Migration[] = [
   m015,
   m016,
   m017,
+  m018,
 ];

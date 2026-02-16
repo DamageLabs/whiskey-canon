@@ -139,14 +139,14 @@ describe('WhiskeyModel', () => {
     });
 
     it('returns all whiskeys without filters', () => {
-      const whiskeys = WhiskeyModel.findAll();
+      const { data: whiskeys } = WhiskeyModel.findAll();
 
       expect(whiskeys).toHaveLength(3);
     });
 
     it('filters by userId for user isolation', () => {
-      const user1Whiskeys = WhiskeyModel.findAll({ userId: user1.id });
-      const user2Whiskeys = WhiskeyModel.findAll({ userId: user2.id });
+      const { data: user1Whiskeys } = WhiskeyModel.findAll({ userId: user1.id });
+      const { data: user2Whiskeys } = WhiskeyModel.findAll({ userId: user2.id });
 
       expect(user1Whiskeys).toHaveLength(2);
       expect(user2Whiskeys).toHaveLength(1);
@@ -155,22 +155,22 @@ describe('WhiskeyModel', () => {
     });
 
     it('filters by type', () => {
-      const bourbons = WhiskeyModel.findAll({ type: WhiskeyType.BOURBON });
-      const scotches = WhiskeyModel.findAll({ type: WhiskeyType.SCOTCH });
+      const { data: bourbons } = WhiskeyModel.findAll({ type: WhiskeyType.BOURBON });
+      const { data: scotches } = WhiskeyModel.findAll({ type: WhiskeyType.SCOTCH });
 
       expect(bourbons).toHaveLength(2);
       expect(scotches).toHaveLength(1);
     });
 
     it('filters by distillery (partial match)', () => {
-      const whiskeys = WhiskeyModel.findAll({ distillery: 'Scottish' });
+      const { data: whiskeys } = WhiskeyModel.findAll({ distillery: 'Scottish' });
 
       expect(whiskeys).toHaveLength(1);
       expect(whiskeys[0].distillery).toBe('Scottish Distillery');
     });
 
     it('combines multiple filters', () => {
-      const whiskeys = WhiskeyModel.findAll({
+      const { data: whiskeys } = WhiskeyModel.findAll({
         userId: user1.id,
         type: WhiskeyType.BOURBON,
       });
@@ -180,18 +180,60 @@ describe('WhiskeyModel', () => {
     });
 
     it('returns empty array when no matches', () => {
-      const whiskeys = WhiskeyModel.findAll({ type: WhiskeyType.IRISH });
+      const { data: whiskeys } = WhiskeyModel.findAll({ type: WhiskeyType.IRISH });
 
       expect(whiskeys).toHaveLength(0);
     });
 
     it('orders by created_at descending', () => {
-      const whiskeys = WhiskeyModel.findAll({ userId: user1.id });
+      const { data: whiskeys } = WhiskeyModel.findAll({ userId: user1.id });
 
       // Just verify we get 2 results ordered by created_at DESC
       // (timestamps may be identical in fast test execution)
       expect(whiskeys).toHaveLength(2);
       expect(whiskeys.map((w) => w.name).sort()).toEqual(['User1 Bourbon', 'User1 Scotch']);
+    });
+  });
+
+  describe('findAll pagination', () => {
+    beforeEach(() => {
+      for (let i = 0; i < 10; i++) {
+        WhiskeyModel.create(createWhiskeyData(user1.id, { name: `Whiskey ${i}` }));
+      }
+    });
+
+    it('returns total count with paginated results', () => {
+      const { data, total } = WhiskeyModel.findAll({ userId: user1.id, page: 1, limit: 3 });
+
+      expect(data).toHaveLength(3);
+      expect(total).toBe(10);
+    });
+
+    it('returns second page', () => {
+      const { data, total } = WhiskeyModel.findAll({ userId: user1.id, page: 2, limit: 3 });
+
+      expect(data).toHaveLength(3);
+      expect(total).toBe(10);
+    });
+
+    it('returns partial last page', () => {
+      const { data, total } = WhiskeyModel.findAll({ userId: user1.id, page: 4, limit: 3 });
+
+      expect(data).toHaveLength(1);
+      expect(total).toBe(10);
+    });
+
+    it('returns all results when no limit', () => {
+      const { data, total } = WhiskeyModel.findAll({ userId: user1.id });
+
+      expect(data).toHaveLength(10);
+      expect(total).toBe(10);
+    });
+
+    it('clamps limit to 100', () => {
+      const { data } = WhiskeyModel.findAll({ userId: user1.id, page: 1, limit: 200 });
+
+      expect(data).toHaveLength(10); // only 10 exist
     });
   });
 
@@ -382,7 +424,7 @@ describe('WhiskeyModel', () => {
       const deleted = WhiskeyModel.deleteAllByUser(user1.id);
 
       expect(deleted).toBe(3);
-      expect(WhiskeyModel.findAll({ userId: user1.id })).toHaveLength(0);
+      expect(WhiskeyModel.findAll({ userId: user1.id }).data).toHaveLength(0);
     });
 
     it('returns 0 when user has no whiskeys', () => {
@@ -398,8 +440,8 @@ describe('WhiskeyModel', () => {
       const deleted = WhiskeyModel.deleteAllByUser(user1.id);
 
       expect(deleted).toBe(1);
-      expect(WhiskeyModel.findAll({ userId: user1.id })).toHaveLength(0);
-      expect(WhiskeyModel.findAll({ userId: user2.id })).toHaveLength(1);
+      expect(WhiskeyModel.findAll({ userId: user1.id }).data).toHaveLength(0);
+      expect(WhiskeyModel.findAll({ userId: user2.id }).data).toHaveLength(1);
     });
   });
 
@@ -429,42 +471,42 @@ describe('WhiskeyModel', () => {
     });
 
     it('searches by name', () => {
-      const results = WhiskeyModel.search('Makers Mark');
+      const { data: results } = WhiskeyModel.search('Makers Mark');
 
       expect(results).toHaveLength(1);
       expect(results[0].name).toBe('Makers Mark');
     });
 
     it('searches by distillery', () => {
-      const results = WhiskeyModel.search('Buffalo Trace Distillery');
+      const { data: results } = WhiskeyModel.search('Buffalo Trace Distillery');
 
       expect(results).toHaveLength(2);
     });
 
     it('searches by description', () => {
-      const results = WhiskeyModel.search('Kentucky');
+      const { data: results } = WhiskeyModel.search('Kentucky');
 
       expect(results).toHaveLength(1);
       expect(results[0].name).toBe('Buffalo Trace');
     });
 
     it('search is case-insensitive (via LIKE)', () => {
-      const results = WhiskeyModel.search('makers mark');
+      const { data: results } = WhiskeyModel.search('makers mark');
 
       expect(results).toHaveLength(1);
       expect(results[0].name).toBe('Makers Mark');
     });
 
     it('enforces user isolation in search', () => {
-      const user1Results = WhiskeyModel.search('bourbon', user1.id);
-      const user2Results = WhiskeyModel.search('bourbon', user2.id);
+      const { data: user1Results } = WhiskeyModel.search('bourbon', user1.id);
+      const { data: user2Results } = WhiskeyModel.search('bourbon', user2.id);
 
       expect(user1Results).toHaveLength(2); // Buffalo Trace and Eagle Rare
       expect(user2Results).toHaveLength(1); // Makers Mark
     });
 
     it('returns empty array when no matches', () => {
-      const results = WhiskeyModel.search('NonexistentWhiskey');
+      const { data: results } = WhiskeyModel.search('NonexistentWhiskey');
 
       expect(results).toHaveLength(0);
     });
@@ -477,7 +519,7 @@ describe('WhiskeyModel', () => {
     });
 
     it('returns whiskeys with owner information', () => {
-      const whiskeys = WhiskeyModel.findAllWithOwners();
+      const { data: whiskeys } = WhiskeyModel.findAllWithOwners();
 
       expect(whiskeys).toHaveLength(2);
       expect(whiskeys[0].owner_username).toBeDefined();
@@ -486,7 +528,7 @@ describe('WhiskeyModel', () => {
     });
 
     it('includes correct owner data', () => {
-      const whiskeys = WhiskeyModel.findAllWithOwners();
+      const { data: whiskeys } = WhiskeyModel.findAllWithOwners();
 
       const user1Whiskey = whiskeys.find((w) => w.name === 'User1 Whiskey');
       const user2Whiskey = whiskeys.find((w) => w.name === 'User2 Whiskey');
@@ -501,7 +543,7 @@ describe('WhiskeyModel', () => {
       // Add another whiskey for user1
       WhiskeyModel.create(createWhiskeyData(user1.id, { name: 'User1 Second Whiskey' }));
 
-      const whiskeys = WhiskeyModel.findAllWithOwners();
+      const { data: whiskeys } = WhiskeyModel.findAllWithOwners();
 
       // Should be ordered by username (user1, user2)
       // User1 should have 2 whiskeys, user2 should have 1
@@ -547,10 +589,10 @@ describe('WhiskeyModel', () => {
         })
       );
 
-      const results = WhiskeyModel.search("Maker's");
+      const { data: results } = WhiskeyModel.search("Maker's");
       expect(results).toHaveLength(1);
 
-      const results2 = WhiskeyModel.search('corn & wheat');
+      const { data: results2 } = WhiskeyModel.search('corn & wheat');
       expect(results2).toHaveLength(1);
     });
 

@@ -1,16 +1,21 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { EnhancedStats } from '../components/EnhancedStats';
+import {
+  applyFilters,
+  defaultFilters,
+  FilterPanel,
+  type FilterState,
+} from '../components/FilterPanel';
+import { Footer } from '../components/Footer';
+import { WhiskeyCard } from '../components/WhiskeyCard';
+import { WhiskeyDetailModal } from '../components/WhiskeyDetailModal';
+import { WhiskeyForm } from '../components/WhiskeyForm';
+import { WhiskeyStats } from '../components/WhiskeyStats';
+import { WhiskeyTable } from '../components/WhiskeyTable';
 import { useAuth } from '../context/AuthContext';
 import { whiskeyAPI } from '../services/api';
-import { Whiskey } from '../types';
-import { WhiskeyCard } from '../components/WhiskeyCard';
-import { WhiskeyForm } from '../components/WhiskeyForm';
-import { WhiskeyTable } from '../components/WhiskeyTable';
-import { WhiskeyDetailModal } from '../components/WhiskeyDetailModal';
-import { WhiskeyStats } from '../components/WhiskeyStats';
-import { EnhancedStats } from '../components/EnhancedStats';
-import { Footer } from '../components/Footer';
-import { FilterPanel, FilterState, defaultFilters, applyFilters } from '../components/FilterPanel';
+import type { PaginationMeta, Whiskey } from '../types';
 
 export function DashboardPage() {
   const { user, logout, hasPermission } = useAuth();
@@ -30,6 +35,9 @@ export function DashboardPage() {
   const [importResult, setImportResult] = useState<any>(null);
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
   const [bulkDeleting, setBulkDeleting] = useState(false);
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(25);
+  const [pagination, setPagination] = useState<PaginationMeta | null>(null);
 
   // Apply filters to whiskeys
   const filteredWhiskeys = useMemo(() => {
@@ -40,32 +48,53 @@ export function DashboardPage() {
   const canUpdate = hasPermission('update:whiskey');
   const canDelete = hasPermission('delete:whiskey');
 
+  const loadWhiskeys = useCallback(
+    async (targetPage = page) => {
+      try {
+        setLoading(true);
+        const result = await whiskeyAPI.getAll({
+          page: targetPage,
+          limit: pageSize,
+        });
+        setWhiskeys(result.whiskeys);
+        setPagination(result.pagination || null);
+      } catch (err: any) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [page, pageSize]
+  );
+
   useEffect(() => {
-    loadWhiskeys();
+    if (searchTerm.trim()) {
+      handleSearch(page);
+    } else {
+      loadWhiskeys(page);
+    }
+  }, [page, pageSize]);
+
+  // Load initial data
+  useEffect(() => {
+    loadWhiskeys(1);
   }, []);
 
-  async function loadWhiskeys() {
-    try {
-      setLoading(true);
-      const { whiskeys: data } = await whiskeyAPI.getAll();
-      setWhiskeys(data);
-    } catch (err: any) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  async function handleSearch() {
+  async function handleSearch(targetPage = 1) {
     if (!searchTerm.trim()) {
-      loadWhiskeys();
+      setPage(1);
+      loadWhiskeys(1);
       return;
     }
 
     try {
       setLoading(true);
-      const { whiskeys: data } = await whiskeyAPI.search(searchTerm);
-      setWhiskeys(data);
+      const result = await whiskeyAPI.search(searchTerm, {
+        page: targetPage,
+        limit: pageSize,
+      });
+      setWhiskeys(result.whiskeys);
+      setPagination(result.pagination || null);
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -80,7 +109,7 @@ export function DashboardPage() {
 
     try {
       await whiskeyAPI.delete(id);
-      setWhiskeys(whiskeys.filter((w) => w.id !== id));
+      loadWhiskeys(page);
     } catch (err: any) {
       setError(err.message);
     }
@@ -107,7 +136,8 @@ export function DashboardPage() {
       setImportResult(result);
 
       // Reload whiskeys to show imported items
-      await loadWhiskeys();
+      setPage(1);
+      await loadWhiskeys(1);
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -127,9 +157,9 @@ export function DashboardPage() {
     try {
       setBulkDeleting(true);
       const result = await whiskeyAPI.deleteMany(Array.from(selectedIds));
-      setWhiskeys(whiskeys.filter((w) => !selectedIds.has(w.id)));
       setSelectedIds(new Set());
       alert(result.message);
+      loadWhiskeys(page);
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -149,7 +179,19 @@ export function DashboardPage() {
 
   function handleFormSuccess() {
     handleFormClose();
-    loadWhiskeys();
+    loadWhiskeys(page);
+  }
+
+  function handlePageChange(newPage: number) {
+    setPage(newPage);
+    setSelectedIds(new Set());
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function handlePageSizeChange(newSize: number) {
+    setPageSize(newSize);
+    setPage(1);
+    setSelectedIds(new Set());
   }
 
   return (
@@ -157,7 +199,10 @@ export function DashboardPage() {
       {/* Header */}
       <nav
         className="navbar shadow-sm"
-        style={{ backgroundColor: 'var(--zinc-900)', borderBottom: '1px solid var(--zinc-800)' }}
+        style={{
+          backgroundColor: 'var(--zinc-900)',
+          borderBottom: '1px solid var(--zinc-800)',
+        }}
       >
         <div className="container-fluid px-4">
           <div
@@ -211,10 +256,18 @@ export function DashboardPage() {
                 placeholder="Search whiskeys..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
+                onKeyPress={(e) => {
+                  if (e.key === 'Enter') {
+                    setPage(1);
+                    handleSearch(1);
+                  }
+                }}
               />
               <button
-                onClick={handleSearch}
+                onClick={() => {
+                  setPage(1);
+                  handleSearch(1);
+                }}
                 className="btn text-white"
                 style={{ backgroundColor: 'var(--amber-600)' }}
               >
@@ -233,7 +286,10 @@ export function DashboardPage() {
                   style={
                     viewMode === 'cards'
                       ? { backgroundColor: 'var(--amber-600)' }
-                      : { borderColor: 'var(--amber-500)', color: 'var(--amber-500)' }
+                      : {
+                          borderColor: 'var(--amber-500)',
+                          color: 'var(--amber-500)',
+                        }
                   }
                   onClick={() => setViewMode('cards')}
                 >
@@ -245,7 +301,10 @@ export function DashboardPage() {
                   style={
                     viewMode === 'table'
                       ? { backgroundColor: 'var(--amber-600)' }
-                      : { borderColor: 'var(--amber-500)', color: 'var(--amber-500)' }
+                      : {
+                          borderColor: 'var(--amber-500)',
+                          color: 'var(--amber-500)',
+                        }
                   }
                   onClick={() => setViewMode('table')}
                 >
@@ -288,13 +347,22 @@ export function DashboardPage() {
           onToggle={() => setShowFilters(!showFilters)}
         />
 
-        {/* Filter Results Count */}
-        {!loading && whiskeys.length > 0 && filteredWhiskeys.length !== whiskeys.length && (
+        {/* Filter/Pagination Results Count */}
+        {!loading && whiskeys.length > 0 && (
           <div className="mb-3">
             <span className="text-muted">
-              Showing{' '}
-              <strong style={{ color: 'var(--amber-500)' }}>{filteredWhiskeys.length}</strong> of{' '}
-              {whiskeys.length} whiskeys
+              {filteredWhiskeys.length !== whiskeys.length ? (
+                <>
+                  Showing{' '}
+                  <strong style={{ color: 'var(--amber-500)' }}>{filteredWhiskeys.length}</strong>{' '}
+                  of {pagination ? pagination.total : whiskeys.length} whiskeys (filtered)
+                </>
+              ) : pagination ? (
+                <>
+                  Showing <strong style={{ color: 'var(--amber-500)' }}>{whiskeys.length}</strong>{' '}
+                  of {pagination.total} whiskeys
+                </>
+              ) : null}
             </span>
           </div>
         )}
@@ -470,6 +538,131 @@ export function DashboardPage() {
             onSelectionChange={setSelectedIds}
             selectionEnabled={canDelete}
           />
+        )}
+
+        {/* Pagination Controls */}
+        {pagination && pagination.totalPages > 1 && (
+          <div className="d-flex justify-content-between align-items-center mt-4 mb-3">
+            <div className="d-flex align-items-center gap-2">
+              <span className="text-muted small">Rows per page:</span>
+              <select
+                className="form-select form-select-sm"
+                style={{
+                  width: 'auto',
+                  backgroundColor: 'var(--zinc-800)',
+                  color: 'var(--zinc-200)',
+                  borderColor: 'var(--zinc-700)',
+                }}
+                value={pageSize}
+                onChange={(e) => handlePageSizeChange(Number(e.target.value))}
+              >
+                <option value={10}>10</option>
+                <option value={25}>25</option>
+                <option value={50}>50</option>
+                <option value={100}>100</option>
+              </select>
+            </div>
+
+            <nav aria-label="Whiskey pagination">
+              <ul className="pagination pagination-sm mb-0">
+                <li className={`page-item ${page === 1 ? 'disabled' : ''}`}>
+                  <button
+                    className="page-link"
+                    onClick={() => handlePageChange(1)}
+                    disabled={page === 1}
+                    style={{
+                      backgroundColor: 'var(--zinc-800)',
+                      color: 'var(--zinc-200)',
+                      borderColor: 'var(--zinc-700)',
+                    }}
+                  >
+                    First
+                  </button>
+                </li>
+                <li className={`page-item ${page === 1 ? 'disabled' : ''}`}>
+                  <button
+                    className="page-link"
+                    onClick={() => handlePageChange(page - 1)}
+                    disabled={page === 1}
+                    style={{
+                      backgroundColor: 'var(--zinc-800)',
+                      color: 'var(--zinc-200)',
+                      borderColor: 'var(--zinc-700)',
+                    }}
+                  >
+                    Prev
+                  </button>
+                </li>
+                {Array.from({ length: Math.min(5, pagination.totalPages) }, (_, i) => {
+                  let pageNum: number;
+                  if (pagination.totalPages <= 5) {
+                    pageNum = i + 1;
+                  } else if (page <= 3) {
+                    pageNum = i + 1;
+                  } else if (page >= pagination.totalPages - 2) {
+                    pageNum = pagination.totalPages - 4 + i;
+                  } else {
+                    pageNum = page - 2 + i;
+                  }
+                  return (
+                    <li key={pageNum} className={`page-item ${page === pageNum ? 'active' : ''}`}>
+                      <button
+                        className="page-link"
+                        onClick={() => handlePageChange(pageNum)}
+                        style={
+                          page === pageNum
+                            ? {
+                                backgroundColor: 'var(--amber-600)',
+                                borderColor: 'var(--amber-600)',
+                                color: 'white',
+                              }
+                            : {
+                                backgroundColor: 'var(--zinc-800)',
+                                color: 'var(--zinc-200)',
+                                borderColor: 'var(--zinc-700)',
+                              }
+                        }
+                      >
+                        {pageNum}
+                      </button>
+                    </li>
+                  );
+                })}
+                <li className={`page-item ${page === pagination.totalPages ? 'disabled' : ''}`}>
+                  <button
+                    className="page-link"
+                    onClick={() => handlePageChange(page + 1)}
+                    disabled={page === pagination.totalPages}
+                    style={{
+                      backgroundColor: 'var(--zinc-800)',
+                      color: 'var(--zinc-200)',
+                      borderColor: 'var(--zinc-700)',
+                    }}
+                  >
+                    Next
+                  </button>
+                </li>
+                <li className={`page-item ${page === pagination.totalPages ? 'disabled' : ''}`}>
+                  <button
+                    className="page-link"
+                    onClick={() => handlePageChange(pagination.totalPages)}
+                    disabled={page === pagination.totalPages}
+                    style={{
+                      backgroundColor: 'var(--zinc-800)',
+                      color: 'var(--zinc-200)',
+                      borderColor: 'var(--zinc-700)',
+                    }}
+                  >
+                    Last
+                  </button>
+                </li>
+              </ul>
+            </nav>
+
+            <span className="text-muted small">
+              Page {page} of {pagination.totalPages}
+            </span>
+          </div>
         )}
       </div>
 

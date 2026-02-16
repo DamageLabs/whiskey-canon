@@ -195,14 +195,14 @@ describe('migration-runner', () => {
   });
 
   describe('real migrations', () => {
-    it('should build the full schema from all 17 migrations', async () => {
+    it('should build the full schema from all 18 migrations', async () => {
       const { allMigrations } = await import('../migrations');
 
       runMigrations(db, allMigrations);
 
-      // Verify all 17 migrations applied
+      // Verify all 18 migrations applied
       const applied = db.prepare('SELECT name FROM migrations').all() as { name: string }[];
-      expect(applied).toHaveLength(17);
+      expect(applied).toHaveLength(18);
 
       // Verify all 5 tables exist
       const tables = db
@@ -240,7 +240,7 @@ describe('migration-runner', () => {
           "SELECT name FROM sqlite_master WHERE type='index' AND name NOT LIKE 'sqlite_%' ORDER BY name"
         )
         .all() as { name: string }[];
-      expect(indexes.length).toBe(14);
+      expect(indexes.length).toBe(15);
     });
   });
 });

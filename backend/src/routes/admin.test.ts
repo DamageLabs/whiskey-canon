@@ -426,6 +426,32 @@ describe('Admin Routes', () => {
 
       expect(response.status).toBe(403);
     });
+
+    it('returns paginated results with page and limit', async () => {
+      const { agent } = await createAuthenticatedAgent(
+        app,
+        'admin',
+        'admin@test.com',
+        'Wh1sk3yTest!!',
+        Role.ADMIN
+      );
+      const user = await createTestUser('paginuser', 'paginuser@test.com', 'Wh1sk3yTest!!');
+
+      for (let i = 0; i < 5; i++) {
+        createTestWhiskey(user.id, { name: `Paginated Whiskey ${i}` });
+      }
+
+      const response = await agent.get('/api/admin/whiskeys?page=1&limit=2');
+
+      expect(response.status).toBe(200);
+      expect(response.body.whiskeys).toHaveLength(2);
+      expect(response.body.pagination).toEqual({
+        page: 1,
+        limit: 2,
+        total: 5,
+        totalPages: 3,
+      });
+    });
   });
 
   describe('Error Handling', () => {

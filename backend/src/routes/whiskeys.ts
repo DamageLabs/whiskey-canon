@@ -1,11 +1,11 @@
-import express, { Response } from 'express';
+import express, { type Response } from 'express';
 import { body, param, query, validationResult } from 'express-validator';
-import { validate } from '../middleware/validate';
 import multer from 'multer';
-import { WhiskeyModel } from '../models/Whiskey';
-import { WhiskeyType, Permission } from '../types';
-import { AuthRequest, requireAuth } from '../middleware/auth';
+import { type AuthRequest, requireAuth } from '../middleware/auth';
 import { requirePermission } from '../middleware/rbac';
+import { validate } from '../middleware/validate';
+import { WhiskeyModel } from '../models/Whiskey';
+import { Permission, WhiskeyType } from '../types';
 
 const router = express.Router();
 
@@ -32,6 +32,8 @@ router.get(
   [
     query('type').optional().isIn(Object.values(WhiskeyType)),
     query('distillery').optional().isString(),
+    query('page').optional().isInt({ min: 1 }).toInt(),
+    query('limit').optional().isInt({ min: 1, max: 100 }).toInt(),
   ],
   (req: AuthRequest, res: Response) => {
     const errors = validationResult(req);
@@ -40,14 +42,29 @@ router.get(
     }
 
     try {
+      const page = req.query.page ? parseInt(req.query.page as string, 10) : undefined;
+      const limit = req.query.limit ? parseInt(req.query.limit as string, 10) : undefined;
+
       const filters = {
         type: req.query.type as WhiskeyType | undefined,
         distillery: req.query.distillery as string | undefined,
         userId: req.user!.id,
+        page,
+        limit,
       };
 
-      const whiskeys = WhiskeyModel.findAll(filters);
-      res.json({ whiskeys });
+      const { data, total } = WhiskeyModel.findAll(filters);
+
+      if (limit) {
+        const currentPage = page || 1;
+        const totalPages = Math.ceil(total / limit);
+        res.json({
+          whiskeys: data,
+          pagination: { page: currentPage, limit, total, totalPages },
+        });
+      } else {
+        res.json({ whiskeys: data });
+      }
     } catch (error) {
       console.error('Error fetching whiskeys:', error);
       res.status(500).json({ error: 'Failed to fetch whiskeys' });
@@ -59,7 +76,11 @@ router.get(
 router.get(
   '/search',
   requirePermission(Permission.READ_WHISKEY),
-  [query('q').notEmpty().withMessage('Search query is required')],
+  [
+    query('q').notEmpty().withMessage('Search query is required'),
+    query('page').optional().isInt({ min: 1 }).toInt(),
+    query('limit').optional().isInt({ min: 1, max: 100 }).toInt(),
+  ],
   (req: AuthRequest, res: Response) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -67,8 +88,24 @@ router.get(
     }
 
     try {
-      const whiskeys = WhiskeyModel.search(req.query.q as string, req.user!.id);
-      res.json({ whiskeys });
+      const page = req.query.page ? parseInt(req.query.page as string, 10) : undefined;
+      const limit = req.query.limit ? parseInt(req.query.limit as string, 10) : undefined;
+
+      const { data, total } = WhiskeyModel.search(req.query.q as string, req.user!.id, {
+        page,
+        limit,
+      });
+
+      if (limit) {
+        const currentPage = page || 1;
+        const totalPages = Math.ceil(total / limit);
+        res.json({
+          whiskeys: data,
+          pagination: { page: currentPage, limit, total, totalPages },
+        });
+      } else {
+        res.json({ whiskeys: data });
+      }
     } catch (error) {
       console.error('Error searching whiskeys:', error);
       res.status(500).json({ error: 'Failed to search whiskeys' });
@@ -82,7 +119,7 @@ router.get(
   requirePermission(Permission.READ_WHISKEY),
   (req: AuthRequest, res: Response) => {
     try {
-      const whiskeys = WhiskeyModel.findAll({ userId: req.user!.id });
+      const { data: whiskeys } = WhiskeyModel.findAll({ userId: req.user!.id });
 
       // Define CSV headers
       const headers = [
@@ -685,9 +722,9 @@ router.put(
       );
 
       if (!whiskey) {
-        res
-          .status(404)
-          .json({ error: 'Whiskey not found or you do not have permission to update it' });
+        res.status(404).json({
+          error: 'Whiskey not found or you do not have permission to update it',
+        });
         return;
       }
 
@@ -761,9 +798,9 @@ router.delete(
       const deleted = WhiskeyModel.delete(parseInt(req.params.id as string), req.user!.id);
 
       if (!deleted) {
-        return res
-          .status(404)
-          .json({ error: 'Whiskey not found or you do not have permission to delete it' });
+        return res.status(404).json({
+          error: 'Whiskey not found or you do not have permission to delete it',
+        });
       }
 
       res.json({ message: 'Whiskey deleted successfully' });

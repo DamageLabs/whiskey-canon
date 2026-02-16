@@ -239,3 +239,10 @@ export interface RestorePreview {
   duplicateWhiskeys: number;
   newComments: number;
 }
+
+export interface PaginationMeta {
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+}

@@ -110,6 +110,61 @@ describe('Whiskey Routes', () => {
       expect(response.status).toBe(400);
       expect(response.body.errors).toBeDefined();
     });
+
+    it('returns pagination metadata when page and limit are provided', async () => {
+      const { agent, user } = await createAuthenticatedAgent(app);
+
+      for (let i = 0; i < 5; i++) {
+        createTestWhiskey(user.id, { name: `Whiskey ${i}` });
+      }
+
+      const response = await agent.get('/api/whiskeys?page=1&limit=2');
+
+      expect(response.status).toBe(200);
+      expect(response.body.whiskeys).toHaveLength(2);
+      expect(response.body.pagination).toEqual({
+        page: 1,
+        limit: 2,
+        total: 5,
+        totalPages: 3,
+      });
+    });
+
+    it('returns second page of results', async () => {
+      const { agent, user } = await createAuthenticatedAgent(app);
+
+      for (let i = 0; i < 5; i++) {
+        createTestWhiskey(user.id, { name: `Whiskey ${i}` });
+      }
+
+      const response = await agent.get('/api/whiskeys?page=2&limit=2');
+
+      expect(response.status).toBe(200);
+      expect(response.body.whiskeys).toHaveLength(2);
+      expect(response.body.pagination.page).toBe(2);
+    });
+
+    it('returns all results without pagination when no limit provided', async () => {
+      const { agent, user } = await createAuthenticatedAgent(app);
+
+      for (let i = 0; i < 3; i++) {
+        createTestWhiskey(user.id, { name: `Whiskey ${i}` });
+      }
+
+      const response = await agent.get('/api/whiskeys');
+
+      expect(response.status).toBe(200);
+      expect(response.body.whiskeys).toHaveLength(3);
+      expect(response.body.pagination).toBeUndefined();
+    });
+
+    it('validates page and limit params', async () => {
+      const { agent } = await createAuthenticatedAgent(app);
+
+      const response = await agent.get('/api/whiskeys?page=0&limit=0');
+
+      expect(response.status).toBe(400);
+    });
   });
 
   describe('GET /api/whiskeys/:id', () => {

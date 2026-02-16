@@ -1,18 +1,17 @@
-import express, { Response } from 'express';
-import { body, param, validationResult } from 'express-validator';
+import Database from 'better-sqlite3';
+import express, { type Response } from 'express';
+import { body, param, query, validationResult } from 'express-validator';
+import fs from 'fs';
 import multer from 'multer';
+import path from 'path';
+import { type AuthRequest, requireAuth } from '../middleware/auth';
+import { requirePermission } from '../middleware/rbac';
 import { validate } from '../middleware/validate';
 import { UserModel } from '../models/User';
 import { WhiskeyModel } from '../models/Whiskey';
-import { Role } from '../types';
-import { AuthRequest, requireAuth } from '../middleware/auth';
-import { requirePermission } from '../middleware/rbac';
-import { Permission } from '../types';
-import { db } from '../utils/database';
+import { Permission, Role } from '../types';
 import { config } from '../utils/config';
-import Database from 'better-sqlite3';
-import fs from 'fs';
-import path from 'path';
+import { db } from '../utils/database';
 
 const router = express.Router();
 
@@ -180,10 +179,32 @@ router.delete(
 router.get(
   '/whiskeys',
   requirePermission(Permission.MANAGE_USERS),
+  [
+    query('page').optional().isInt({ min: 1 }).toInt(),
+    query('limit').optional().isInt({ min: 1, max: 100 }).toInt(),
+  ],
   (req: AuthRequest, res: Response) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
     try {
-      const whiskeys = WhiskeyModel.findAllWithOwners();
-      res.json({ whiskeys });
+      const page = req.query.page ? parseInt(req.query.page as string, 10) : undefined;
+      const limit = req.query.limit ? parseInt(req.query.limit as string, 10) : undefined;
+
+      const { data, total } = WhiskeyModel.findAllWithOwners({ page, limit });
+
+      if (limit) {
+        const currentPage = page || 1;
+        const totalPages = Math.ceil(total / limit);
+        res.json({
+          whiskeys: data,
+          pagination: { page: currentPage, limit, total, totalPages },
+        });
+      } else {
+        res.json({ whiskeys: data });
+      }
     } catch (error) {
       console.error('Error fetching whiskeys:', error);
       res.status(500).json({ error: 'Failed to fetch whiskeys' });

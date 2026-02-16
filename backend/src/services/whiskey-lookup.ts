@@ -49,7 +49,11 @@ export async function lookupByImage(
             type: 'image',
             source: {
               type: 'base64',
-              media_type: compressed.mimeType as 'image/jpeg' | 'image/png' | 'image/webp' | 'image/gif',
+              media_type: compressed.mimeType as
+                | 'image/jpeg'
+                | 'image/png'
+                | 'image/webp'
+                | 'image/gif',
               data: base64,
             },
           },

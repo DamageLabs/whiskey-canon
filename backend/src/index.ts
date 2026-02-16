@@ -6,6 +6,7 @@ import helmet from 'helmet';
 import path from 'path';
 import { config, validateConfig } from './utils/config';
 import { db, initializeDatabase } from './utils/database';
+import { logger, httpLogger as pinoHttpMiddleware } from './utils/logger';
 import { attachUser } from './middleware/auth';
 import { csrfProtection } from './middleware/csrf';
 import authRoutes from './routes/auth';
@@ -59,6 +60,8 @@ app.use(
   })
 );
 
+app.use(pinoHttpMiddleware);
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
@@ -93,7 +96,7 @@ app.use(csrfProtection);
 
 // Serve static files from uploads directory
 const uploadsPath = path.join(__dirname, '../uploads');
-console.log('Serving static files from:', uploadsPath);
+logger.info({ uploadsPath }, 'Serving static files');
 app.use('/uploads', express.static(uploadsPath));
 
 // Routes
@@ -115,15 +118,15 @@ app.get('/api/health', (req, res) => {
 // Error handler
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
   if (err.status === 403 && err.code === 'EBADCSRFTOKEN') {
+    req.log.warn('Invalid CSRF token');
     return res.status(403).json({ error: 'Invalid CSRF token' });
   }
-  console.error('Error:', err);
-  res.status(500).json({ error: 'Internal server error' });
+  req.log.error({ err }, 'Unhandled error');
+  res.status(500).json({ error: 'Internal server error', requestId: req.id });
 });
 
 app.listen(config.port, () => {
-  console.log(`Server running on http://localhost:${config.port}`);
-  console.log(`Environment: ${config.nodeEnv}`);
+  logger.info({ port: config.port, env: config.nodeEnv }, 'Server started');
 
   // Start backup scheduler
   startBackupScheduler();

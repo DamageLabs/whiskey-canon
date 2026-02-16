@@ -1,8 +1,13 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { lookupByName, lookupByImage } from './whiskey-lookup';
 
+// Hoist mock references so they're available in vi.mock factories
+const { mockCreate, mockLoggerError } = vi.hoisted(() => ({
+  mockCreate: vi.fn(),
+  mockLoggerError: vi.fn(),
+}));
+
 // Mock the Anthropic SDK
-const mockCreate = vi.fn();
 vi.mock('@anthropic-ai/sdk', () => {
   return {
     default: class MockAnthropic {
@@ -10,6 +15,17 @@ vi.mock('@anthropic-ai/sdk', () => {
     },
   };
 });
+
+// Mock logger
+vi.mock('../utils/logger', () => ({
+  logger: {
+    info: vi.fn(),
+    error: mockLoggerError,
+    warn: vi.fn(),
+    debug: vi.fn(),
+    child: vi.fn().mockReturnThis(),
+  },
+}));
 
 describe('whiskey-lookup service', () => {
   beforeEach(() => {
@@ -95,7 +111,7 @@ describe('whiskey-lookup service', () => {
     });
 
     it('returns null for unparseable response', async () => {
-      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+      mockLoggerError.mockClear();
 
       mockCreate.mockResolvedValue({
         content: [{ type: 'text', text: 'This is not JSON at all' }],
@@ -103,13 +119,13 @@ describe('whiskey-lookup service', () => {
 
       const result = await lookupByName('test-api-key', 'Test');
       expect(result).toBeNull();
-      expect(consoleSpy).toHaveBeenCalledWith(
-        'Failed to parse lookup response:',
-        expect.any(String),
-        expect.any(Error)
+      expect(mockLoggerError).toHaveBeenCalledWith(
+        expect.objectContaining({
+          err: expect.any(Error),
+          responsePreview: expect.any(String),
+        }),
+        'Failed to parse lookup response'
       );
-
-      consoleSpy.mockRestore();
     });
   });
 

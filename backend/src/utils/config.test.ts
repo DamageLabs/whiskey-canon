@@ -9,6 +9,18 @@ vi.mock('dotenv', () => ({
   config: vi.fn(),
 }));
 
+// Mock logger
+const mockLoggerInfo = vi.fn();
+vi.mock('./logger', () => ({
+  logger: {
+    info: mockLoggerInfo,
+    error: vi.fn(),
+    warn: vi.fn(),
+    debug: vi.fn(),
+    child: vi.fn().mockReturnThis(),
+  },
+}));
+
 describe('config', () => {
   const originalEnv = process.env;
 
@@ -115,42 +127,37 @@ describe('config', () => {
 
   describe('validateConfig', () => {
     it('logs configuration without throwing', async () => {
-      const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+      mockLoggerInfo.mockClear();
 
       const { validateConfig } = await import('./config');
       validateConfig();
 
-      expect(consoleSpy).toHaveBeenCalledWith('Configuration loaded:');
-      consoleSpy.mockRestore();
+      expect(mockLoggerInfo).toHaveBeenCalledWith(
+        expect.objectContaining({ port: expect.any(Number) }),
+        'Configuration loaded'
+      );
     });
 
     it('shows [not set] for missing resendApiKey', async () => {
-      const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+      mockLoggerInfo.mockClear();
 
       const { validateConfig } = await import('./config');
       validateConfig();
 
-      const resendLog = consoleSpy.mock.calls.find(
-        (call) => typeof call[0] === 'string' && call[0].includes('resendApiKey')
-      );
-      expect(resendLog?.[0]).toContain('[not set]');
-      expect(resendLog?.[0]).toContain('email features disabled');
-      consoleSpy.mockRestore();
+      const loggedObj = mockLoggerInfo.mock.calls[0][0];
+      expect(loggedObj.resendApiKey).toContain('[not set]');
+      expect(loggedObj.resendApiKey).toContain('email features disabled');
     });
 
     it('shows [set] for present resendApiKey', async () => {
       process.env.RESEND_API_KEY = 're_test';
-      const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+      mockLoggerInfo.mockClear();
 
       const { validateConfig } = await import('./config');
       validateConfig();
 
-      const resendLog = consoleSpy.mock.calls.find(
-        (call) => typeof call[0] === 'string' && call[0].includes('resendApiKey')
-      );
-      expect(resendLog?.[0]).toContain('[set]');
-      expect(resendLog?.[0]).not.toContain('email features disabled');
-      consoleSpy.mockRestore();
+      const loggedObj = mockLoggerInfo.mock.calls[0][0];
+      expect(loggedObj.resendApiKey).toBe('[set]');
     });
   });
 });

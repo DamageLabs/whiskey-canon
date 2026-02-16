@@ -2,8 +2,16 @@ import Database from 'better-sqlite3';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { runMigrations, Migration } from './migration-runner';
 
-// Suppress console.log during tests
-vi.spyOn(console, 'log').mockImplementation(() => {});
+// Mock logger to silence output during tests
+vi.mock('./logger', () => ({
+  logger: {
+    info: vi.fn(),
+    error: vi.fn(),
+    warn: vi.fn(),
+    debug: vi.fn(),
+    child: vi.fn().mockReturnThis(),
+  },
+}));
 
 describe('migration-runner', () => {
   let db: InstanceType<typeof Database>;

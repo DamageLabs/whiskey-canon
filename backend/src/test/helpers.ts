@@ -2,6 +2,7 @@ import express from 'express';
 import session from 'express-session';
 import request from 'supertest';
 import bcrypt from 'bcryptjs';
+import pino from 'pino';
 import { testDb } from './setup';
 import { attachUser } from '../middleware/auth';
 import authRoutes from '../routes/auth';
@@ -13,11 +14,20 @@ import backupRoutes from '../routes/backups';
 import lookupRoutes from '../routes/lookup';
 import { Role, WhiskeyType } from '../types';
 
+const silentLogger = pino({ level: 'silent' });
+
 /**
  * Creates a test Express app with session and auth routes configured
  */
 export function createTestApp(): express.Application {
   const app = express();
+
+  // Lightweight middleware to attach req.log and req.id without pino-http response hooks
+  app.use((req, _res, next) => {
+    req.log = silentLogger;
+    req.id = 'test-request-id';
+    next();
+  });
 
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));

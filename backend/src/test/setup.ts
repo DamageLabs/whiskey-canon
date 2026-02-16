@@ -71,6 +71,18 @@ vi.mock('../middleware/rateLimiter', () => ({
   lookupLimiter: (_req: any, _res: any, next: any) => next(),
 }));
 
+// Mock logger to silence output in tests
+vi.mock('../utils/logger', () => ({
+  logger: {
+    info: vi.fn(),
+    error: vi.fn(),
+    warn: vi.fn(),
+    debug: vi.fn(),
+    child: vi.fn().mockReturnThis(),
+  },
+  httpLogger: (_req: any, _res: any, next: any) => next(),
+}));
+
 // Mock CSRF to pass through in tests — CSRF is tested in csrf.test.ts
 vi.mock('../middleware/csrf', () => ({
   csrfProtection: (_req: any, _res: any, next: any) => next(),

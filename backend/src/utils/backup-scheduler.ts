@@ -2,6 +2,7 @@ import * as cron from 'node-cron';
 import { BackupScheduleModel } from '../models/BackupSchedule';
 import { BackupModel } from '../models/Backup';
 import { generateBackup } from '../services/backup-service';
+import { logger } from './logger';
 
 let scheduledTask: cron.ScheduledTask | null = null;
 
@@ -22,9 +23,9 @@ function runScheduledBackups() {
       // Prune expired backups
       BackupModel.pruneExpired(schedule.user_id, schedule.retention_days);
 
-      console.log(`Scheduled backup completed for user ${schedule.user_id}`);
+      logger.info({ userId: schedule.user_id }, 'Scheduled backup completed');
     } catch (error) {
-      console.error(`Scheduled backup failed for user ${schedule.user_id}:`, error);
+      logger.error({ err: error, userId: schedule.user_id }, 'Scheduled backup failed');
     }
   }
 }
@@ -32,17 +33,17 @@ function runScheduledBackups() {
 export function startBackupScheduler() {
   // Run every hour to check for due backups
   scheduledTask = cron.schedule('0 * * * *', () => {
-    console.log('Running backup scheduler check...');
+    logger.info('Running backup scheduler check');
     runScheduledBackups();
   });
 
-  console.log('Backup scheduler started');
+  logger.info('Backup scheduler started');
 }
 
 export function stopBackupScheduler() {
   if (scheduledTask) {
     scheduledTask.stop();
     scheduledTask = null;
-    console.log('Backup scheduler stopped');
+    logger.info('Backup scheduler stopped');
   }
 }

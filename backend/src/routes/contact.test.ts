@@ -1,6 +1,8 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import express from 'express';
 import request from 'supertest';
+import pinoHttp from 'pino-http';
+import pino from 'pino';
 import contactRoutes from './contact';
 import { sendContactEmail } from '../utils/email';
 
@@ -11,6 +13,7 @@ vi.mock('../utils/email', () => ({
 
 const createTestApp = () => {
   const app = express();
+  app.use(pinoHttp({ logger: pino({ level: 'silent' }) }));
   app.use(express.json());
   app.use('/api/contact', contactRoutes);
   return app;

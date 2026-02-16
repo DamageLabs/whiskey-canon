@@ -32,8 +32,8 @@ router.get(
       });
       res.json({ users: sanitizedUsers });
     } catch (error) {
-      console.error('Error fetching users:', error);
-      res.status(500).json({ error: 'Failed to fetch users' });
+      req.log.error({ err: error }, 'Error fetching users');
+      res.status(500).json({ error: 'Failed to fetch users', requestId: req.id });
     }
   }
 );
@@ -72,8 +72,8 @@ router.put(
         user: userWithoutPassword,
       });
     } catch (error) {
-      console.error('Error updating user role:', error);
-      res.status(500).json({ error: 'Failed to update user role' });
+      req.log.error({ err: error }, 'Error updating user role');
+      res.status(500).json({ error: 'Failed to update user role', requestId: req.id });
     }
   }
 );
@@ -140,8 +140,8 @@ router.put(
         user: userWithoutPassword,
       });
     } catch (error) {
-      console.error('Error updating user profile:', error);
-      res.status(500).json({ error: 'Failed to update user profile' });
+      req.log.error({ err: error }, 'Error updating user profile');
+      res.status(500).json({ error: 'Failed to update user profile', requestId: req.id });
     }
   }
 );
@@ -169,8 +169,8 @@ router.delete(
 
       res.json({ message: 'User deleted successfully' });
     } catch (error) {
-      console.error('Error deleting user:', error);
-      res.status(500).json({ error: 'Failed to delete user' });
+      req.log.error({ err: error }, 'Error deleting user');
+      res.status(500).json({ error: 'Failed to delete user', requestId: req.id });
     }
   }
 );
@@ -206,8 +206,8 @@ router.get(
         res.json({ whiskeys: data });
       }
     } catch (error) {
-      console.error('Error fetching whiskeys:', error);
-      res.status(500).json({ error: 'Failed to fetch whiskeys' });
+      req.log.error({ err: error }, 'Error fetching whiskeys');
+      res.status(500).json({ error: 'Failed to fetch whiskeys', requestId: req.id });
     }
   }
 );
@@ -242,8 +242,8 @@ router.post(
         },
       });
     } catch (error) {
-      console.error('Admin backup error:', error);
-      res.status(500).json({ error: 'Failed to create database backup' });
+      req.log.error({ err: error }, 'Admin backup failed');
+      res.status(500).json({ error: 'Failed to create database backup', requestId: req.id });
     }
   }
 );
@@ -277,8 +277,8 @@ router.get(
 
       res.json({ backups: files });
     } catch (error) {
-      console.error('Admin backup list error:', error);
-      res.status(500).json({ error: 'Failed to list backups' });
+      req.log.error({ err: error }, 'Admin backup list failed');
+      res.status(500).json({ error: 'Failed to list backups', requestId: req.id });
     }
   }
 );
@@ -313,8 +313,8 @@ router.get(
       res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
       res.sendFile(resolved);
     } catch (error) {
-      console.error('Admin backup download error:', error);
-      res.status(500).json({ error: 'Failed to download backup' });
+      req.log.error({ err: error }, 'Admin backup download failed');
+      res.status(500).json({ error: 'Failed to download backup', requestId: req.id });
     }
   }
 );
@@ -347,8 +347,8 @@ router.delete(
       fs.unlinkSync(filePath);
       res.json({ message: 'Backup deleted successfully' });
     } catch (error) {
-      console.error('Admin backup delete error:', error);
-      res.status(500).json({ error: 'Failed to delete backup' });
+      req.log.error({ err: error }, 'Admin backup delete failed');
+      res.status(500).json({ error: 'Failed to delete backup', requestId: req.id });
     }
   }
 );
@@ -457,8 +457,8 @@ router.post(
         throw innerError;
       }
     } catch (error) {
-      console.error('Admin backup restore error:', error);
-      res.status(500).json({ error: 'Failed to restore database from backup' });
+      req.log.error({ err: error }, 'Admin backup restore failed');
+      res.status(500).json({ error: 'Failed to restore database from backup', requestId: req.id });
     }
   }
 );
@@ -533,8 +533,8 @@ router.post(
         },
       });
     } catch (error) {
-      console.error('Admin backup import error:', error);
-      res.status(500).json({ error: 'Failed to import backup' });
+      req.log.error({ err: error }, 'Admin backup import failed');
+      res.status(500).json({ error: 'Failed to import backup', requestId: req.id });
     }
   }
 );

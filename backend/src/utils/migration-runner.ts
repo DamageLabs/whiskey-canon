@@ -1,4 +1,5 @@
 import { Database as DatabaseType } from 'better-sqlite3';
+import { logger } from './logger';
 
 export interface Migration {
   name: string;
@@ -40,7 +41,7 @@ export function runMigrations(db: DatabaseType, migrations: Migration[]): void {
         insert.run(migration.name);
       }
     })();
-    console.log(`Bootstrapped ${migrations.length} existing migrations`);
+    logger.info({ count: migrations.length }, 'Bootstrapped existing migrations');
     return;
   }
 
@@ -58,11 +59,11 @@ export function runMigrations(db: DatabaseType, migrations: Migration[]): void {
       db.prepare('INSERT INTO migrations (name) VALUES (?)').run(migration.name);
     })();
 
-    console.log(`Applied migration: ${migration.name}`);
+    logger.info({ migration: migration.name }, 'Applied migration');
     count++;
   }
 
   if (count > 0) {
-    console.log(`Applied ${count} migration(s)`);
+    logger.info({ count }, 'Migrations applied');
   }
 }

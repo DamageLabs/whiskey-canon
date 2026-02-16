@@ -1,5 +1,6 @@
 import { Resend } from 'resend';
 import { config } from './config';
+import { logger } from './logger';
 
 let resend: Resend | null = null;
 
@@ -52,13 +53,13 @@ export async function sendVerificationEmail(to: string, code: string): Promise<b
     });
 
     if (error) {
-      console.error('Failed to send verification email:', error);
+      logger.error({ err: error }, 'Failed to send verification email');
       return false;
     }
 
     return true;
   } catch (error) {
-    console.error('Error sending verification email:', error);
+    logger.error({ err: error }, 'Error sending verification email');
     return false;
   }
 }
@@ -107,13 +108,13 @@ export async function sendPasswordResetEmail(to: string, token: string): Promise
     });
 
     if (error) {
-      console.error('Failed to send password reset email:', error);
+      logger.error({ err: error }, 'Failed to send password reset email');
       return false;
     }
 
     return true;
   } catch (error) {
-    console.error('Error sending password reset email:', error);
+    logger.error({ err: error }, 'Error sending password reset email');
     return false;
   }
 }
@@ -125,10 +126,10 @@ export async function sendContactEmail(
   message: string
 ): Promise<boolean> {
   if (!config.resendApiKey) {
-    console.log('[Contact] RESEND_API_KEY not configured — logging contact form submission:');
-    console.log(`  From: ${name} <${email}>`);
-    console.log(`  Subject: ${subject}`);
-    console.log(`  Message: ${message}`);
+    logger.info(
+      { from: `${name} <${email}>`, subject },
+      'Contact form submission (email disabled)'
+    );
     return true;
   }
 
@@ -178,13 +179,13 @@ export async function sendContactEmail(
     });
 
     if (error) {
-      console.error('Failed to send contact email:', error);
+      logger.error({ err: error }, 'Failed to send contact email');
       return false;
     }
 
     return true;
   } catch (error) {
-    console.error('Error sending contact email:', error);
+    logger.error({ err: error }, 'Error sending contact email');
     return false;
   }
 }

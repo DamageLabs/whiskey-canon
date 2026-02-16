@@ -66,8 +66,8 @@ router.get(
         res.json({ whiskeys: data });
       }
     } catch (error) {
-      console.error('Error fetching whiskeys:', error);
-      res.status(500).json({ error: 'Failed to fetch whiskeys' });
+      req.log.error({ err: error }, 'Error fetching whiskeys');
+      res.status(500).json({ error: 'Failed to fetch whiskeys', requestId: req.id });
     }
   }
 );
@@ -107,8 +107,8 @@ router.get(
         res.json({ whiskeys: data });
       }
     } catch (error) {
-      console.error('Error searching whiskeys:', error);
-      res.status(500).json({ error: 'Failed to search whiskeys' });
+      req.log.error({ err: error }, 'Error searching whiskeys');
+      res.status(500).json({ error: 'Failed to search whiskeys', requestId: req.id });
     }
   }
 );
@@ -254,8 +254,8 @@ router.get(
 
       res.send(csv);
     } catch (error) {
-      console.error('Error exporting whiskeys to CSV:', error);
-      res.status(500).json({ error: 'Failed to export whiskeys' });
+      req.log.error({ err: error }, 'Error exporting whiskeys to CSV');
+      res.status(500).json({ error: 'Failed to export whiskeys', requestId: req.id });
     }
   }
 );
@@ -593,8 +593,8 @@ router.post(
         errors,
       });
     } catch (error: any) {
-      console.error('Error importing CSV:', error);
-      res.status(500).json({ error: 'Failed to import CSV file' });
+      req.log.error({ err: error }, 'Error importing CSV');
+      res.status(500).json({ error: 'Failed to import CSV file', requestId: req.id });
     }
   }
 );
@@ -615,8 +615,8 @@ router.get(
 
       res.json({ whiskey });
     } catch (error) {
-      console.error('Error fetching whiskey:', error);
-      res.status(500).json({ error: 'Failed to fetch whiskey' });
+      req.log.error({ err: error }, 'Error fetching whiskey');
+      res.status(500).json({ error: 'Failed to fetch whiskey', requestId: req.id });
     }
   }
 );
@@ -673,8 +673,8 @@ router.post(
         whiskey,
       });
     } catch (error) {
-      console.error('Error creating whiskey:', error);
-      res.status(500).json({ error: 'Failed to create whiskey' });
+      req.log.error({ err: error }, 'Error creating whiskey');
+      res.status(500).json({ error: 'Failed to create whiskey', requestId: req.id });
     }
   }
 );
@@ -702,7 +702,7 @@ router.put(
   (req: AuthRequest, res: Response) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      console.error('Validation errors:', errors.array());
+      req.log.warn({ errors: errors.array() }, 'Validation errors');
       res.status(400).json({ errors: errors.array() });
       return;
     }
@@ -714,7 +714,7 @@ router.put(
         whiskeyData.quantity = 1;
       }
 
-      console.log('Updating whiskey with data:', whiskeyData);
+      req.log.debug({ whiskeyData }, 'Updating whiskey');
       const whiskey = WhiskeyModel.update(
         parseInt(req.params.id as string),
         whiskeyData,
@@ -733,8 +733,8 @@ router.put(
         whiskey,
       });
     } catch (error) {
-      console.error('Error updating whiskey:', error);
-      res.status(500).json({ error: 'Failed to update whiskey' });
+      req.log.error({ err: error }, 'Error updating whiskey');
+      res.status(500).json({ error: 'Failed to update whiskey', requestId: req.id });
     }
   }
 );
@@ -762,8 +762,8 @@ router.delete(
         deleted,
       });
     } catch (error) {
-      console.error('Error deleting whiskeys:', error);
-      res.status(500).json({ error: 'Failed to delete whiskeys' });
+      req.log.error({ err: error }, 'Error deleting whiskeys');
+      res.status(500).json({ error: 'Failed to delete whiskeys', requestId: req.id });
     }
   }
 );
@@ -781,8 +781,8 @@ router.delete(
         deleted,
       });
     } catch (error) {
-      console.error('Error deleting all whiskeys:', error);
-      res.status(500).json({ error: 'Failed to delete all whiskeys' });
+      req.log.error({ err: error }, 'Error deleting all whiskeys');
+      res.status(500).json({ error: 'Failed to delete all whiskeys', requestId: req.id });
     }
   }
 );
@@ -805,8 +805,8 @@ router.delete(
 
       res.json({ message: 'Whiskey deleted successfully' });
     } catch (error) {
-      console.error('Error deleting whiskey:', error);
-      res.status(500).json({ error: 'Failed to delete whiskey' });
+      req.log.error({ err: error }, 'Error deleting whiskey');
+      res.status(500).json({ error: 'Failed to delete whiskey', requestId: req.id });
     }
   }
 );

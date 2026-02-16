@@ -1,4 +1,5 @@
 import sharp from 'sharp';
+import { logger } from '../utils/logger';
 
 // Anthropic's limit is 5MB base64. Base64 expands by 4/3, so raw must be under ~3.75MB.
 const MAX_IMAGE_BYTES = 3.5 * 1024 * 1024;
@@ -100,7 +101,10 @@ export function parseResponse(text: string): LookupResult | null {
     }
     return parsed as LookupResult;
   } catch (e) {
-    console.error('Failed to parse lookup response:', text.substring(0, 200), e);
+    logger.error(
+      { err: e, responsePreview: text.substring(0, 200) },
+      'Failed to parse lookup response'
+    );
     return null;
   }
 }

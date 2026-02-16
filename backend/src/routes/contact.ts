@@ -38,8 +38,10 @@ router.post(
       }
       res.json({ message: 'Message sent successfully' });
     } catch (error) {
-      console.error('Contact form error:', error);
-      res.status(500).json({ error: 'Failed to send message. Please try again later.' });
+      req.log.error({ err: error }, 'Contact form failed');
+      res
+        .status(500)
+        .json({ error: 'Failed to send message. Please try again later.', requestId: req.id });
     }
   }
 );

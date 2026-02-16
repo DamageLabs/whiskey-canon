@@ -361,8 +361,8 @@ router.get('/', requireAuth, (req: AuthRequest, res: Response) => {
 
     res.json({ statistics });
   } catch (error) {
-    console.error('Statistics error:', error);
-    res.status(500).json({ error: 'Failed to fetch statistics' });
+    req.log.error({ err: error }, 'Statistics failed');
+    res.status(500).json({ error: 'Failed to fetch statistics', requestId: req.id });
   }
 });
 

@@ -1,5 +1,6 @@
 import dotenv from 'dotenv';
 import path from 'path';
+import { logger } from './logger';
 
 dotenv.config();
 
@@ -47,15 +48,17 @@ export const config = {
 export function validateConfig(): void {
   const redacted = (val: string | null): string => (val ? '[set]' : '[not set]');
 
-  console.log('Configuration loaded:');
-  console.log(`  port: ${config.port}`);
-  console.log(`  nodeEnv: ${config.nodeEnv}`);
-  console.log(`  sessionSecret: ${redacted(config.sessionSecret)}`);
-  console.log(`  frontendUrl: ${config.frontendUrl}`);
-  console.log(`  databasePath: ${config.databasePath}`);
-  console.log(
-    `  resendApiKey: ${redacted(config.resendApiKey)}${config.resendApiKey ? '' : ' — email features disabled'}`
+  logger.info(
+    {
+      port: config.port,
+      nodeEnv: config.nodeEnv,
+      sessionSecret: redacted(config.sessionSecret),
+      frontendUrl: config.frontendUrl,
+      databasePath: config.databasePath,
+      resendApiKey: `${redacted(config.resendApiKey)}${config.resendApiKey ? '' : ' — email features disabled'}`,
+      resendFromEmail: config.resendFromEmail,
+      contactEmail: config.contactEmail,
+    },
+    'Configuration loaded'
   );
-  console.log(`  resendFromEmail: ${config.resendFromEmail}`);
-  console.log(`  contactEmail: ${config.contactEmail}`);
 }

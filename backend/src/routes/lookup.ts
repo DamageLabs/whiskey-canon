@@ -123,7 +123,7 @@ router.post(
       }
       return res.json({ found: true, data: result });
     } catch (error: any) {
-      console.error('Whiskey lookup error:', error);
+      req.log.error({ err: error }, 'Whiskey lookup failed');
       // Surface connection errors for Ollama clearly
       if (
         provider === 'ollama' &&
@@ -133,7 +133,7 @@ router.post(
           error: 'Cannot connect to Ollama. Make sure Ollama is running.',
         });
       }
-      return res.status(500).json({ error: 'Lookup failed. Please try again.' });
+      return res.status(500).json({ error: 'Lookup failed. Please try again.', requestId: req.id });
     }
   }
 );

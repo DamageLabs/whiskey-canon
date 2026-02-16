@@ -2,6 +2,7 @@ import Database, { Database as DatabaseType } from 'better-sqlite3';
 import { config } from './config';
 import { runMigrations } from './migration-runner';
 import { allMigrations } from '../migrations';
+import { logger } from './logger';
 
 const dbPath = config.databasePath;
 
@@ -12,7 +13,7 @@ db.pragma('foreign_keys = ON');
 
 export function initializeDatabase() {
   runMigrations(db, allMigrations);
-  console.log('Database initialized successfully');
+  logger.info('Database initialized successfully');
 }
 
 export function closeDatabase() {

@@ -268,7 +268,7 @@ describe('Backup Routes', () => {
 
       const response = await agent
         .put('/api/backups/schedule')
-        .send({ interval: 'hourly', format: 'json', retentionDays: 30 });
+        .send({ interval: 'every_minute', format: 'json', retentionDays: 30 });
 
       expect(response.status).toBe(400);
     });

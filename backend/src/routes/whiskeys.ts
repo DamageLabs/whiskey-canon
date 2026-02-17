@@ -611,10 +611,7 @@ router.post(
   validate,
   (req: AuthRequest, res: Response) => {
     try {
-      const result = WhiskeyModel.openBottle(
-        parseInt(req.params.id as string),
-        req.user!.id
-      );
+      const result = WhiskeyModel.openBottle(parseInt(req.params.id as string), req.user!.id);
 
       res.json({
         message: 'Bottle opened successfully',

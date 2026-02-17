@@ -1056,9 +1056,7 @@ Guntharp Bottle,bourbon,Test,0`;
       expect(response.body.sourceBottle.quantity).toBe(4);
       expect(response.body.openedBottle.quantity).toBe(1);
       expect(response.body.openedBottle.is_opened).toBeTruthy();
-      expect(response.body.openedBottle.date_opened).toBe(
-        new Date().toISOString().split('T')[0]
-      );
+      expect(response.body.openedBottle.date_opened).toBe(new Date().toISOString().split('T')[0]);
       expect(response.body.openedBottle.id).not.toBe(whiskey.id);
     });
 
@@ -1092,11 +1090,7 @@ Guntharp Bottle,bourbon,Test,0`;
     });
 
     it('enforces user isolation', async () => {
-      const { agent: agent1 } = await createAuthenticatedAgent(
-        app,
-        'user1',
-        'user1@test.com'
-      );
+      const { agent: agent1 } = await createAuthenticatedAgent(app, 'user1', 'user1@test.com');
       const user2 = await createTestUser('user2', 'user2@test.com', 'Wh1sk3yTest!!');
       const whiskey = createTestWhiskey(user2.id, { quantity: 5 });
 

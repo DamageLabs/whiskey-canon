@@ -191,10 +191,7 @@ export function WhiskeyDetailModal({
               whiskey.quantity != null &&
               whiskey.quantity > 1 &&
               !whiskey.is_opened && (
-                <button
-                  onClick={() => onOpenBottle(whiskey)}
-                  className="btn btn-outline-success"
-                >
+                <button onClick={() => onOpenBottle(whiskey)} className="btn btn-outline-success">
                   Open a Bottle
                 </button>
               )}

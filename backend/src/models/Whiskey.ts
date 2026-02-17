@@ -432,19 +432,15 @@ export class WhiskeyModel {
     return result.changes;
   }
 
-  static openBottle(
-    id: number,
-    userId: number
-  ): { openedBottle: Whiskey; sourceBottle: Whiskey } {
+  static openBottle(id: number, userId: number): { openedBottle: Whiskey; sourceBottle: Whiskey } {
     const whiskey = WhiskeyModel.findById(id, userId);
     if (!whiskey) {
       throw Object.assign(new Error('Whiskey not found'), { status: 404 });
     }
     if (!whiskey.quantity || whiskey.quantity < 2) {
-      throw Object.assign(
-        new Error('Cannot open a bottle: quantity must be greater than 1'),
-        { status: 400 }
-      );
+      throw Object.assign(new Error('Cannot open a bottle: quantity must be greater than 1'), {
+        status: 400,
+      });
     }
     if (whiskey.is_opened) {
       throw Object.assign(new Error('This entry is already opened'), {
@@ -456,15 +452,14 @@ export class WhiskeyModel {
 
     const openBottleTx = db.transaction(() => {
       // Decrement source row's quantity by 1
-      db.prepare('UPDATE whiskeys SET quantity = quantity - 1, updated_at = CURRENT_TIMESTAMP WHERE id = ? AND created_by = ?').run(
-        id,
-        userId
-      );
+      db.prepare(
+        'UPDATE whiskeys SET quantity = quantity - 1, updated_at = CURRENT_TIMESTAMP WHERE id = ? AND created_by = ?'
+      ).run(id, userId);
 
       // Get all columns from the source to copy
-      const columns = db
-        .prepare("SELECT name FROM pragma_table_info('whiskeys')")
-        .all() as { name: string }[];
+      const columns = db.prepare("SELECT name FROM pragma_table_info('whiskeys')").all() as {
+        name: string;
+      }[];
       const columnNames = columns
         .map((c) => c.name)
         .filter((name) => !['id', 'created_at', 'updated_at'].includes(name));
@@ -482,9 +477,7 @@ export class WhiskeyModel {
       ).run(today, id, userId);
 
       const sourceBottle = WhiskeyModel.findById(id, userId)!;
-      const openedId = db
-        .prepare('SELECT last_insert_rowid() as id')
-        .get() as { id: number };
+      const openedId = db.prepare('SELECT last_insert_rowid() as id').get() as { id: number };
       const openedBottle = WhiskeyModel.findById(openedId.id, userId)!;
 
       return { openedBottle, sourceBottle };

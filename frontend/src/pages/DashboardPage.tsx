@@ -15,7 +15,7 @@ import { WhiskeyStats } from '../components/WhiskeyStats';
 import { WhiskeyTable } from '../components/WhiskeyTable';
 import { useAuth } from '../context/AuthContext';
 import { whiskeyAPI } from '../services/api';
-import type { PaginationMeta, Whiskey } from '../types';
+import type { CollectionTotals, PaginationMeta, Whiskey } from '../types';
 
 export function DashboardPage() {
   const { user, logout, hasPermission } = useAuth();
@@ -38,6 +38,7 @@ export function DashboardPage() {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(25);
   const [pagination, setPagination] = useState<PaginationMeta | null>(null);
+  const [collectionTotals, setCollectionTotals] = useState<CollectionTotals | undefined>(undefined);
 
   // Apply filters to whiskeys
   const filteredWhiskeys = useMemo(() => {
@@ -58,6 +59,7 @@ export function DashboardPage() {
         });
         setWhiskeys(result.whiskeys);
         setPagination(result.pagination || null);
+        setCollectionTotals(result.collectionTotals);
       } catch (err: any) {
         setError(err.message);
       } finally {
@@ -95,6 +97,7 @@ export function DashboardPage() {
       });
       setWhiskeys(result.whiskeys);
       setPagination(result.pagination || null);
+      setCollectionTotals(result.collectionTotals);
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -481,7 +484,11 @@ export function DashboardPage() {
 
         {/* Statistics */}
         {!loading && filteredWhiskeys.length > 0 && !showEnhancedStats && (
-          <WhiskeyStats whiskeys={filteredWhiskeys} />
+          <WhiskeyStats
+            whiskeys={filteredWhiskeys}
+            collectionTotals={collectionTotals}
+            pagination={pagination}
+          />
         )}
         {!loading && filteredWhiskeys.length > 0 && showEnhancedStats && <EnhancedStats />}
 

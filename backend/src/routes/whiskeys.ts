@@ -54,6 +54,7 @@ router.get(
       };
 
       const { data, total } = WhiskeyModel.findAll(filters);
+      const collectionTotals = WhiskeyModel.getCollectionTotals(req.user!.id);
 
       if (limit) {
         const currentPage = page || 1;
@@ -61,9 +62,10 @@ router.get(
         res.json({
           whiskeys: data,
           pagination: { page: currentPage, limit, total, totalPages },
+          collectionTotals,
         });
       } else {
-        res.json({ whiskeys: data });
+        res.json({ whiskeys: data, collectionTotals });
       }
     } catch (error) {
       req.log.error({ err: error }, 'Error fetching whiskeys');
@@ -95,6 +97,7 @@ router.get(
         page,
         limit,
       });
+      const collectionTotals = WhiskeyModel.getCollectionTotals(req.user!.id);
 
       if (limit) {
         const currentPage = page || 1;
@@ -102,9 +105,10 @@ router.get(
         res.json({
           whiskeys: data,
           pagination: { page: currentPage, limit, total, totalPages },
+          collectionTotals,
         });
       } else {
-        res.json({ whiskeys: data });
+        res.json({ whiskeys: data, collectionTotals });
       }
     } catch (error) {
       req.log.error({ err: error }, 'Error searching whiskeys');

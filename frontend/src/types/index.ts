@@ -246,3 +246,9 @@ export interface PaginationMeta {
   total: number;
   totalPages: number;
 }
+
+export interface CollectionTotals {
+  totalMsrp: number;
+  totalSecondary: number;
+  totalCount: number;
+}

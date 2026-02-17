@@ -1,13 +1,17 @@
-import { Whiskey, WhiskeyType } from '../types';
+import { CollectionTotals, PaginationMeta, Whiskey, WhiskeyType } from '../types';
 import { formatCurrency } from '../utils/formatCurrency';
 
 interface WhiskeyStatsProps {
   whiskeys: Whiskey[];
+  collectionTotals?: CollectionTotals;
+  pagination?: PaginationMeta | null;
 }
 
-export function WhiskeyStats({ whiskeys }: WhiskeyStatsProps) {
+export function WhiskeyStats({ whiskeys, collectionTotals, pagination }: WhiskeyStatsProps) {
   // Calculate statistics
-  const totalCount = whiskeys.length;
+  const totalCount = pagination?.total ?? whiskeys.length;
+  const totalBottles =
+    collectionTotals?.totalCount || whiskeys.reduce((sum, w) => sum + (w.quantity || 1), 0);
 
   const typeCount = whiskeys.reduce(
     (acc, whiskey) => {
@@ -41,23 +45,26 @@ export function WhiskeyStats({ whiskeys }: WhiskeyStatsProps) {
         whiskeys.filter((w) => w.abv !== null && w.abv !== undefined).length
       : 0;
 
-  // Calculate total MSRP value (msrp * quantity, default quantity to 1)
-  const totalMSRPValue = whiskeys.reduce((sum, w) => {
-    if (w.msrp) {
-      const qty = w.quantity || 1;
-      return sum + w.msrp * qty;
-    }
-    return sum;
-  }, 0);
+  // Use collection-wide totals from the API when available, otherwise fall back to page calculation
+  const totalMSRPValue =
+    collectionTotals?.totalMsrp ??
+    whiskeys.reduce((sum, w) => {
+      if (w.msrp) {
+        const qty = w.quantity || 1;
+        return sum + w.msrp * qty;
+      }
+      return sum;
+    }, 0);
 
-  // Calculate total Secondary market value (secondary_price * quantity, default quantity to 1)
-  const totalSecondaryValue = whiskeys.reduce((sum, w) => {
-    if (w.secondary_price) {
-      const qty = w.quantity || 1;
-      return sum + w.secondary_price * qty;
-    }
-    return sum;
-  }, 0);
+  const totalSecondaryValue =
+    collectionTotals?.totalSecondary ??
+    whiskeys.reduce((sum, w) => {
+      if (w.secondary_price) {
+        const qty = w.quantity || 1;
+        return sum + w.secondary_price * qty;
+      }
+      return sum;
+    }, 0);
 
   return (
     <div className="row g-3 mb-4">
@@ -65,9 +72,21 @@ export function WhiskeyStats({ whiskeys }: WhiskeyStatsProps) {
       <div className="col-12 col-md-6 col-lg-4 col-xl-2">
         <div className="card h-100" style={{ borderColor: 'var(--amber-500)' }}>
           <div className="card-body text-center">
-            <h6 className="card-subtitle mb-2 text-muted">Total Whiskeys</h6>
+            <h6 className="card-subtitle mb-2 text-muted">Unique Whiskeys</h6>
             <h2 className="card-title display-4 mb-0" style={{ color: 'var(--amber-500)' }}>
               {totalCount}
+            </h2>
+          </div>
+        </div>
+      </div>
+
+      {/* Total Bottles Card */}
+      <div className="col-12 col-md-6 col-lg-4 col-xl-2">
+        <div className="card h-100" style={{ borderColor: 'var(--amber-700)' }}>
+          <div className="card-body text-center">
+            <h6 className="card-subtitle mb-2 text-muted">Total Bottles</h6>
+            <h2 className="card-title display-4 mb-0" style={{ color: 'var(--amber-700)' }}>
+              {totalBottles}
             </h2>
           </div>
         </div>

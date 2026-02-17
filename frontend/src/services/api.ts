@@ -1,6 +1,7 @@
 import type {
   BackupRecord,
   BackupSchedule,
+  CollectionTotals,
   CreateWhiskeyData,
   PaginationMeta,
   PublicProfile,
@@ -143,7 +144,11 @@ export const whiskeyAPI = {
     distillery?: string;
     page?: number;
     limit?: number;
-  }): Promise<{ whiskeys: Whiskey[]; pagination?: PaginationMeta }> => {
+  }): Promise<{
+    whiskeys: Whiskey[];
+    pagination?: PaginationMeta;
+    collectionTotals?: CollectionTotals;
+  }> => {
     const params = new URLSearchParams();
     if (filters?.type) params.append('type', filters.type);
     if (filters?.distillery) params.append('distillery', filters.distillery);
@@ -159,7 +164,11 @@ export const whiskeyAPI = {
   search: (
     query: string,
     pagination?: { page?: number; limit?: number }
-  ): Promise<{ whiskeys: Whiskey[]; pagination?: PaginationMeta }> => {
+  ): Promise<{
+    whiskeys: Whiskey[];
+    pagination?: PaginationMeta;
+    collectionTotals?: CollectionTotals;
+  }> => {
     const params = new URLSearchParams();
     params.append('q', query);
     if (pagination?.page) params.append('page', String(pagination.page));

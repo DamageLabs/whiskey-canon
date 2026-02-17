@@ -222,6 +222,24 @@ export class WhiskeyModel {
     return stmt.get(...params) as Whiskey | undefined;
   }
 
+  static getCollectionTotals(userId: number): {
+    totalMsrp: number;
+    totalSecondary: number;
+    totalCount: number;
+  } {
+    const result = db
+      .prepare(
+        `SELECT
+          COALESCE(SUM(msrp * COALESCE(quantity, 1)), 0) as totalMsrp,
+          COALESCE(SUM(secondary_price * COALESCE(quantity, 1)), 0) as totalSecondary,
+          COALESCE(SUM(COALESCE(quantity, 1)), 0) as totalCount
+        FROM whiskeys
+        WHERE created_by = ?`
+      )
+      .get(userId) as { totalMsrp: number; totalSecondary: number; totalCount: number };
+    return result;
+  }
+
   static findAll(filters?: {
     type?: WhiskeyType;
     distillery?: string;

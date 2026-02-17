@@ -603,6 +603,37 @@ router.post(
   }
 );
 
+// Open a bottle - split one bottle off from a multi-quantity entry
+router.post(
+  '/:id/open-bottle',
+  requirePermission(Permission.UPDATE_WHISKEY),
+  param('id').isInt({ min: 1 }).withMessage('Whiskey ID must be a positive integer'),
+  validate,
+  (req: AuthRequest, res: Response) => {
+    try {
+      const result = WhiskeyModel.openBottle(
+        parseInt(req.params.id as string),
+        req.user!.id
+      );
+
+      res.json({
+        message: 'Bottle opened successfully',
+        openedBottle: result.openedBottle,
+        sourceBottle: result.sourceBottle,
+      });
+    } catch (error: any) {
+      if (error.status === 404) {
+        return res.status(404).json({ error: error.message });
+      }
+      if (error.status === 400) {
+        return res.status(400).json({ error: error.message });
+      }
+      req.log.error({ err: error }, 'Error opening bottle');
+      res.status(500).json({ error: 'Failed to open bottle', requestId: req.id });
+    }
+  }
+);
+
 // Get single whiskey - only if it belongs to the user
 router.get(
   '/:id',

@@ -1039,6 +1039,111 @@ Guntharp Bottle,bourbon,Test,0`;
     });
   });
 
+  describe('POST /api/whiskeys/:id/open-bottle', () => {
+    it('returns 401 for unauthenticated requests', async () => {
+      const response = await request(app).post('/api/whiskeys/1/open-bottle');
+      expect(response.status).toBe(401);
+    });
+
+    it('opens a bottle successfully', async () => {
+      const { agent, user } = await createAuthenticatedAgent(app);
+      const whiskey = createTestWhiskey(user.id, { quantity: 5 });
+
+      const response = await agent.post(`/api/whiskeys/${whiskey.id}/open-bottle`);
+
+      expect(response.status).toBe(200);
+      expect(response.body.message).toBe('Bottle opened successfully');
+      expect(response.body.sourceBottle.quantity).toBe(4);
+      expect(response.body.openedBottle.quantity).toBe(1);
+      expect(response.body.openedBottle.is_opened).toBeTruthy();
+      expect(response.body.openedBottle.date_opened).toBe(
+        new Date().toISOString().split('T')[0]
+      );
+      expect(response.body.openedBottle.id).not.toBe(whiskey.id);
+    });
+
+    it('returns 404 for non-existent whiskey', async () => {
+      const { agent } = await createAuthenticatedAgent(app);
+
+      const response = await agent.post('/api/whiskeys/99999/open-bottle');
+
+      expect(response.status).toBe(404);
+      expect(response.body.error).toBe('Whiskey not found');
+    });
+
+    it('returns 400 when quantity is 1', async () => {
+      const { agent, user } = await createAuthenticatedAgent(app);
+      const whiskey = createTestWhiskey(user.id, { quantity: 1 });
+
+      const response = await agent.post(`/api/whiskeys/${whiskey.id}/open-bottle`);
+
+      expect(response.status).toBe(400);
+      expect(response.body.error).toContain('quantity must be greater than 1');
+    });
+
+    it('returns 400 when already opened', async () => {
+      const { agent, user } = await createAuthenticatedAgent(app);
+      const whiskey = createTestWhiskey(user.id, { quantity: 3, is_opened: true });
+
+      const response = await agent.post(`/api/whiskeys/${whiskey.id}/open-bottle`);
+
+      expect(response.status).toBe(400);
+      expect(response.body.error).toContain('already opened');
+    });
+
+    it('enforces user isolation', async () => {
+      const { agent: agent1 } = await createAuthenticatedAgent(
+        app,
+        'user1',
+        'user1@test.com'
+      );
+      const user2 = await createTestUser('user2', 'user2@test.com', 'Wh1sk3yTest!!');
+      const whiskey = createTestWhiskey(user2.id, { quantity: 5 });
+
+      const response = await agent1.post(`/api/whiskeys/${whiskey.id}/open-bottle`);
+
+      expect(response.status).toBe(404);
+    });
+
+    it('returns 403 for viewer role', async () => {
+      const { agent } = await createAuthenticatedAgent(
+        app,
+        'viewer',
+        'viewer@test.com',
+        'Wh1sk3yTest!!',
+        Role.VIEWER
+      );
+
+      const response = await agent.post('/api/whiskeys/1/open-bottle');
+
+      expect(response.status).toBe(403);
+    });
+
+    it('returns 400 for invalid id param', async () => {
+      const { agent } = await createAuthenticatedAgent(app);
+
+      const response = await agent.post('/api/whiskeys/notanumber/open-bottle');
+
+      expect(response.status).toBe(400);
+    });
+
+    it('returns 500 when openBottle throws unexpected error', async () => {
+      const { agent, user } = await createAuthenticatedAgent(app);
+      const whiskey = createTestWhiskey(user.id, { quantity: 5 });
+
+      const spy = vi.spyOn(WhiskeyModel, 'openBottle').mockImplementation(() => {
+        throw new Error('Database error');
+      });
+
+      const response = await agent.post(`/api/whiskeys/${whiskey.id}/open-bottle`);
+
+      expect(response.status).toBe(500);
+      expect(response.body.error).toBe('Failed to open bottle');
+
+      spy.mockRestore();
+    });
+  });
+
   describe('DELETE /api/whiskeys/bulk', () => {
     it('returns 401 for unauthenticated requests', async () => {
       const response = await request(app)

@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.9.0] - 2026-02-17
+
+### Added
+
+- "Total Bottles" stats card showing sum of all quantities across the collection
+- `collectionTotals` field in `GET /api/whiskeys` and `GET /api/whiskeys/search` responses with collection-wide MSRP, secondary value, and bottle count
+- `getCollectionTotals()` method on `WhiskeyModel` for efficient aggregate queries
+
+### Changed
+
+- "Total Whiskeys" stats card renamed to "Unique Whiskeys" to distinguish from total bottle count
+- MSRP Value and Secondary Value stats cards now show collection-wide totals instead of only the current page
+
+### Fixed
+
+- Statistics endpoint financial queries now multiply by quantity for accurate totals (MSRP, secondary, purchase price, market value)
+
 ## [1.8.0] - 2026-02-16
 
 ### Added

@@ -97,9 +97,10 @@ A comprehensive whiskey collection management application built with TypeScript,
 
 ### 📈 Statistics Dashboard
 Real-time collection statistics including:
-- Total whiskey count
-- Total MSRP value
-- Total secondary market value
+- **Unique whiskeys** count (distinct entries)
+- **Total bottles** count (sum of all quantities)
+- **Total MSRP value** (collection-wide, quantity-adjusted)
+- **Total secondary market value** (collection-wide, quantity-adjusted)
 - Average rating (out of 10)
 - Average age (years)
 - Average ABV (%)
@@ -561,8 +562,10 @@ See **[DEPLOYMENT.md](./DEPLOYMENT.md)** for comprehensive deployment instructio
 
 ## 📝 Recent Updates
 
-### February 2026 - Pagination & AI-Powered Whiskey Lookup
+### February 2026 - Collection-Wide Stats, Pagination & AI-Powered Whiskey Lookup
 
+- **Collection-wide stats** — MSRP Value and Secondary Value cards now show totals across the entire collection, not just the current page, with quantity-adjusted calculations
+- **Unique Whiskeys vs Total Bottles** — new "Total Bottles" card (sum of quantities) alongside renamed "Unique Whiskeys" card (distinct entries)
 - **Server-side pagination** — paginate whiskey lists with configurable page sizes and full navigation controls ([#59](https://github.com/DamageLabs/whiskey-canon/issues/59))
 - **AI label scanning & text lookup** — snap a photo of a bottle label or type a name to auto-fill all 57 fields ([#100](https://github.com/DamageLabs/whiskey-canon/issues/100))
 - **Multi-provider support** — choose between Anthropic Claude, OpenAI, or Ollama (local) as your AI provider ([#126](https://github.com/DamageLabs/whiskey-canon/issues/126))
@@ -637,7 +640,7 @@ See **[DEPLOYMENT.md](./DEPLOYMENT.md)** for comprehensive deployment instructio
 
 ![Dashboard Table View](screenshots/01-dashboard-table-view.png)
 
-The main collection view displays your whiskeys in a sortable table with comprehensive statistics including total count, MSRP value, secondary market value, average rating, age, and ABV. View whiskey type breakdown with visual percentage bars.
+The main collection view displays your whiskeys in a sortable table with comprehensive statistics including unique whiskey count, total bottle count, collection-wide MSRP and secondary market values, average rating, age, and ABV. View whiskey type breakdown with visual percentage bars.
 
 ---
 

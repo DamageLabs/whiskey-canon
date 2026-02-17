@@ -148,6 +148,8 @@ export function createTestWhiskey(
     description?: string;
     obtained_from?: string;
     purchase_location?: string;
+    quantity?: number;
+    is_opened?: boolean;
   } = {}
 ): { id: number; name: string; type: WhiskeyType; distillery: string; created_by: number } {
   const data = {
@@ -161,11 +163,13 @@ export function createTestWhiskey(
     description: overrides.description || null,
     obtained_from: overrides.obtained_from || null,
     purchase_location: overrides.purchase_location || null,
+    quantity: overrides.quantity ?? null,
+    is_opened: overrides.is_opened !== undefined ? (overrides.is_opened ? 1 : 0) : 0,
   };
 
   const stmt = testDb.prepare(`
-    INSERT INTO whiskeys (name, type, distillery, region, age, abv, rating, description, obtained_from, purchase_location, created_by)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    INSERT INTO whiskeys (name, type, distillery, region, age, abv, rating, description, obtained_from, purchase_location, quantity, is_opened, created_by)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `);
 
   const result = stmt.run(
@@ -179,6 +183,8 @@ export function createTestWhiskey(
     data.description,
     data.obtained_from,
     data.purchase_location,
+    data.quantity,
+    data.is_opened,
     userId
   );
 

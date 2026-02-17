@@ -606,6 +606,84 @@ describe('WhiskeyModel', () => {
     });
   });
 
+  describe('openBottle', () => {
+    it('splits one bottle off and marks it as opened', () => {
+      const source = WhiskeyModel.create(
+        createWhiskeyData(user1.id, {
+          quantity: 5,
+          is_opened: false,
+          msrp: 50,
+          region: 'Kentucky',
+        })
+      );
+
+      const { openedBottle, sourceBottle } = WhiskeyModel.openBottle(source.id, user1.id);
+
+      expect(sourceBottle.quantity).toBe(4);
+      expect(sourceBottle.is_opened).toBeFalsy();
+
+      expect(openedBottle.id).not.toBe(source.id);
+      expect(openedBottle.quantity).toBe(1);
+      expect(openedBottle.is_opened).toBeTruthy();
+      expect(openedBottle.date_opened).toBe(new Date().toISOString().split('T')[0]);
+      expect(openedBottle.name).toBe(source.name);
+      expect(openedBottle.distillery).toBe(source.distillery);
+      expect(openedBottle.msrp).toBe(50);
+      expect(openedBottle.region).toBe('Kentucky');
+      expect(openedBottle.created_by).toBe(user1.id);
+    });
+
+    it('throws 404 for non-existent whiskey', () => {
+      expect(() => WhiskeyModel.openBottle(99999, user1.id)).toThrow('Whiskey not found');
+    });
+
+    it('throws 400 when quantity is 1', () => {
+      const whiskey = WhiskeyModel.create(
+        createWhiskeyData(user1.id, { quantity: 1, is_opened: false })
+      );
+
+      expect(() => WhiskeyModel.openBottle(whiskey.id, user1.id)).toThrow(
+        'quantity must be greater than 1'
+      );
+    });
+
+    it('throws 400 when quantity is null/undefined', () => {
+      const whiskey = WhiskeyModel.create(createWhiskeyData(user1.id));
+
+      expect(() => WhiskeyModel.openBottle(whiskey.id, user1.id)).toThrow(
+        'quantity must be greater than 1'
+      );
+    });
+
+    it('throws 400 when already opened', () => {
+      const whiskey = WhiskeyModel.create(
+        createWhiskeyData(user1.id, { quantity: 3, is_opened: true })
+      );
+
+      expect(() => WhiskeyModel.openBottle(whiskey.id, user1.id)).toThrow('already opened');
+    });
+
+    it('enforces user isolation', () => {
+      const whiskey = WhiskeyModel.create(
+        createWhiskeyData(user1.id, { quantity: 3, is_opened: false })
+      );
+
+      expect(() => WhiskeyModel.openBottle(whiskey.id, user2.id)).toThrow('Whiskey not found');
+    });
+
+    it('works when quantity is exactly 2', () => {
+      const source = WhiskeyModel.create(
+        createWhiskeyData(user1.id, { quantity: 2, is_opened: false })
+      );
+
+      const { openedBottle, sourceBottle } = WhiskeyModel.openBottle(source.id, user1.id);
+
+      expect(sourceBottle.quantity).toBe(1);
+      expect(openedBottle.quantity).toBe(1);
+      expect(openedBottle.is_opened).toBeTruthy();
+    });
+  });
+
   describe('getPublicStats', () => {
     it('returns correct stats for user with whiskeys', () => {
       WhiskeyModel.create(

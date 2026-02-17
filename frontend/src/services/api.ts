@@ -196,6 +196,13 @@ export const whiskeyAPI = {
       method: 'DELETE',
     }),
 
+  openBottle: (
+    id: number
+  ): Promise<{ message: string; openedBottle: Whiskey; sourceBottle: Whiskey }> =>
+    fetchAPI(`/whiskeys/${id}/open-bottle`, {
+      method: 'POST',
+    }),
+
   deleteMany: (ids: number[]): Promise<{ message: string; deleted: number }> =>
     fetchAPI('/whiskeys/bulk', {
       method: 'DELETE',

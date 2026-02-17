@@ -467,7 +467,7 @@ export function WhiskeyForm({ whiskey, onClose, onSuccess }: WhiskeyFormProps) {
                         id="abv"
                         name="abv"
                         type="number"
-                        step="0.1"
+                        step="0.01"
                         min="0"
                         max="100"
                         className={`form-control${aiClass('abv')}`}
@@ -484,7 +484,7 @@ export function WhiskeyForm({ whiskey, onClose, onSuccess }: WhiskeyFormProps) {
                         id="proof"
                         name="proof"
                         type="number"
-                        step="0.1"
+                        step="0.01"
                         min="0"
                         className={`form-control${aiClass('proof')}`}
                         value={formData.proof || ''}

@@ -6,6 +6,7 @@ interface WhiskeyDetailModalProps {
   onClose: () => void;
   onEdit?: (whiskey: Whiskey) => void;
   onDelete?: (id: number) => void;
+  onOpenBottle?: (whiskey: Whiskey) => void;
 }
 
 export function WhiskeyDetailModal({
@@ -13,6 +14,7 @@ export function WhiskeyDetailModal({
   onClose,
   onEdit,
   onDelete,
+  onOpenBottle,
 }: WhiskeyDetailModalProps) {
   return (
     <div
@@ -185,6 +187,14 @@ export function WhiskeyDetailModal({
           </div>
 
           <div className="modal-footer">
+            {onOpenBottle &&
+              whiskey.quantity != null &&
+              whiskey.quantity > 1 &&
+              !whiskey.is_opened && (
+                <button onClick={() => onOpenBottle(whiskey)} className="btn btn-outline-success">
+                  Open a Bottle
+                </button>
+              )}
             {onEdit && (
               <button
                 onClick={() => onEdit(whiskey)}

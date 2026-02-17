@@ -13,7 +13,7 @@
     "dev:frontend": "npm run dev --workspace=frontend",
     "build": "npm run build --workspaces",
     "start": "npm start --workspace=backend",
-    "lint": "eslint 'backend/src/**/*.ts' 'frontend/src/**/*.{ts,tsx}'",
+    "lint": "eslint --max-warnings=-1 'backend/src/**/*.ts' 'frontend/src/**/*.{ts,tsx}'",
     "lint:fix": "eslint --fix 'backend/src/**/*.ts' 'frontend/src/**/*.{ts,tsx}'",
     "format": "prettier --check 'backend/src/**/*.ts' 'frontend/src/**/*.{ts,tsx}'",
     "format:fix": "prettier --write 'backend/src/**/*.ts' 'frontend/src/**/*.{ts,tsx}'"

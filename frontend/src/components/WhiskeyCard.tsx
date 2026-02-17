@@ -5,9 +5,10 @@ interface WhiskeyCardProps {
   whiskey: Whiskey;
   onEdit?: (whiskey: Whiskey) => void;
   onDelete?: (id: number) => void;
+  onOpenBottle?: (whiskey: Whiskey) => void;
 }
 
-export function WhiskeyCard({ whiskey, onEdit, onDelete }: WhiskeyCardProps) {
+export function WhiskeyCard({ whiskey, onEdit, onDelete, onOpenBottle }: WhiskeyCardProps) {
   return (
     <div className="card h-100 shadow-sm">
       <div
@@ -111,9 +112,20 @@ export function WhiskeyCard({ whiskey, onEdit, onDelete }: WhiskeyCardProps) {
         )}
       </div>
 
-      {(onEdit || onDelete) && (
+      {(onEdit || onDelete || onOpenBottle) && (
         <div className="card-footer bg-white border-top">
           <div className="d-grid gap-2 d-md-flex">
+            {onOpenBottle &&
+              whiskey.quantity != null &&
+              whiskey.quantity > 1 &&
+              !whiskey.is_opened && (
+                <button
+                  onClick={() => onOpenBottle(whiskey)}
+                  className="btn btn-sm btn-outline-success flex-fill"
+                >
+                  Open a Bottle
+                </button>
+              )}
             {onEdit && (
               <button
                 onClick={() => onEdit(whiskey)}

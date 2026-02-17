@@ -7,6 +7,7 @@ interface WhiskeyTableProps {
   onRowClick: (whiskey: Whiskey) => void;
   onEdit?: (whiskey: Whiskey) => void;
   onDelete?: (id: number) => void;
+  onOpenBottle?: (whiskey: Whiskey) => void;
   selectedIds?: Set<number>;
   onSelectionChange?: (ids: Set<number>) => void;
   selectionEnabled?: boolean;
@@ -32,6 +33,7 @@ export function WhiskeyTable({
   onRowClick,
   onEdit,
   onDelete,
+  onOpenBottle,
   selectedIds = new Set(),
   onSelectionChange,
   selectionEnabled = false,
@@ -193,7 +195,7 @@ export function WhiskeyTable({
             >
               Rating {renderSortIcon('rating')}
             </th>
-            {(onEdit || onDelete) && <th className="text-center">Actions</th>}
+            {(onEdit || onDelete || onOpenBottle) && <th className="text-center">Actions</th>}
           </tr>
         </thead>
         <tbody>
@@ -240,9 +242,21 @@ export function WhiskeyTable({
               <td>{formatCurrencyOrDash(whiskey.msrp)}</td>
               <td>{formatCurrencyOrDash(whiskey.secondary_price)}</td>
               <td>{whiskey.rating ? `${whiskey.rating.toFixed(2)}/10` : '-'}</td>
-              {(onEdit || onDelete) && (
+              {(onEdit || onDelete || onOpenBottle) && (
                 <td className="text-center" onClick={(e) => e.stopPropagation()}>
                   <div className="btn-group btn-group-sm" role="group">
+                    {onOpenBottle &&
+                      whiskey.quantity != null &&
+                      whiskey.quantity > 1 &&
+                      !whiskey.is_opened && (
+                        <button
+                          onClick={() => onOpenBottle(whiskey)}
+                          className="btn btn-outline-success"
+                          title="Open a Bottle"
+                        >
+                          Open
+                        </button>
+                      )}
                     {onEdit && (
                       <button
                         onClick={() => onEdit(whiskey)}

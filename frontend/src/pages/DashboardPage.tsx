@@ -170,6 +170,23 @@ export function DashboardPage() {
     }
   }
 
+  async function handleOpenBottle(whiskey: Whiskey) {
+    if (
+      !confirm(
+        `Open a bottle of ${whiskey.name}? This will split one bottle off (qty ${whiskey.quantity} → ${whiskey.quantity! - 1}) and mark it as opened.`
+      )
+    ) {
+      return;
+    }
+
+    try {
+      await whiskeyAPI.openBottle(whiskey.id);
+      loadWhiskeys(page);
+    } catch (err: any) {
+      setError(err.message);
+    }
+  }
+
   function handleEdit(whiskey: Whiskey) {
     setEditingWhiskey(whiskey);
     setShowForm(true);
@@ -531,6 +548,7 @@ export function DashboardPage() {
                   whiskey={whiskey}
                   onEdit={canUpdate ? handleEdit : undefined}
                   onDelete={canDelete ? handleDelete : undefined}
+                  onOpenBottle={canUpdate ? handleOpenBottle : undefined}
                 />
               </div>
             ))}
@@ -541,6 +559,7 @@ export function DashboardPage() {
             onRowClick={setSelectedWhiskey}
             onEdit={canUpdate ? handleEdit : undefined}
             onDelete={canDelete ? handleDelete : undefined}
+            onOpenBottle={canUpdate ? handleOpenBottle : undefined}
             selectedIds={selectedIds}
             onSelectionChange={setSelectedIds}
             selectionEnabled={canDelete}
@@ -688,6 +707,7 @@ export function DashboardPage() {
           onClose={() => setSelectedWhiskey(null)}
           onEdit={canUpdate ? handleEdit : undefined}
           onDelete={canDelete ? handleDelete : undefined}
+          onOpenBottle={canUpdate ? handleOpenBottle : undefined}
         />
       )}
 

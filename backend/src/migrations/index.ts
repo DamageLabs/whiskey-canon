@@ -17,6 +17,7 @@ import { migration as m015 } from './015_add_indexes';
 import { migration as m016 } from './016_add_anthropic_api_key';
 import { migration as m017 } from './017_add_openai_support';
 import { migration as m018 } from './018_add_created_at_index';
+import { migration as m019 } from './019_add_admin_backup_schedules';
 
 export const allMigrations: Migration[] = [
   m001,
@@ -37,4 +38,5 @@ export const allMigrations: Migration[] = [
   m016,
   m017,
   m018,
+  m019,
 ];

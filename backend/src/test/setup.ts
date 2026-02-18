@@ -14,6 +14,7 @@ runMigrations(testDb, allMigrations);
 
 // Clear tables before each test
 beforeEach(() => {
+  testDb.exec('DELETE FROM admin_backup_schedules');
   testDb.exec('DELETE FROM backups');
   testDb.exec('DELETE FROM backup_schedules');
   testDb.exec('DELETE FROM whiskey_comments');
@@ -21,7 +22,7 @@ beforeEach(() => {
   testDb.exec('DELETE FROM users');
   // Reset auto-increment counters
   testDb.exec(
-    "DELETE FROM sqlite_sequence WHERE name='users' OR name='whiskeys' OR name='whiskey_comments' OR name='backups' OR name='backup_schedules'"
+    "DELETE FROM sqlite_sequence WHERE name='users' OR name='whiskeys' OR name='whiskey_comments' OR name='backups' OR name='backup_schedules' OR name='admin_backup_schedules'"
   );
 });
 

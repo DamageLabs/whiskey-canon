@@ -75,6 +75,14 @@ export function AdminPage() {
   const [creatingBackup, setCreatingBackup] = useState(false);
   const [importingBackup, setImportingBackup] = useState(false);
   const [restoringBackup, setRestoringBackup] = useState<string | null>(null);
+  const [adminSchedule, setAdminSchedule] = useState<{
+    interval: string;
+    retention_days: number;
+    last_run_at: string | null;
+    next_run_at: string | null;
+  }>({ interval: 'disabled', retention_days: 30, last_run_at: null, next_run_at: null });
+  const [savingSchedule, setSavingSchedule] = useState(false);
+  const [scheduleChanged, setScheduleChanged] = useState(false);
 
   useEffect(() => {
     if (user?.role !== 'admin') {
@@ -85,7 +93,7 @@ export function AdminPage() {
   }, [user, navigate]);
 
   async function loadData() {
-    await Promise.all([loadUsers(), loadWhiskeys(), loadAdminBackups()]);
+    await Promise.all([loadUsers(), loadWhiskeys(), loadAdminBackups(), loadAdminSchedule()]);
   }
 
   async function loadUsers() {
@@ -134,6 +142,49 @@ export function AdminPage() {
       }
     } catch {
       // Silent fail
+    }
+  }
+
+  async function loadAdminSchedule() {
+    try {
+      const response = await fetch('/api/admin/backups/schedule', { credentials: 'include' });
+      if (response.ok) {
+        const data = await response.json();
+        setAdminSchedule(data);
+        setScheduleChanged(false);
+      }
+    } catch {
+      // Silent fail
+    }
+  }
+
+  async function handleSaveAdminSchedule() {
+    setSavingSchedule(true);
+    setError('');
+    try {
+      const csrfHeaders = await getCsrfHeaders();
+      const response = await fetch('/api/admin/backups/schedule', {
+        method: 'PUT',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json', ...csrfHeaders },
+        body: JSON.stringify({
+          interval: adminSchedule.interval,
+          retentionDays: adminSchedule.retention_days,
+        }),
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || 'Failed to save schedule');
+      }
+
+      const data = await response.json();
+      setAdminSchedule(data);
+      setScheduleChanged(false);
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setSavingSchedule(false);
     }
   }
 
@@ -1061,6 +1112,89 @@ export function AdminPage() {
                     <p className="text-muted">
                       No backups yet. Create your first full database backup above.
                     </p>
+                  )}
+
+                  <hr className="my-4" />
+
+                  <h5 className="mb-3">
+                    <i className="bi bi-clock-history me-2"></i>
+                    Automatic Backups
+                  </h5>
+                  <p className="text-muted mb-3">
+                    Schedule automatic full database backups. Old backups are automatically pruned
+                    based on retention settings.
+                  </p>
+                  <div className="row g-3 align-items-end">
+                    <div className="col-auto">
+                      <label className="form-label small">Frequency</label>
+                      <select
+                        className="form-select form-select-sm"
+                        value={adminSchedule.interval}
+                        onChange={(e) => {
+                          setAdminSchedule({ ...adminSchedule, interval: e.target.value });
+                          setScheduleChanged(true);
+                        }}
+                      >
+                        <option value="disabled">Disabled</option>
+                        <option value="hourly">Hourly</option>
+                        <option value="daily">Daily</option>
+                        <option value="weekly">Weekly</option>
+                        <option value="monthly">Monthly</option>
+                      </select>
+                    </div>
+                    <div className="col-auto">
+                      <label className="form-label small">Keep for (days)</label>
+                      <input
+                        type="number"
+                        className="form-control form-control-sm"
+                        style={{ width: '80px' }}
+                        min={1}
+                        max={365}
+                        value={adminSchedule.retention_days}
+                        onChange={(e) => {
+                          setAdminSchedule({
+                            ...adminSchedule,
+                            retention_days: parseInt(e.target.value, 10) || 30,
+                          });
+                          setScheduleChanged(true);
+                        }}
+                      />
+                    </div>
+                    <div className="col-auto">
+                      <button
+                        className="btn btn-sm btn-primary"
+                        onClick={handleSaveAdminSchedule}
+                        disabled={savingSchedule || !scheduleChanged}
+                      >
+                        {savingSchedule ? 'Saving...' : 'Save Schedule'}
+                      </button>
+                    </div>
+                  </div>
+                  {adminSchedule.interval !== 'disabled' && (
+                    <div className="mt-2 small text-muted">
+                      {adminSchedule.last_run_at && (
+                        <span className="me-3">
+                          Last run:{' '}
+                          {new Date(adminSchedule.last_run_at).toLocaleString('en-US', {
+                            month: 'short',
+                            day: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                          })}
+                        </span>
+                      )}
+                      {adminSchedule.next_run_at && (
+                        <span>
+                          Next run:{' '}
+                          {new Date(adminSchedule.next_run_at).toLocaleString('en-US', {
+                            month: 'short',
+                            day: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                          })}
+                        </span>
+                      )}
+                    </div>
                   )}
                 </div>
               </div>

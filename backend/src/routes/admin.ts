@@ -7,6 +7,7 @@ import path from 'path';
 import { type AuthRequest, requireAuth } from '../middleware/auth';
 import { requirePermission } from '../middleware/rbac';
 import { validate } from '../middleware/validate';
+import { AdminBackupScheduleModel } from '../models/AdminBackupSchedule';
 import { UserModel } from '../models/User';
 import { WhiskeyModel } from '../models/Whiskey';
 import { Permission, Role } from '../types';
@@ -279,6 +280,57 @@ router.get(
     } catch (error) {
       req.log.error({ err: error }, 'Admin backup list failed');
       res.status(500).json({ error: 'Failed to list backups', requestId: req.id });
+    }
+  }
+);
+
+// Get admin backup schedule (admin only)
+router.get(
+  '/backups/schedule',
+  requirePermission(Permission.MANAGE_USERS),
+  (req: AuthRequest, res: Response) => {
+    try {
+      const schedule = AdminBackupScheduleModel.find();
+      res.json(
+        schedule || {
+          interval: 'disabled',
+          retention_days: 30,
+          last_run_at: null,
+          next_run_at: null,
+        }
+      );
+    } catch (error) {
+      req.log.error({ err: error }, 'Failed to fetch admin backup schedule');
+      res.status(500).json({ error: 'Failed to fetch backup schedule', requestId: req.id });
+    }
+  }
+);
+
+// Update admin backup schedule (admin only)
+router.put(
+  '/backups/schedule',
+  requirePermission(Permission.MANAGE_USERS),
+  [
+    body('interval')
+      .isIn(['disabled', 'hourly', 'daily', 'weekly', 'monthly'])
+      .withMessage('Invalid interval'),
+    body('retentionDays')
+      .isInt({ min: 1, max: 365 })
+      .withMessage('Retention days must be between 1 and 365'),
+  ],
+  (req: AuthRequest, res: Response) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    try {
+      const { interval, retentionDays } = req.body;
+      const schedule = AdminBackupScheduleModel.upsert(interval, retentionDays);
+      res.json(schedule);
+    } catch (error) {
+      req.log.error({ err: error }, 'Failed to update admin backup schedule');
+      res.status(500).json({ error: 'Failed to update backup schedule', requestId: req.id });
     }
   }
 );

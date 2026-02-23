@@ -23,7 +23,7 @@
     "db:update-remaining": "tsx src/utils/update-remaining-prices.ts"
   },
   "dependencies": {
-    "@anthropic-ai/sdk": "^0.74.0",
+    "@anthropic-ai/sdk": "^0.78.0",
     "@types/multer": "^2.0.0",
     "bcryptjs": "^3.0.3",
     "better-sqlite3": "^12.4.1",
@@ -52,7 +52,7 @@
     "@types/cors": "^2.8.17",
     "@types/express": "^5.0.6",
     "@types/express-session": "^1.17.10",
-    "@types/node": "^25.2.3",
+    "@types/node": "^25.3.0",
     "@types/node-cron": "^3.0.11",
     "@types/sharp": "^0.32.0",
     "@types/supertest": "^6.0.0",

@@ -484,7 +484,7 @@ See **[DEPLOYMENT.md](./DEPLOYMENT.md)** for comprehensive deployment instructio
 2. **Install dependencies** (Node.js via nvm, Git, SQLite3)
 3. **Clone and build** the application
 4. **Configure environment** variables
-5. **Run with PM2** for process management
+5. **Run with systemd** for process management
 6. **Setup Nginx** as reverse proxy
 7. **Enable SSL** with Let's Encrypt
 8. **Configure backups** and monitoring

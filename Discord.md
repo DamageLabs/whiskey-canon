@@ -303,18 +303,7 @@ All ~15 files under `bot/` as listed in the file structure above.
 
 ## Deployment
 
-Add to PM2 `ecosystem.config.js`:
-
-```javascript
-{
-  name: 'whiskey-canon-bot',
-  cwd: './bot',
-  script: 'dist/index.js',
-  instances: 1,
-  autorestart: true,
-  max_memory_restart: '256M'
-}
-```
+The bot runs as part of the whiskey-canon systemd service on the GCP VM. See `DEPLOYMENT.md` for details.
 
 ## Development Commands
 

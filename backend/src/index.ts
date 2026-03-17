@@ -112,7 +112,23 @@ app.use('/api/backups', backupRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', timestamp: new Date().toISOString() });
+  let dbStatus = 'ok';
+  try {
+    db.prepare('SELECT 1').get();
+  } catch {
+    dbStatus = 'error';
+  }
+
+  const status = dbStatus === 'ok' ? 'ok' : 'degraded';
+  res.status(status === 'ok' ? 200 : 503).json({
+    status,
+    service: 'whiskey-canon',
+    uptime: process.uptime(),
+    timestamp: new Date().toISOString(),
+    checks: {
+      database: dbStatus,
+    },
+  });
 });
 
 // Error handler

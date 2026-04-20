@@ -37,6 +37,28 @@ const COLORS = [
   '#FF6B9D',
 ];
 
+function coerceTooltipNumber(
+  value: number | string | ReadonlyArray<number | string> | undefined
+): number {
+  if (typeof value === 'number') return value;
+  if (typeof value === 'string') {
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : 0;
+  }
+  if (Array.isArray(value)) {
+    return coerceTooltipNumber(value[0]);
+  }
+  return 0;
+}
+
+const formatTooltipCurrency = (
+  value: number | string | ReadonlyArray<number | string> | undefined
+) => formatCurrency(coerceTooltipNumber(value));
+
+const formatTooltipPercent = (
+  value: number | string | ReadonlyArray<number | string> | undefined
+) => `${coerceTooltipNumber(value).toFixed(2)}%`;
+
 export default function AnalyticsDashboard() {
   const [statistics, setStatistics] = useState<Statistics | null>(null);
   const [loading, setLoading] = useState(true);
@@ -172,7 +194,7 @@ export default function AnalyticsDashboard() {
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="name" angle={-45} textAnchor="end" height={100} fontSize={10} />
                   <YAxis />
-                  <Tooltip formatter={(value?: number) => formatCurrency(value ?? 0)} />
+                  <Tooltip formatter={formatTooltipCurrency} />
                   <Legend />
                   <Bar dataKey="secondary_price" fill="#8884d8" name="Secondary Value" />
                 </BarChart>
@@ -234,7 +256,7 @@ export default function AnalyticsDashboard() {
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="name" angle={-45} textAnchor="end" height={100} fontSize={10} />
                   <YAxis label={{ value: 'ROI %', angle: -90, position: 'insideLeft' }} />
-                  <Tooltip formatter={(value?: number) => `${(value ?? 0).toFixed(2)}%`} />
+                  <Tooltip formatter={formatTooltipPercent} />
                   <Bar dataKey="roi_percentage" fill="#00C49F" name="ROI %" />
                 </BarChart>
               </ResponsiveContainer>
@@ -367,7 +389,7 @@ export default function AnalyticsDashboard() {
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="type" />
                   <YAxis />
-                  <Tooltip formatter={(value?: number) => formatCurrency(value ?? 0)} />
+                  <Tooltip formatter={formatTooltipCurrency} />
                   <Legend />
                   <Bar dataKey="total_value" fill="#8884d8" name="Total Value" />
                 </BarChart>

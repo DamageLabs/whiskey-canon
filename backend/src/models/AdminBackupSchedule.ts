@@ -37,7 +37,9 @@ export class AdminBackupScheduleModel {
   }
 
   static findActive(): AdminBackupScheduleRecord | undefined {
-    const stmt = db.prepare("SELECT * FROM admin_backup_schedules WHERE interval != 'disabled' LIMIT 1");
+    const stmt = db.prepare(
+      "SELECT * FROM admin_backup_schedules WHERE interval != 'disabled' LIMIT 1"
+    );
     return stmt.get() as AdminBackupScheduleRecord | undefined;
   }
 

@@ -18,20 +18,20 @@ beforeEach(async () => {
 describe('csrf utilities', () => {
   describe('fetchCsrfToken', () => {
     it('fetches token from the server and returns it', async () => {
-      global.fetch = vi.fn().mockResolvedValue({
+      globalThis.fetch = vi.fn().mockResolvedValue({
         json: () => Promise.resolve({ token: 'abc123' }),
       });
 
       const token = await fetchCsrfToken();
 
       expect(token).toBe('abc123');
-      expect(global.fetch).toHaveBeenCalledWith('/api/auth/csrf-token', {
+      expect(globalThis.fetch).toHaveBeenCalledWith('/api/auth/csrf-token', {
         credentials: 'include',
       });
     });
 
     it('overwrites previously cached token on subsequent calls', async () => {
-      global.fetch = vi
+      globalThis.fetch = vi
         .fn()
         .mockResolvedValueOnce({ json: () => Promise.resolve({ token: 'first' }) })
         .mockResolvedValueOnce({ json: () => Promise.resolve({ token: 'second' }) });
@@ -46,18 +46,18 @@ describe('csrf utilities', () => {
 
   describe('ensureCsrfToken', () => {
     it('fetches token on first call', async () => {
-      global.fetch = vi.fn().mockResolvedValue({
+      globalThis.fetch = vi.fn().mockResolvedValue({
         json: () => Promise.resolve({ token: 'cached-token' }),
       });
 
       const token = await ensureCsrfToken();
 
       expect(token).toBe('cached-token');
-      expect(global.fetch).toHaveBeenCalledTimes(1);
+      expect(globalThis.fetch).toHaveBeenCalledTimes(1);
     });
 
     it('returns cached token on subsequent calls without refetching', async () => {
-      global.fetch = vi.fn().mockResolvedValue({
+      globalThis.fetch = vi.fn().mockResolvedValue({
         json: () => Promise.resolve({ token: 'cached-token' }),
       });
 
@@ -65,13 +65,13 @@ describe('csrf utilities', () => {
       const token = await ensureCsrfToken();
 
       expect(token).toBe('cached-token');
-      expect(global.fetch).toHaveBeenCalledTimes(1);
+      expect(globalThis.fetch).toHaveBeenCalledTimes(1);
     });
   });
 
   describe('getCsrfHeaders', () => {
     it('returns headers object with x-csrf-token key', async () => {
-      global.fetch = vi.fn().mockResolvedValue({
+      globalThis.fetch = vi.fn().mockResolvedValue({
         json: () => Promise.resolve({ token: 'header-token' }),
       });
 
@@ -81,7 +81,7 @@ describe('csrf utilities', () => {
     });
 
     it('uses cached token from prior ensureCsrfToken call', async () => {
-      global.fetch = vi.fn().mockResolvedValue({
+      globalThis.fetch = vi.fn().mockResolvedValue({
         json: () => Promise.resolve({ token: 'shared-token' }),
       });
 
@@ -89,7 +89,7 @@ describe('csrf utilities', () => {
       const headers = await getCsrfHeaders();
 
       expect(headers).toEqual({ 'x-csrf-token': 'shared-token' });
-      expect(global.fetch).toHaveBeenCalledTimes(1);
+      expect(globalThis.fetch).toHaveBeenCalledTimes(1);
     });
   });
 });

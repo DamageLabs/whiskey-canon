@@ -44,7 +44,7 @@ const fillAndSubmitForm = () => {
 describe('ContactPage', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    global.fetch = vi.fn();
+    globalThis.fetch = vi.fn();
   });
 
   describe('Form rendering', () => {
@@ -62,7 +62,7 @@ describe('ContactPage', () => {
   describe('Submission', () => {
     it('shows loading spinner during submission', async () => {
       let resolveResponse!: (value: any) => void;
-      vi.mocked(global.fetch).mockImplementation(
+      vi.mocked(globalThis.fetch).mockImplementation(
         () =>
           new Promise((resolve) => {
             resolveResponse = resolve;
@@ -82,7 +82,7 @@ describe('ContactPage', () => {
     });
 
     it('shows success message after successful submit', async () => {
-      vi.mocked(global.fetch).mockResolvedValue(
+      vi.mocked(globalThis.fetch).mockResolvedValue(
         new Response(JSON.stringify({ message: 'Message sent successfully' }), { status: 200 })
       );
 
@@ -95,7 +95,7 @@ describe('ContactPage', () => {
     });
 
     it('shows error alert on failed submit', async () => {
-      vi.mocked(global.fetch).mockResolvedValue(
+      vi.mocked(globalThis.fetch).mockResolvedValue(
         new Response(JSON.stringify({ error: 'Server error' }), { status: 500 })
       );
 
@@ -111,7 +111,7 @@ describe('ContactPage', () => {
 
   describe('Post-submission', () => {
     it('"Send Another Message" button resets to form view', async () => {
-      vi.mocked(global.fetch).mockResolvedValue(
+      vi.mocked(globalThis.fetch).mockResolvedValue(
         new Response(JSON.stringify({ message: 'Message sent successfully' }), { status: 200 })
       );
 

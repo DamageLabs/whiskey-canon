@@ -42,7 +42,9 @@ export function pruneAdminBackups(retentionDays: number): void {
   if (!fs.existsSync(adminDir)) return;
 
   const cutoff = Date.now() - retentionDays * 24 * 60 * 60 * 1000;
-  const files = fs.readdirSync(adminDir).filter((f) => f.startsWith('full-backup-') && f.endsWith('.db'));
+  const files = fs
+    .readdirSync(adminDir)
+    .filter((f) => f.startsWith('full-backup-') && f.endsWith('.db'));
 
   for (const file of files) {
     const filePath = path.join(adminDir, file);

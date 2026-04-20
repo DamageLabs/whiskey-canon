@@ -37,7 +37,9 @@ const COLORS = [
   '#FF6B9D',
 ];
 
-function coerceTooltipNumber(value: number | string | ReadonlyArray<number | string> | undefined): number {
+function coerceTooltipNumber(
+  value: number | string | ReadonlyArray<number | string> | undefined
+): number {
   if (typeof value === 'number') return value;
   if (typeof value === 'string') {
     const parsed = Number(value);
@@ -49,11 +51,13 @@ function coerceTooltipNumber(value: number | string | ReadonlyArray<number | str
   return 0;
 }
 
-const formatTooltipCurrency = (value: number | string | ReadonlyArray<number | string> | undefined) =>
-  formatCurrency(coerceTooltipNumber(value));
+const formatTooltipCurrency = (
+  value: number | string | ReadonlyArray<number | string> | undefined
+) => formatCurrency(coerceTooltipNumber(value));
 
-const formatTooltipPercent = (value: number | string | ReadonlyArray<number | string> | undefined) =>
-  `${coerceTooltipNumber(value).toFixed(2)}%`;
+const formatTooltipPercent = (
+  value: number | string | ReadonlyArray<number | string> | undefined
+) => `${coerceTooltipNumber(value).toFixed(2)}%`;
 
 export default function AnalyticsDashboard() {
   const [statistics, setStatistics] = useState<Statistics | null>(null);
